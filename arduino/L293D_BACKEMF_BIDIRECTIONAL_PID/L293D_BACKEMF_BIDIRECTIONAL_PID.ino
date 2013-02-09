@@ -29,6 +29,13 @@
 #include <aJSON.h>
 
 
+
+//////////////////////////////////////////////////////////////////
+// Enable Debug mode
+//////////////////////////////////////////////////////////////////
+#define DEBUG
+
+
 //////////////////////////////////////////////////////////////////
 // Hardware pinout info
 //////////////////////////////////////////////////////////////////
@@ -43,12 +50,14 @@ const int bemfpin = 0; // Analog0 Pin connected to BEMF measurement point
 // Connect GND, VCC1 and VCC2 on the L293D
 // Motor connected to Y1 and Y4
 
+#ifdef DEBUG
 const int debugpin = 7; // This is connected to a scope to check the speed
                         // of the interrupt routine for BEMF measurement
-
+#endif
 //////////////////////////////////////////////////////////////////
 // Global constants and defines
 //////////////////////////////////////////////////////////////////
+
 
 // Define two set/clear macros to do PIN manipulation
 // way way faster than Arduino's digitalWrite.
@@ -68,16 +77,14 @@ const int debugpin = 7; // This is connected to a scope to check the speed
 
 #define MSG_ACK 98    // Sent to acknowlege a command
 #define MSG_ERROR 99  // Sent to tell command error
+#define MSG_JSON_SYNTAX 100 // JSON Syntax error
 
-// TODO: test whether this actually works:
+// ADC Prescaler values to force the ADC to a faster mode
+const unsigned char PS_16 = (1 << ADPS2);
+const unsigned char PS_32 = (1 << ADPS2) | (1 << ADPS0);
+const unsigned char PS_64 = (1 << ADPS2) | (1 << ADPS1);
+const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
-// Commands known by the controller, we put them in Flash, not RAM
-prog_char cmd1[] PROGMEM = "pid";
-prog_char cmd2[] PROGMEM = "get";
-prog_char cmd3[] PROGMEM = "speed";
-prog_char cmd4[] PROGMEM = "dir";
-
-PROGMEM const char* jsonFilter[] = { cmd1, cmd2, cmd3, cmd4 };
 
 
 //////////////////////////////////////////////////////////////////
@@ -97,7 +104,7 @@ int idx = 0;
 double measured_rpm = 0;
 
 aJsonStream serial_stream(&Serial);
-int last_print; // time when we last output a status message or response
+unsigned long last_print; // time when we last output a status message or response
 int next_message; // ID of next message to output
 
 
@@ -128,6 +135,9 @@ int sampleTime = 80; // Lower than 80 is longer than the loop, so the PID calcul
                      // will be wrong, don't go lower than this.
 
 
+// Default controller serial update rate
+int updateRate = 300;
+
 /**
  *   Input : The variable we're trying to control -> Measured speed of the train
  *   Output: The variable that will be adjusted by the pid -> pwm_rate
@@ -139,11 +149,14 @@ PID myPID(&measured_rpm, &pwm_rate, &target_rpm,Kp,Ki,Kd, DIRECT);
 /* Setup everything so that we can vary using keyboard */
 void setup() {
 
-   Serial.begin(9600);
+   Serial.begin(115200); // Let's not spend too much time writing stuff
+                        // on the serial line, so speed up a bit.
    pinMode(pin1a,OUTPUT);
    pinMode(pin4a,OUTPUT);
    
+#ifdef DEBUG
    pinMode(debugpin,OUTPUT);
+#endif
    
    Timer1.initialize(1e6/PWMFREQUENCY);
    // enable timer compare interrupt
@@ -155,13 +168,20 @@ void setup() {
    myPID.SetOutputLimits(0,MAX_PWM);
    myPID.SetMode(AUTOMATIC);
 
-   // Initialize the 
+   // Initialize the ADC to a faster speed:
+   // set up the ADC
+   ADCSRA &= ~PS_128;  // This is the default Arduino prescaler, clear it
+   ADCSRA |= PS_64;    // set our own prescaler to 64 (double speed)
 
 }
 
 /**
  * Read ADC when PWM signal is low in order to measure the
  * motor's back EMF.
+ *
+ * Note: spending too much time in the interrupts leads to lost
+ * characters on the serial input, therefore we need to make things
+ * as fast as possible here.
  *
  * COMPA is for Pin 9
  */
@@ -171,18 +191,20 @@ ISR(TIMER1_COMPA_vect){
   if (!bitRead(PINB,1))
   { // Only trigger when output goes low
       delayMicroseconds(1300); // Wait for the filter curve to be past us.
-      // TODO: check value
+#ifdef DEBUG
       setpin(PORTD,7);  // Just a debug signal for my scope to check
                         // how long it takes for the loop below to complete
+#endif
       // Now read our analog pin (average over several samples, it is very noisy):
       int bemf = analogRead(bemfpin);
-      for (int i=0; i<14;i++) {
+      for (int i=0; i<7;i++) {
          bemf += analogRead(bemfpin);
       }
-      ring_buffer[idx] = bemf/25; // No overflow to fear, analog read is 0-1023.
+      ring_buffer[idx] = bemf; // No overflow to fear, analog read is 0-1023.
       idx = (idx+1)%BUFFER_SIZE;
-      // TODO: check value
+#ifdef DEBUG
       clearpin(PORTD,7);
+#endif
     }
 }
 
@@ -195,16 +217,18 @@ ISR(TIMER1_COMPB_vect){
   if (!bitRead(PINB,2))
   { // Only trigger when output goes low
       delayMicroseconds(1300);
-      // TODO: check value
+#ifdef DEBUG
       setpin(PORTD,7);
+#endif
       int bemf = analogRead(bemfpin);
-      for (int i=0; i<14;i++) {
+      for (int i=0; i<7;i++) {
          bemf += analogRead(bemfpin);
       }
-      ring_buffer[idx] = bemf/25;
+      ring_buffer[idx] = bemf;
       idx = (idx+1)%BUFFER_SIZE;
-      // TODO: check value
+#ifdef DEBUG
       clearpin(PORTD,7);
+#endif
     }
 }
 
@@ -216,9 +240,12 @@ ISR(TIMER1_COMPB_vect){
  double moving_avg() {
   double avg =0;
   for (int i=0; i< BUFFER_SIZE; i++) {
-    avg += ring_buffer[i];
+    // Note: we took 8 samples, but skipped the averaging
+    // in the interrupt to win time, so we divide here:
+    avg += ring_buffer[i]/8;
   }
-  avg = avg/BUFFER_SIZE;
+  return avg/BUFFER_SIZE;
+  
 }
   
 
@@ -259,20 +286,30 @@ aJsonObject *createMessage()
       aJson.addNumberToObject(msg, "Kd", Kd);
       aJson.addNumberToObject(msg, "sampletime", sampleTime);
       break;
+    case MSG_ACK:
+      aJson.addTrueToObject(msg, "ack");
+      break;
+    case MSG_ERROR:
+      aJson.addFalseToObject(msg,"ack");
+      break;
+    case MSG_JSON_SYNTAX:
+      aJson.addStringToObject(msg,"error", "json");
+      break;
     default:
       aJson.addNumberToObject(msg, "bemf", measured_rpm);
       aJson.addNumberToObject(msg, "target", target_rpm);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
       break;
   }
-  
+ 
   next_message = MSG_NOP;
-
   return msg;
 }
 
 /**
  * Process an incoming JSON message.
+ * We don't have much memory on an AVR, so we keep the
+ * messages short:
  * Arguments are as follows:
  *     name  :  possible values
  *   ------------------------------
@@ -284,8 +321,11 @@ aJsonObject *createMessage()
  *             "f", "b", "s" (forward,backward,stop)
  *     pid   : set PID loop parameters
  *             all arguments must be present
- *             (numbers)
+ *             (Have to be floats with a decimal point except for sample)
  *             "kp", "ki", "kd", "sample"
+ *     set    : Set parameters
+ *              "updt" : update rate of output in ms
+ *
  *
  */
 void processMessage(aJsonObject *msg)
@@ -298,10 +338,15 @@ void processMessage(aJsonObject *msg)
   //       instance, don't set speed and direction in the
   //       same json packet.
 
+  // Reply with the message (debug)
+  aJson.print(msg, &serial_stream);
+  Serial.println();
+
+  next_message = MSG_ERROR; // Unless we decode something, we complain
+
   aJsonObject *jsptr = aJson.getObjectItem(msg, "speed");
   if (jsptr) {
     if (jsptr->type != aJson_Int) {
-      next_message = MSG_ERROR;
       return;
     }
     myPID.SetMode(MANUAL);
@@ -314,13 +359,13 @@ void processMessage(aJsonObject *msg)
     measured_rpm = moving_avg();
     target_rpm = measured_rpm;
     myPID.SetMode(AUTOMATIC); // Reset the PID to new RPM target
+    next_message = MSG_ACK;
     return;
   }
   
   jsptr = aJson.getObjectItem(msg, "dir");
   if (jsptr) {
     if (jsptr->type != aJson_String) {
-      next_message = MSG_ERROR;
       return;
     }
     
@@ -355,15 +400,12 @@ void processMessage(aJsonObject *msg)
       Timer1.pwm(bckpwm,pwm_rate);
       return;
     }
-    
-    // We did not see an argument we understood
-    next_message = MSG_ERROR;
+    // Did not understand the argument
     return;
   }
   
   jsptr = aJson.getObjectItem(msg, "pid");
   if (jsptr) {
-    next_message = MSG_ERROR;
     // We store in temp variables because
     // we only update the PID if we get _all_ values
     double newKp, newKi, newKd;
@@ -405,10 +447,23 @@ void processMessage(aJsonObject *msg)
     }
     return;
   }
+
+  jsptr = aJson.getObjectItem(msg, "set");
+  if (jsptr) {
+    aJsonObject* arg = aJson.getObjectItem(jsptr,"updt");
+    if (arg) {
+      if (arg->type != aJson_Int) return;
+      int updt = arg->valueint;
+      if (updt < 100) return; // Don't accept updates faster than this
+      updateRate = updt;
+      next_message = MSG_ACK;
+      return;
+    }
+  }
   
+  // We were not able to understand anything
+  // serial_stream.flush();
 }
-
-
 
 
 /**
@@ -417,34 +472,35 @@ void processMessage(aJsonObject *msg)
  */
 void loop() {
   
-  if (millis() - last_print > 300) {
+  if (millis() - last_print > updateRate) {
     aJsonObject *msg = createMessage();
     aJson.print(msg, &serial_stream);
-    Serial.println(); /* Add newline. */
+    Serial.println();
     aJson.deleteItem(msg);
     last_print = millis();
   }
-
  
  measured_rpm = moving_avg();
  myPID.Compute(); // Most important part!
  pwm(pwm_rate);
 
   if (serial_stream.available()) {
-    /* First, skip any accidental whitespace like newlines. */
-    serial_stream.skip();
-  }
-
-  if (serial_stream.available()) {
-    /* Something real on input, let's take a look. */
     // We use a filter to avoid crashing the controller if someone
     // tries to send bogus json data we don't understand and swamps our
     // very limited memory.
     // TODO: removed the filter, looking at the aJson code, filtering is not
     // actually implemented at all, unless I missed something ???
     aJsonObject *msg = aJson.parse(&serial_stream);
-    processMessage(msg);
-    aJson.deleteItem(msg);
+    if (!msg) {
+      // We were not able to decode this, let's
+      // simply flush the buffer and go on with our
+      // life
+      serial_stream.flush();
+      next_message = MSG_JSON_SYNTAX;
+    } else {
+      processMessage(msg);
+      aJson.deleteItem(msg);
+    }
   }
  
 }
@@ -455,7 +511,7 @@ void loop() {
 void change_speed(int new_speed, int stp) {
   if (new_speed < pwm_rate)
     stp = - stp;
-  while (abs((new_speed-pwm_rate)/stp)) {
+  while (abs(new_speed-pwm_rate) > abs(stp)) {
     pwm_rate += stp;
     pwm(pwm_rate);
     delay(15);
