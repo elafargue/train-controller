@@ -28,6 +28,7 @@
 #include <Print.h>
 #include <Stream.h>
 #include <Client.h>
+#include <Arduino.h>  // To get millis()
 
 /******************************************************************************
  * Definitions

@@ -78,8 +78,8 @@ aJsonStream::getch()
       bucket = EOF;
       return ret;
     }
-  int i=0;
-  while ((!stream()->available()) && (i++ < 30000)) /* spin with a timeout*/;
+  unsigned long i= millis()+1000;
+  while ((!stream()->available()) && (millis() < i)) /* spin with a timeout*/;
 //  while (!stream()->available());
   return stream()->read();
 }
