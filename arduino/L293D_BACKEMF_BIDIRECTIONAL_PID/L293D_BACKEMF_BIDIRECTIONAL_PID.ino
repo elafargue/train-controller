@@ -105,6 +105,9 @@ double measured_rpm = 0;
 
 aJsonStream serial_stream(&Serial);
 unsigned long last_print; // time when we last output a status message or response
+#ifdef DEBUG
+unsigned long fr_print;
+#endif
 int next_message; // ID of next message to output
 
 
@@ -149,8 +152,8 @@ PID myPID(&measured_rpm, &pwm_rate, &target_rpm,Kp,Ki,Kd, DIRECT);
 /* Setup everything so that we can vary using keyboard */
 void setup() {
 
-   Serial.begin(115200); // Let's not spend too much time writing stuff
-                        // on the serial line, so speed up a bit.
+   Serial.begin(9600); // Let's not go too fast, otherwise we'll lose
+                       // characters on long JSON input
    pinMode(pin1a,OUTPUT);
    pinMode(pin4a,OUTPUT);
    
@@ -267,6 +270,17 @@ void pwm(int val) {
   }
 }
 
+/**
+ * Nice utility to print free Ram
+ * http://www.controllerprojects.com/2011/05/23/determining-sram-usage-on-arduino/
+ * thanks!
+ */
+int freeRam () {
+  extern int __heap_start, *__brkval; 
+  int v; 
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+}
+
 
 /**
  * Controller output, in JSON.
@@ -281,10 +295,10 @@ aJsonObject *createMessage()
 
   switch(next_message) {
     case MSG_PID_VALUES:
-      aJson.addNumberToObject(msg, "Kp", Kp);
-      aJson.addNumberToObject(msg, "Ki", Ki);
-      aJson.addNumberToObject(msg, "Kd", Kd);
-      aJson.addNumberToObject(msg, "sampletime", sampleTime);
+      aJson.addNumberToObject(msg, "kp", Kp);
+      aJson.addNumberToObject(msg, "ki", Ki);
+      aJson.addNumberToObject(msg, "kd", Kd);
+      aJson.addNumberToObject(msg, "sample", sampleTime);
       break;
     case MSG_ACK:
       aJson.addTrueToObject(msg, "ack");
@@ -299,6 +313,12 @@ aJsonObject *createMessage()
       aJson.addNumberToObject(msg, "bemf", measured_rpm);
       aJson.addNumberToObject(msg, "target", target_rpm);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
+#ifdef DEBUG
+      if (millis() - fr_print > 1000) {
+        aJson.addNumberToObject(msg, "freeram", freeRam());
+        fr_print = millis();
+      }
+#endif
       break;
   }
  
@@ -326,7 +346,9 @@ aJsonObject *createMessage()
  *     set    : Set parameters
  *              "updt" : update rate of output in ms
  *
- *
+ *  Examples:
+ *    { "pid": {"kp":0.015, "ki":0.45, "kd":0.001, "sample":80}}
+ *    { "speed":50 }
  */
 void processMessage(aJsonObject *msg)
 {
@@ -350,12 +372,12 @@ void processMessage(aJsonObject *msg)
       return;
     }
     myPID.SetMode(MANUAL);
-    int new_speed = map(jsptr->valueint, 0, 100, 0, MAX_PWM);
+    int new_speed = map(constrain(jsptr->valueint,0,100), 0, 100, 0, MAX_PWM);
     change_speed(new_speed,8);
     // Let the train settle at the new speed
     // TODO: this should be long enough to make sure the
     // rolling average reflects the new speed
-    delay(500);
+    delay(1000);
     measured_rpm = moving_avg();
     target_rpm = measured_rpm;
     myPID.SetMode(AUTOMATIC); // Reset the PID to new RPM target
@@ -471,7 +493,7 @@ void processMessage(aJsonObject *msg)
  * and updates the PID loop.
  */
 void loop() {
-  
+    
   if (millis() - last_print > updateRate) {
     aJsonObject *msg = createMessage();
     aJson.print(msg, &serial_stream);
