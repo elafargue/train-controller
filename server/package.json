@@ -1,0 +1,16 @@
+{
+    "name": "train-controller",
+    "description": "A Z-Scale model train controller",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "express": "3.x",
+        "mongodb": "1.1.8",
+        "socket.io": "0.9.10",
+        "serialport": "1.0.x"
+    },
+    "engines": {
+        "node": "0.8.4",
+        "npm": "1.1.49"
+    }
+}
