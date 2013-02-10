@@ -46,7 +46,7 @@ var myPort = new SerialPort(portName, {
  * Setup the HTTP server and routes
  */
 var express = require("express"),
-    locos = require('./routes/locomotives.js'),
+    loco = require('./routes/locomotives.js'),
     controllers = require('./routes/controllers.js'),
     layouts = require('./routes/layouts.js');
 
@@ -66,14 +66,13 @@ var connected = false;
 /**
  * Interface for managing the locomotives
  */
-app.get('/locos', locos.findAll);
-app.get('/locos/:id', locos.findById);
+app.get('/locos', loco.findAll);
+app.get('/locos/:id', loco.findById);
+app.post('/locos', loco.addLoco);
+app.put('/locos/:id', loco.updateLoco);
+app.delete('/locos/:id', loco.deleteLoco);
 
-/**
-app.post('/locos', locos.addLoco);
-app.put('/locos/:id', locos.updateLoco);
-app.delete('/locos/:id', locos.deleteLoco);
-*/
+
  
 // Our static resources are in 'public'
 // GET /javascripts/jquery.js

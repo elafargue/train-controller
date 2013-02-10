@@ -42,7 +42,7 @@ window.LocoView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
-        this.saveWine();
+        this.saveLoco();
         return false;
     },
 
