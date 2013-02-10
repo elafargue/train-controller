@@ -1,5 +1,14 @@
 /**
- * REST API to manage locomotives
+ * REST API to manage locomotives.
+ *
+ * A locomotive contains:
+ * - Name
+ * - Reference
+ * - Picture
+ * - Notes
+ * - Running time
+ * - List of Response curves at various times (PWM vs BEMF)
+ *
  */
 
 exports.findAll = function(req,res) {

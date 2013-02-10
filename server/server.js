@@ -2,10 +2,17 @@
  * The Node.js backend server that communicates with the hardware and serves the
  * HTML web app.
  *
- * A this stage, not more than a simple wrapper to forward JSON-formatted serial
- * data to a web socket for
- * usage by a web app. This server also serves the HTML assets in order to make
- * it self-contained.
+ * This server does two things:
+ *
+ * Manages the persistence layer for the objects handled by the web app:
+ *    - Model train layouts
+ *       - Model train layouts also contain accessories
+ *    - Model train locomotives
+ *    - Model train controllers
+ *
+ * Handles call to the train controllers, either on an IP network, or on
+ * local serial ports in case a controller is connected to the same hardware
+ * as the server.
  *
  * (c) 2013 Edouard Lafargue
  *  License: GPLv3
@@ -15,6 +22,8 @@
 /**
  *   Setup the serial port
  */
+
+/*
 var serialport = require("serialport"),
     SerialPort  = serialport.SerialPort;
 var portName = process.argv[2];
@@ -31,11 +40,15 @@ var myPort = new SerialPort(portName, {
    parser: serialport.parsers.readline("\r\n")
 });
 
+*/
+
 /**
- * Setup the HTTP server
+ * Setup the HTTP server and routes
  */
 var express = require("express"),
-    locos = require('./routes/locomotives.js');
+    locos = require('./routes/locomotives.js'),
+    controllers = require('./routes/controllers.js'),
+    layouts = require('./routes/layouts.js');
 
 var app = express(),
     server = require('http').createServer(app),
