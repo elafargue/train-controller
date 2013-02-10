@@ -78,6 +78,15 @@ app.post('/locos', loco.addLoco);
 app.put('/locos/:id', loco.updateLoco);
 app.delete('/locos/:id', loco.deleteLoco);
 
+/**
+ * Interface for managing the layouts
+ */
+app.get('/layouts', layouts.findAll);
+app.get('/layouts/:id', layouts.findById);
+app.post('/layouts', layouts.addLayout);
+app.put('/layouts/:id', layouts.updateLayout);
+app.delete('/layouts/:id', layouts.deleteLayout);
+
 
  
 // Our static resources are in 'public'
@@ -97,7 +106,6 @@ io.sockets.on('connection', function (socket) {
 
         // if the client disconnects:
         socket.on('disconnect', function () {
-             myPort.write('x');
              console.log('user disconnected');
              connected = false;
         });

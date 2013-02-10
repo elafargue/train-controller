@@ -1,5 +1,5 @@
 /**
- * Where we are storing our database configuration
+ * Where we are storing our database configuration and schemas.
  */
 
 var mongoose = require( 'mongoose' );
@@ -21,7 +21,7 @@ ObjectId
 Array
  */
 
-var Loco = new Schema({
+var LocoSchema = new Schema({
         name: String,
         year: Date,
         reference: String,
@@ -29,16 +29,32 @@ var Loco = new Schema({
         picture: String
 });
  
-mongoose.model('Loco', Loco );
+mongoose.model('Loco', LocoSchema );
 
-var Layout = new Schema({
+/**
+ * We never manager controllers and accessories outside of
+ * layouts, so no need to define separate schemas for those.
+ *
+ * This schema supports multiple controllers.
+ */
+var LayoutSchema = new Schema({
         name: String,
-        controllerId: Schema.Types.ObjectId,
+        controllers: [{
+                name: String,
+                type: String,
+                port: String }],
+        accessories: [{
+                name: String,
+                loc : { x:Number, y:Number},
+                controllerIdx: Number,    /* Index in the controllers array above */
+                controllerAddress: Number
+        }],
         description: String,
         picture: String
 });
 
-mongoose.model('Layout', Layout);
+
+mongoose.model('Layout', LayoutSchema);
 
 
 mongoose.connect( 'mongodb://localhost/traindb' );

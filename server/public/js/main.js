@@ -10,16 +10,10 @@ var AppRouter = Backbone.Router.extend({
         "locos/page/:page"	: "listLocos",
         "locos/add"         : "addLoco",
         "locos/:id"         : "locoDetails",
-        /*
-        "controllers"       : "listControllers",
-        "controllers/page/:page" : "listControllers",
-        "controllers/add"   : "addController",
-        "controllers/:id"   : "controllerDetails",
         "layouts"           : "listLayouts",
         "layouts/page/:page": "listLayouts",
         "layouts/add"       : "addLayout",
         "layouts/:id"       : "layoutDetails",
-        */
         "settings"          : "settings",
         "about"             : "about"
     },
@@ -60,6 +54,29 @@ var AppRouter = Backbone.Router.extend({
         this.headerView.selectMenuItem('add-menu');
 	},
 
+	listLayouts: function(page) {
+        var p = page ? parseInt(page, 10) : 1;
+        var layoutList = new LayoutCollection();
+        layoutList.fetch({success: function(){
+            $("#content").html(new LayoutListView({model: layoutList, page: p}).el);
+        }});
+        this.headerView.selectMenuItem('home-menu');
+    },
+
+    layoutDetails: function (id) {
+        var layout = new Layout({_id: id});
+        layout.fetch({success: function(){
+            $("#content").html(new LayoutView({model: layout}).el);
+        }});
+        this.headerView.selectMenuItem();
+    },
+
+	addLayout: function() {
+        var layout = new Layout();
+        $('#content').html(new LayoutView({model: layout}).el);
+        this.headerView.selectMenuItem('add-menu');
+	},
+    
     about: function () {
         if (!this.aboutView) {
             this.aboutView = new AboutView();
@@ -70,7 +87,7 @@ var AppRouter = Backbone.Router.extend({
 
 });
 
-utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView'], function() {
+utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView'], function() {
     app = new AppRouter();
     Backbone.history.start();
 });

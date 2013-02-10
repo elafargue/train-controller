@@ -15,35 +15,32 @@ var Layout = mongoose.model('Layout');
 exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving layout: ' + id);
-    db.collection('layouts', function(err, collection) {
-        collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-            res.send(item);
-        });
+    Layout.findById(id, function(err,item) {
+        res.send(item);
     });
 };
 
 exports.findAll = function(req, res) {
-    db.collection('layouts', function(err, collection) {
-        collection.find().toArray(function(err, items) {
-            res.send(items);
-        });
+    Layout.find({}, function(err, items) {
+        // TODO: if we find no  item, then create an initial sample
+        // layout here.
+        res.send(items);
     });
 };
 
 exports.addLayout = function(req, res) {
     var layout = req.body;
-    console.log('Adding layout: ' + JSON.stringify(loco));
-    db.collection('layouts', function(err, collection) {
-        collection.insert(layout, {safe:true}, function(err, result) {
+    console.log('Adding layout: ' + JSON.stringify(layout));
+    new Layout(layout).save( function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred'});
             } else {
                 console.log('Success: ' + JSON.stringify(result[0]));
                 res.send(result[0]);
             }
-        });
     });
-}
+    
+};
 
 exports.updateLayout = function(req, res) {
     var id = req.params.id;
@@ -51,8 +48,7 @@ exports.updateLayout = function(req, res) {
     delete layout._id;
     console.log('Updating layout: ' + id);
     console.log(JSON.stringify(layout));
-    db.collection('layouts', function(err, collection) {
-        collection.update({'_id':new BSON.ObjectID(id)}, layout, {safe:true}, function(err, result) {
+    Layout.findByIdAndUpdate(id, layout, {safe:true}, function(err, result) {
             if (err) {
                 console.log('Error updating layout: ' + err);
                 res.send({'error':'An error has occurred'});
@@ -60,23 +56,20 @@ exports.updateLayout = function(req, res) {
                 console.log('' + result + ' document(s) updated');
                 res.send(layout);
             }
-        });
-    });
+    });    
 }
 
 exports.deleteLayout = function(req, res) {
     var id = req.params.id;
     console.log('Deleting layout: ' + id);
-    db.collection('layouts', function(err, collection) {
-        collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+    Layout.findByIdAndRemove(id, {safe:true}, function(err,result) {
             if (err) {
                 res.send({'error':'An error has occurred - ' + err});
             } else {
                 console.log('' + result + ' document(s) deleted');
                 res.send(req.body);
             }
-        });
-    });
+    });    
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
