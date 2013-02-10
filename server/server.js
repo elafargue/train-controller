@@ -43,9 +43,14 @@ var myPort = new SerialPort(portName, {
 */
 
 /**
+ * Setup Db connection before anything else
+ */
+require('./db.js');
+
+/**
  * Setup the HTTP server and routes
  */
-var express = require("express"),
+var express = require('express'),
     loco = require('./routes/locomotives.js'),
     controllers = require('./routes/controllers.js'),
     layouts = require('./routes/layouts.js');
@@ -56,6 +61,7 @@ var app = express(),
 
 app.configure(function () {
     app.use(express.logger('dev'));     /* 'default', 'short', 'tiny', 'dev' */
+    app.use(express.favicon()); // Test please
     app.use(express.bodyParser());
 });
 

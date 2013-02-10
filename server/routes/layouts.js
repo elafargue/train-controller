@@ -7,26 +7,10 @@
  *   - List of Accessories (turnouts, etc)
  */
 
-var mongo = require('mongodb');
 
-var Server = mongo.Server,
-    Db = mongo.Db,
-    BSON = mongo.BSONPure;
+var mongoose = require('mongoose');
+var Layout = mongoose.model('Layout');
 
-var server = new Server('localhost', 27017, {auto_reconnect: true});
-db = new Db('traindb', server, {safe: true});
-
-db.open(function(err, db) {
-    if(!err) {
-        console.log("Connected to 'traindb' database");
-        db.collection('layouts', {safe:true}, function(err, collection) {
-            if (err) {
-                console.log("The 'layouts' collection doesn't exist. Creating it with sample data...");
-                populateDB();
-            }
-        });
-    }
-});
 
 exports.findById = function(req, res) {
     var id = req.params.id;
