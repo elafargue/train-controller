@@ -32,7 +32,7 @@ exports.getSettings = function(req, res) {
 exports.updateSettings = function(req, res) {
     var settings = req.body;
     delete settings._id;
-    console.log('Updating settings: ' + id);
+    console.log('Updating settings.');
     console.log(JSON.stringify(settings));
     Settings.findOneAndUpdate({}, settings, {safe:true}, function(err, result) {
             if (err) {

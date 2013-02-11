@@ -34,6 +34,24 @@ window.LayoutListItemView = Backbone.View.extend({
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
+    },
+    
+    events: {
+        "click .select" : "selectLayout"
+    },
+    
+    selectLayout: function() {
+        console.log('Layout selected: ' + this.model.id);
+        var theID = this.model.id;
+        // TODO: this is very bad, there must be a better way...
+        settings = new Settings();
+        settings.fetch({success: function(){
+                // Now store the loco ID in our settings:
+                settings.set({currentLayout:theID});
+                settings.save();
+        }});
+        return true;
     }
+
 
 });

@@ -92,7 +92,7 @@ app.delete('/layouts/:id', layouts.deleteLayout);
  * Interface for our settings. Only get/put
  */
 app.get('/settings', settings.getSettings);
-app.put('/settings', settings.updateSettings);
+app.put('/settings/:id', settings.updateSettings);
 
  
 // Our static resources are in 'public'

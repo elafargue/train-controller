@@ -53,7 +53,7 @@ var AppRouter = Backbone.Router.extend({
         $('#content').html(new LocoView({model: loco}).el);
         this.headerView.selectMenuItem('add-menu');
 	},
-
+    
 	listLayouts: function(page) {
         var p = page ? parseInt(page, 10) : 1;
         var layoutList = new LayoutCollection();
@@ -86,10 +86,10 @@ var AppRouter = Backbone.Router.extend({
     },
 
     settings: function () {
-        if (!this.settingsView) {
-            this.settingsView = new SettingsView();
-        }
-        $('#content').html(this.settingsView.el);
+        var settings = new Settings();
+        settings.fetch({success: function(){
+            $("#content").html(new SettingsView({model: settings}).el);
+        }});
         this.headerView.selectMenuItem('settings-menu');
     }
 
