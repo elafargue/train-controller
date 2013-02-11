@@ -75,25 +75,3 @@ exports.deleteLoco = function(req, res) {
             }
     });    
 }
-
-/*--------------------------------------------------------------------------------------------------------------------*/
-// Populate database with default data -- Only used once: the first time the application is started.
-//
-    // TODO: finalise the fields for locos.
-    
-var populateDB = function() {
-
-    var locos = [
-    {
-        name: "Default Locomotive",
-        year: "2009",
-        reference: "Märklin 000000",
-        description: "You can add your notes on this locomotive here.",
-        picture: "generic.jpg"
-    }];
-
-    db.collection('locos', function(err, collection) {
-        collection.insert(locos, {safe:true}, function(err, result) {});
-    });
-
-};

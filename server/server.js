@@ -53,7 +53,8 @@ require('./db.js');
 var express = require('express'),
     loco = require('./routes/locomotives.js'),
     controllers = require('./routes/controllers.js'),
-    layouts = require('./routes/layouts.js');
+    layouts = require('./routes/layouts.js'),
+    settings = require('./routes/settings.js');
 
 var app = express(),
     server = require('http').createServer(app),
@@ -87,6 +88,11 @@ app.post('/layouts', layouts.addLayout);
 app.put('/layouts/:id', layouts.updateLayout);
 app.delete('/layouts/:id', layouts.deleteLayout);
 
+/**
+ * Interface for our settings. Only get/put
+ */
+app.get('/settings', settings.getSettings);
+app.put('/settings', settings.updateSettings);
 
  
 // Our static resources are in 'public'

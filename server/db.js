@@ -63,8 +63,8 @@ mongoose.model('Layout', LayoutSchema);
  * For now: ID of the current layout, and current loco
  */
 var ApplicationSettingsSchema = new Schema({
-    currentLayout: Schema.Types.ObjectId,
-    currentController: Schema.Types.ObjectId
+    currentLayout: {type: Schema.Types.ObjectId, ref:'Layout', default:null},
+    currentLoco: {type: Schema.Types.ObjectId, ref:'Loco', default:null}
 });
 
 mongoose.model('Settings',ApplicationSettingsSchema);
