@@ -1,4 +1,4 @@
-window.LayoutView = Backbone.View.extend({
+window.ControllerDetailsView = Backbone.View.extend({
 
     initialize: function () {
         this.render();
@@ -39,7 +39,6 @@ window.LayoutView = Backbone.View.extend({
 
     beforeSave: function () {
         var self = this;
-        console.log('before save');
         var check = this.model.validateAll();
         if (check.isValid === false) {
             utils.displayValidationErrors(check.messages);
@@ -51,6 +50,7 @@ window.LayoutView = Backbone.View.extend({
 
     saveLayout: function () {
         var self = this;
+        console.log('before save');
         this.model.save(null, {
             success: function (model) {
                 self.render();
@@ -75,13 +75,8 @@ window.LayoutView = Backbone.View.extend({
     
     addController: function() {
         // Add a new controller view in our form:
-        var newController = new Controller();
-        var newControllerDetailsView = new ControllerDetailsView({model: newController});
-        $('#controllers', this.el).append(newControllerDetailsView.render().el);
-//        app.navigate('layouts/' + this.model.id, false);
-        utils.showAlert('Success!', 'Controller created successfully', 'alert-success');
-        return false;
-
+        this.newController = new Controller();
+        this.$('controllers').append(this.newController.render().el);
     },
 
     dropHandler: function (event) {

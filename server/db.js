@@ -57,4 +57,17 @@ var LayoutSchema = new Schema({
 mongoose.model('Layout', LayoutSchema);
 
 
+/**
+ * Settings: global application settings.
+ *
+ * For now: ID of the current layout, and current loco
+ */
+var ApplicationSettingsSchema = new Schema({
+    currentLayout: Schema.Types.ObjectId,
+    currentController: Schema.Types.ObjectId
+});
+
+mongoose.model('Settings',ApplicationSettingsSchema);
+
+
 mongoose.connect( 'mongodb://localhost/traindb' );

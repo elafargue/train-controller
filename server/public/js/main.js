@@ -37,7 +37,7 @@ var AppRouter = Backbone.Router.extend({
         locoList.fetch({success: function(){
             $("#content").html(new LocoListView({model: locoList, page: p}).el);
         }});
-        this.headerView.selectMenuItem('home-menu');
+        this.headerView.selectMenuItem('loco-select');
     },
 
     locoDetails: function (id) {
@@ -60,7 +60,7 @@ var AppRouter = Backbone.Router.extend({
         layoutList.fetch({success: function(){
             $("#content").html(new LayoutListView({model: layoutList, page: p}).el);
         }});
-        this.headerView.selectMenuItem('home-menu');
+        this.headerView.selectMenuItem('layout-select');
     },
 
     layoutDetails: function (id) {
@@ -83,11 +83,21 @@ var AppRouter = Backbone.Router.extend({
         }
         $('#content').html(this.aboutView.el);
         this.headerView.selectMenuItem('about-menu');
+    },
+
+    settings: function () {
+        if (!this.settingsView) {
+            this.settingsView = new SettingsView();
+        }
+        $('#content').html(this.settingsView.el);
+        this.headerView.selectMenuItem('settings-menu');
     }
 
 });
 
-utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView'], function() {
+utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
+                    'ControllerDetailsView', 'SettingsView'
+                   ], function() {
     app = new AppRouter();
     Backbone.history.start();
 });
