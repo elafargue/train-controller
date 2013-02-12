@@ -45,7 +45,7 @@ var AppRouter = Backbone.Router.extend({
         locoList.fetch({success: function(){
             $("#content").html(new LocoListView({model: locoList, page: p}).el);
         }});
-        this.headerView.selectMenuItem('loco-select');
+        this.headerView.selectMenuItem('menu-loco');
     },
 
     locoDetails: function (id) {
@@ -56,7 +56,6 @@ var AppRouter = Backbone.Router.extend({
         this.headerView.selectMenuItem();
     },
 
-    // Note: not used right now...
 	addLoco: function() {
         var loco = new Loco();
         $('#content').html(new LocoView({model: loco}).el);
@@ -69,7 +68,7 @@ var AppRouter = Backbone.Router.extend({
         layoutList.fetch({success: function(){
             $("#content").html(new LayoutListView({model: layoutList, page: p}).el);
         }});
-        this.headerView.selectMenuItem('layout-select');
+        this.headerView.selectMenuItem('menu-layout');
     },
 
     layoutDetails: function (id) {
