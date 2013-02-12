@@ -32,7 +32,8 @@ window.LocoListItemView = Backbone.View.extend({
     },
 
     events: {
-        "click .select" : "selectLoco"
+        "click .select" : "selectLoco",
+        "click .edit": "editLoco"
     },
 
     
@@ -41,17 +42,25 @@ window.LocoListItemView = Backbone.View.extend({
         return this;
     },
     
+    editLoco: function(event) {
+        // We need this because otherwise the enclosing logo thumbnail
+        // will get the click, the loco will get selected and we'll end
+        // up redirected to the home page.
+        event.stopPropagation();
+    },
+    
     selectLoco: function() {
         console.log('Loco selected: ' + this.model.id);
         var theID = this.model.id;
         // TODO: this is very bad, there must be a better way...
-        settings = new Settings();
+        var settings = new Settings();
         settings.fetch({success: function(){
                 // Now store the loco ID in our settings:
                 settings.set({currentLoco:theID});
                 settings.save();
+                app.navigate('/', true);
         }});
-        return true;
+        return false;
     }
 
 });

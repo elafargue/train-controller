@@ -25,9 +25,17 @@ var AppRouter = Backbone.Router.extend({
 
     home: function (id) {
         if (!this.homeView) {
-            this.homeView = new HomeView();
+            var settings = new Settings();
+            settings.fetch({success: function(){
+                this.homeView = new HomeView({model: settings});
+                $('#content').html(this.homeView.el);
+                }
+                           });
+        } else {
+            // TODO: get the settings object to tell the home view
+            // about the currently selected layout & loco
+            $('#content').html(this.homeView.el);
         }
-        $('#content').html(this.homeView.el);
         this.headerView.selectMenuItem('home-menu');
     },
 
@@ -48,6 +56,7 @@ var AppRouter = Backbone.Router.extend({
         this.headerView.selectMenuItem();
     },
 
+    // Note: not used right now...
 	addLoco: function() {
         var loco = new Loco();
         $('#content').html(new LocoView({model: loco}).el);
@@ -96,7 +105,7 @@ var AppRouter = Backbone.Router.extend({
 });
 
 utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
-                    'ControllerDetailsView', 'SettingsView'
+                    'ControllerDetailsView', 'SettingsView', 'LayoutRunView'
                    ], function() {
     app = new AppRouter();
     Backbone.history.start();

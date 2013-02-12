@@ -11,6 +11,8 @@
 var mongoose = require('mongoose');
 var Layout = mongoose.model('Layout');
 
+var fs = require('fs');
+
 
 exports.findById = function(req, res) {
     var id = req.params.id;
@@ -72,23 +74,24 @@ exports.deleteLayout = function(req, res) {
     });    
 }
 
-/*--------------------------------------------------------------------------------------------------------------------*/
-// Populate database with default data -- Only used once: the first time the application is started.
-//
-    // TODO: finalise the fields for locos.
-    
-var populateDB = function() {
-
-    var layouts = [
-    {
-        name: "Default Layout",
-        controller: 0,
-        description: "You can add your notes on this layout here.",
-        picture: "generic.jpg"
-    }];
-
-    db.collection('layouts', function(err, collection) {
-        collection.insert(layouts, {safe:true}, function(err, result) {});
-    });
-
-};
+exports.uploadPic = function(req,res) {
+    var id= req.params.id;
+    if (req.files) {
+        console.log('Will save picture ' + JSON.stringify(req.files) + ' for Layout ID: ' + id);
+        // We use an 'upload' dir on our server to ensure we're on the same FS
+        var filenameExt = req.files.file.path.split(".").pop();
+        // Note: we reference the target filename relative to the path where the server
+        // was started:
+        fs.rename(req.files.file.path, './public/pics/layouts/' + id + '.' + filenameExt,
+                 function(err) {
+                    if (err) {
+                        fs.unlinkSync(req.files.file.path);
+                        console.log('Error saving file, deleted temporary upload');                        
+                    } else
+                        res.send(true);
+                 }
+        );
+    } else {
+        res.send(false);
+    }
+}

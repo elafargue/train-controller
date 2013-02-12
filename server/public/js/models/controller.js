@@ -1,13 +1,9 @@
 /**
  * Controllers are saved as a field inside layouts on the server
- * but we need to define a model here to managed them
+ * but we need to define a model here to manage them more easily
  */
 
 window.Controller = Backbone.Model.extend({
-
-    urlRoot: "/controllers",
-
-    idAttribute: "_id",
 
     initialize: function () {
         this.validators = {};
@@ -43,9 +39,11 @@ window.Controller = Backbone.Model.extend({
 
     defaults: {
         _id: null,
-        name: "",
-        description: "",
-        picture: null
+        name: "Default name",
+        type: "AVR",
+        port: "/dev/tty.usb1234",
+        pidparams: {kp: 0.1, ki: 0.0, kd: 0.0, sample: 100},
+        updaterate: 300
     }
 });
 

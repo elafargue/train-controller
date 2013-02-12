@@ -21,6 +21,14 @@ ObjectId
 Array
  */
 
+/**
+ * TO DO or possibilities:
+ * - Loco runtime
+ * - Loco response curves (bemf/power)
+ * - Historical notes, personal notes
+ * - Controller settings for the loco ?
+ * - 
+ */
 var LocoSchema = new Schema({
         name: String,
         year: Date,
@@ -32,7 +40,23 @@ var LocoSchema = new Schema({
 mongoose.model('Loco', LocoSchema );
 
 /**
- * We never manager controllers and accessories outside of
+ * Train controllers. Unfortunate naming convention since
+ * it has nothing to do with MVC Controllers, but here you go
+ */
+/**
+var ControllerSchema = new Schema({
+    name: String,
+    type: String,
+    port: String,
+    pidparams: {kp: Number, ki: Number, kd: Number, sample: Number}
+});
+
+// Compile the schema by issuing the below:
+mongoose.model('Controller', ControllerSchema);
+**/
+
+/**
+ * We never manage controllers and accessories outside of
  * layouts, so no need to define separate schemas for those.
  *
  * This schema supports multiple controllers.
@@ -40,9 +64,14 @@ mongoose.model('Loco', LocoSchema );
 var LayoutSchema = new Schema({
         name: String,
         controllers: [{
-                name: String,
-                type: String,
-                port: String }],
+            name: String,
+            type: String,
+            port: String,
+            pidparams: {kp: Number, ki: Number, kd: Number, sample: Number},
+            updaterate: Number
+            }
+            /*{type: Schema.Types.ObjectId, ref:'Controller', default:null} */
+                     ],
         accessories: [{
                 name: String,
                 loc : { x:Number, y:Number},

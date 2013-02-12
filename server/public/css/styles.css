@@ -58,6 +58,18 @@ h5 {
     margin-right: 20px !important;
 }
 
+/* I want to make thumbnails glow even if they are
+   just DIVs, not A's
+ */
+.thumbnail:hover,
+.thumbnail:focus {
+  border-color: #0088cc;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+     -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+          box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+}
+
+
 legend {
     font-family: 'Andika';
 }
@@ -122,4 +134,11 @@ legend {
 .well h3 {
     margin-top: 0px;
     margin-bottom: 0px;
+}
+
+/* Glow effect when we drag an image on a target */
+.hover {
+  -webkit-box-shadow: 0px 0px 20px rgba(0,136,204,0.8);
+  -moz-box-shadow: 0px 0px 20px rgba(0,136,204,0.8);
+  box-shadow: 0px 0px 20px rgba(0,136,204,0.8);
 }

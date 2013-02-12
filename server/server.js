@@ -63,7 +63,7 @@ var app = express(),
 app.configure(function () {
     app.use(express.logger('dev'));     /* 'default', 'short', 'tiny', 'dev' */
     app.use(express.favicon()); // Test please
-    app.use(express.bodyParser());
+    app.use(express.bodyParser({ keepExtensions: true, uploadDir: __dirname + "/public/pics/tmp" }));
 });
 
 server.listen(8000);
@@ -76,6 +76,7 @@ var connected = false;
 app.get('/locos', loco.findAll);
 app.get('/locos/:id', loco.findById);
 app.post('/locos', loco.addLoco);
+app.post('/locos/:id/picture', loco.uploadPic);
 app.put('/locos/:id', loco.updateLoco);
 app.delete('/locos/:id', loco.deleteLoco);
 
@@ -86,6 +87,7 @@ app.get('/layouts', layouts.findAll);
 app.get('/layouts/:id', layouts.findById);
 app.post('/layouts', layouts.addLayout);
 app.put('/layouts/:id', layouts.updateLayout);
+app.post('/layouts/:id/picture', layouts.uploadPic);
 app.delete('/layouts/:id', layouts.deleteLayout);
 
 /**

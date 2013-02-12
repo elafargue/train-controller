@@ -13,6 +13,8 @@ window.LocoView = Backbone.View.extend({
         "change"        : "change",
         "click .save"   : "beforeSave",
         "click .delete" : "deleteLoco",
+        "dragover #picture"     : "dragOver",
+        "dragleave #picture"     : "dragLeave",
         "drop #picture" : "dropHandler"
     },
 
@@ -42,7 +44,20 @@ window.LocoView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
-        this.saveLoco();
+       // Upload picture file if a new file was dropped in the drop area
+        if (this.pictureFile) {
+            utils.uploadFile("locos/" + this.model.id, this.pictureFile,
+                function () {
+                    // The server will rename the file to the ID of the loco,
+                    // so let's set the picture accordingly and keep the
+                    // filename extension:
+                    self.model.set("picture", self.model.id + '.' + self.pictureFile.name.split(".").pop());
+                    self.saveLoco();
+                }
+            );
+        } else {
+            this.saveLoco();
+        }
         return false;
     },
 
@@ -70,10 +85,23 @@ window.LocoView = Backbone.View.extend({
         });
         return false;
     },
+    
+    dragOver: function(event) {
+        console.log('Something gettting dragged in here');
+        $("#picture").addClass("hover");
+        return false;
+    },
+    
+    dragLeave: function(event) {
+        $("#picture").removeClass("hover");
+        return false;
+    },
 
     dropHandler: function (event) {
         event.stopPropagation();
         event.preventDefault();
+        $("#picture").removeClass("hover");
+        console.log('File dropped');
         var e = event.originalEvent;
         e.dataTransfer.dropEffect = 'copy';
         this.pictureFile = e.dataTransfer.files[0];

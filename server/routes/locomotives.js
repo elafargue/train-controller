@@ -14,6 +14,7 @@
 
 var mongoose = require('mongoose');
 var Loco = mongoose.model('Loco');
+var fs = require('fs');
 
 
 exports.findById = function(req, res) {
@@ -74,4 +75,27 @@ exports.deleteLoco = function(req, res) {
                 res.send(req.body);
             }
     });    
+}
+    
+exports.uploadPic = function(req,res) {
+    var id= req.params.id;
+    if (req.files) {
+        console.log('Will save picture ' + JSON.stringify(req.files) + ' for Loco ID: ' + id);
+        // We use an 'upload' dir on our server to ensure we're on the same FS
+        var filenameExt = req.files.file.path.split(".").pop();
+        console.log('Debug: ' + './public/pics/locos/' + id + '.' + filenameExt);
+        // Note: we reference the target filename relative to the path where the server
+        // was started:
+        fs.rename(req.files.file.path, './public/pics/locos/' + id + '.' + filenameExt,
+                 function(err) {
+                    if (err) {
+                        fs.unlinkSync(req.files.file.path);
+                        console.log('Error saving file, deleted temporary upload');                        
+                    } else
+                        res.send(true);
+                 }
+        );
+    } else {
+        res.send(false);
+    }
 }

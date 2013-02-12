@@ -6,6 +6,13 @@ window.LayoutView = Backbone.View.extend({
 
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
+        // TODO: get all existing controllers and add the
+        // relevant - and populated data into the view
+        var controllers = this.model.get('controllers');
+        console.log('We have ' + controllers.length + ' controllers for this layout');
+        for(var controller in controllers) {
+            console.log('This layout contains a controller: ' + controller.get('name'));
+        }
         return this;
     },
 
@@ -15,6 +22,8 @@ window.LayoutView = Backbone.View.extend({
         "click .delete" : "deleteLayout",
         "click .addctrl": "addController",
 //        "click .delctrl": "deleteController",
+        "dragover #picture"     : "dragOver",
+        "dragleave #picture"     : "dragLeave",
         "drop #picture" : "dropHandler"
     },
 
@@ -45,7 +54,20 @@ window.LayoutView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
-        this.saveLayout();
+               // Upload picture file if a new file was dropped in the drop area
+        if (this.pictureFile) {
+            utils.uploadFile("layouts/" + this.model.id, this.pictureFile,
+                function () {
+                    // The server will rename the file to the ID of the loco,
+                    // so let's set the picture accordingly and keep the
+                    // filename extension:
+                    self.model.set("picture", self.model.id + '.' + self.pictureFile.name.split(".").pop());
+                    self.saveLayout();
+                }
+            );
+        } else {
+            this.saveLayout();
+        }
         return false;
     },
 
@@ -78,11 +100,22 @@ window.LayoutView = Backbone.View.extend({
         var newController = new Controller();
         var newControllerDetailsView = new ControllerDetailsView({model: newController});
         $('#controllers', this.el).append(newControllerDetailsView.render().el);
-//        app.navigate('layouts/' + this.model.id, false);
         utils.showAlert('Success!', 'Controller created successfully', 'alert-success');
         return false;
 
     },
+    
+    dragOver: function(event) {
+        console.log('Something gettting dragged in here');
+        $("#picture").addClass("hover");
+        return false;
+    },
+    
+    dragLeave: function(event) {
+        $("#picture").removeClass("hover");
+        return false;
+    },
+
 
     dropHandler: function (event) {
         event.stopPropagation();
