@@ -39,7 +39,6 @@ window.Loco = Backbone.Model.extend({
     },
 
     defaults: {
-        _id: null,
         name: "",
         reference: "",
         year: "",
