@@ -19,7 +19,7 @@ window.LayoutView = Backbone.View.extend({
     },
     
     renderNextController: function(nextId, controllerIdList) {
-        self = this;
+        var self = this;
         //console.log('ID to render: ' + nextId);
         var newController = new Controller({_id: nextId});
         newController.fetch({success: function(){

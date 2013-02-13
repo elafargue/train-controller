@@ -15,7 +15,7 @@
                         <label for="name" class="control-label">Name:</label>
 
                         <div class="controls">
-                            <input type="text" id="name" name="name" value="<%= name %>"/>
+                            <input type="text" name="name" value="<%= name %>"/>
                             <span class="help-inline"></span>
                         </div>
                     </div>
@@ -31,8 +31,16 @@
                         
                     <div class="control-group">
                             <label class="control-label">Controllers:</label>
-                        <div class="controls" id="controllers">
-                                <a href="#" class="btn addctrl pull-left"><i class="icon-plus-sign"></i></a>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <ul class="thumbnails" id="controllers">
+                                    <li>    <div class="thumbnail">
+                                            <h5  style="text-align: center;">Add new...</h5>
+                                             <a href="#" class="btn addctrl btn-small"><i class="icon-plus-sign"></i></a>
+                                            </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 

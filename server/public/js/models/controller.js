@@ -42,7 +42,6 @@ window.Controller = Backbone.Model.extend({
     },
 
     defaults: {
-        _id: null,
         name: "Default name",
         type: "AVR",
         port: "/dev/tty.usb1234",

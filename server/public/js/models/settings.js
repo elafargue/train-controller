@@ -12,7 +12,6 @@ window.Settings = Backbone.Model.extend({
     },
 
     defaults: {
-        _id: null,
         currentLayout: null,
         currentLoco: null
     }

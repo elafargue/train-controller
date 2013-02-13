@@ -41,9 +41,8 @@ window.Layout = Backbone.Model.extend({
     },
 
     defaults: {
-        _id: null,
-        name: "",
-        description: "",
+        name: "Layout name",
+        description: "Enter your description here",
         picture: null,
         controllers: [],
         accessories: []
