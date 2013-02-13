@@ -18,7 +18,12 @@ window.HomeView = Backbone.View.extend({
         }
         return this;
     },
-                                       
+    
+    events: {
+        "change": "change"
+    },
+
+    // Hmmm....
     change: function(event) {
         console.log('Home view: settings changed');
         this.render();

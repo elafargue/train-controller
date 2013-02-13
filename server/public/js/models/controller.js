@@ -5,6 +5,10 @@
 
 window.Controller = Backbone.Model.extend({
 
+    urlRoot: "/controllers",
+
+    idAttribute: "_id",
+
     initialize: function () {
         this.validators = {};
 

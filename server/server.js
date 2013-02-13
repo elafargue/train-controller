@@ -53,6 +53,7 @@ require('./db.js');
 var express = require('express'),
     loco = require('./routes/locomotives.js'),
     controllers = require('./routes/controllers.js'),
+//    accessories = require('./routes/accessories.js'),
     layouts = require('./routes/layouts.js'),
     settings = require('./routes/settings.js');
 
@@ -91,7 +92,17 @@ app.post('/layouts/:id/picture', layouts.uploadPic);
 app.delete('/layouts/:id', layouts.deleteLayout);
 
 /**
- * Interface for our settings. Only get/put
+ * Interface for managing controllers
+ */
+app.get('/controllers', controllers.findAll);
+app.get('/controllers/:id', controllers.findById);
+app.post('/controllers', controllers.addController);
+app.put('/controllers/:id', controllers.updateController);
+app.delete('/controllers/:id', controllers.deleteController);
+
+/**
+ * Interface for our settings. Only one settings object,
+ * so no getting by ID here
  */
 app.get('/settings', settings.getSettings);
 app.put('/settings/:id', settings.updateSettings);

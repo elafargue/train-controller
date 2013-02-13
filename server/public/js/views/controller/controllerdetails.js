@@ -11,8 +11,7 @@ window.ControllerDetailsView = Backbone.View.extend({
 
     events: {
         "change"        : "change",
-        "click .save"   : "beforeSave",
-        "click .delete" : "deleteLayout",
+        "click .controller-save"   : "beforeSave",
 //        "click .delctrl": "deleteController",
     },
 
@@ -37,35 +36,41 @@ window.ControllerDetailsView = Backbone.View.extend({
 
     beforeSave: function () {
         var self = this;
+        console.log('Controller: before save for controller ' + this.model.id);
         var check = this.model.validateAll();
         if (check.isValid === false) {
             utils.displayValidationErrors(check.messages);
             return false;
         }
-        this.saveLayout();
+        this.saveController();
         return false;
     },
 
-    saveLayout: function () {
+    saveController: function () {
         var self = this;
-        console.log('before save');
+        // Upon save, we need to save the data into the layout
         this.model.save(null, {
             success: function (model) {
+                // Dismiss the modal (containts ID since we can have
+                // several controller views on the same page for different
+                // controllers:
+                $('#myModal-' + self.model.id).modal('hide');
+                // Trigger a render since the name might have changed
+                // (there should be a better way of doing this?)
                 self.render();
-                app.navigate('layouts/' + model.id, false);
-                utils.showAlert('Success!', 'Layout saved successfully', 'alert-success');
             },
             error: function () {
-                utils.showAlert('Error', 'An error occurred while trying to save (delete?) this item', 'alert-error');
+                console.log('Controller: error saving');
+                // utils.showAlert('Error', 'An error occurred while trying to save controller config', 'alert-error');
             }
         });
     },
 
-    deleteLayout: function () {
+    deleteController: function () {
         this.model.destroy({
             success: function () {
-                alert('Layout deleted successfully');
-                window.history.back();
+                alert('Controller deleted successfully');
+                //window.history.back();
             }
         });
         return false;

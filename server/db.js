@@ -8,26 +8,18 @@ var Schema   = mongoose.Schema;
 
 /**
  * Our data schema for the application is defined here
- *
-The permitted SchemaTypes are
-
-String
-Number
-Date
-Buffer
-Boolean
-Mixed
-ObjectId
-Array
  */
 
 /**
  * TO DO or possibilities:
  * - Loco runtime
- * - Loco response curves (bemf/power)
+ * - Loco response curves (bemf/power) over time.
+ *     -> In a separate document?
  * - Historical notes, personal notes
  * - Controller settings for the loco ?
- * - 
+ * - PDF documentation (one PDF or several ?)
+ * - Portfolio for the loco: several pictures & PDFs
+ *
  */
 var LocoSchema = new Schema({
         name: String,
@@ -37,13 +29,13 @@ var LocoSchema = new Schema({
         picture: String
 });
  
+// Compile the schema by issuing the below:
 mongoose.model('Loco', LocoSchema );
 
 /**
  * Train controllers. Unfortunate naming convention since
  * it has nothing to do with MVC Controllers, but here you go
  */
-/**
 var ControllerSchema = new Schema({
     name: String,
     type: String,
@@ -51,9 +43,21 @@ var ControllerSchema = new Schema({
     pidparams: {kp: Number, ki: Number, kd: Number, sample: Number}
 });
 
-// Compile the schema by issuing the below:
 mongoose.model('Controller', ControllerSchema);
-**/
+
+/**
+ * Accessories. Can be a point, or something else.
+ * accessories have an adress on a controller, and are located
+ * on layouts
+ */
+var AccessorySchema = new Schema({
+                name: String,
+                loc : { x:Number, y:Number},
+                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
+                controllerAddress: Number
+});
+
+mongoose.model('Accessory', AccessorySchema);
 
 /**
  * We never manage controllers and accessories outside of
@@ -63,21 +67,8 @@ mongoose.model('Controller', ControllerSchema);
  */
 var LayoutSchema = new Schema({
         name: String,
-        controllers: [{
-            name: String,
-            type: String,
-            port: String,
-            pidparams: {kp: Number, ki: Number, kd: Number, sample: Number},
-            updaterate: Number
-            }
-            /*{type: Schema.Types.ObjectId, ref:'Controller', default:null} */
-                     ],
-        accessories: [{
-                name: String,
-                loc : { x:Number, y:Number},
-                controllerIdx: Number,    /* Index in the controllers array above */
-                controllerAddress: Number
-        }],
+        controllers: [{type: Schema.Types.ObjectId, ref:'Controller', default:null}],
+        accessories: [{type: Schema.Types.ObjectId, ref:'Accessory', default:null}],
         description: String,
         picture: String
 });
