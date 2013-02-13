@@ -12,7 +12,7 @@ window.ControllerDetailsView = Backbone.View.extend({
     events: {
         "change"        : "change",
         "click .controller-save"   : "beforeSave",
-//        "click .delctrl": "deleteController",
+        "click .controller-delete": "deleteController",
     },
 
     change: function (event) {
@@ -32,6 +32,12 @@ window.ControllerDetailsView = Backbone.View.extend({
         } else {
             utils.removeValidationError(target.id);
         }
+        
+        // TODO: is this right ?
+        // This view is embedded into another view, so change events
+        // are going to bubble up to the upper view and change attributes
+        // with the same name, so we stop event propagation here:
+        event.stopPropagation();
     },
 
     beforeSave: function () {
@@ -55,9 +61,13 @@ window.ControllerDetailsView = Backbone.View.extend({
                 // several controller views on the same page for different
                 // controllers:
                 $('#myModal-' + self.model.id).modal('hide');
-                // Trigger a render since the name might have changed
-                // (there should be a better way of doing this?)
-                self.render();
+                // Wait until modal finishes hiding...
+                $('#myModal-' + self.model.id).on('hidden', function () {
+                    console.log('Hidden modal');
+                    // ... and trigger a render since the name might have changed
+                    // (there should be a better way of doing this?)
+                    self.render();                
+                });
             },
             error: function () {
                 console.log('Controller: error saving');
@@ -67,13 +77,17 @@ window.ControllerDetailsView = Backbone.View.extend({
     },
 
     deleteController: function () {
+        self = this;
+        console.log("Delete controller " + this.model.id);
         this.model.destroy({
             success: function () {
-                alert('Controller deleted successfully');
-                //window.history.back();
+                //alert('Controller deleted successfully');
+                self.remove();
+                //this.render();
+                return false;
             }
         });
         return false;
     },
-    
+        
 });

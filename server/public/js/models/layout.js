@@ -44,7 +44,9 @@ window.Layout = Backbone.Model.extend({
         _id: null,
         name: "",
         description: "",
-        picture: null
+        picture: null,
+        controllers: [],
+        accessories: []
     }
 });
 

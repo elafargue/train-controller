@@ -49,9 +49,11 @@ h5 {
     margin-bottom: 4px;
 }
 
-.thumbnail {
+
+.thumbnail-larger {
     min-width: 260px;
 }
+
 
 .thumbnails li {
     margin-left: 0px !important;

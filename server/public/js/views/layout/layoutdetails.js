@@ -6,14 +6,48 @@ window.LayoutView = Backbone.View.extend({
 
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
-        // TODO: get all existing controllers and add the
-        // relevant - and populated data into the view
-        var controllers = this.model.get('controllers');
-        console.log('We have ' + controllers.length + ' controllers for this layout');
-        for(var controller in controllers) {
-            console.log('This layout contains a controller: ' + controller.get('name'));
+        // Careful: controllers below is a reference to the model's controllers
+        // attribute, which means that if we modify it, we change the model's
+        // "controllers" attribute! We have to clone it:
+        var controllers = new Array().concat(this.model.get('controllers'));
+        if(controllers.length) {
+            console.log('We have ' + controllers.length + ' controllers for this layout');
+            // We are going to start a recursive creation of all controller views:
+            this.renderNextController(controllers.pop(), controllers);
         }
         return this;
+    },
+    
+    renderNextController: function(nextId, controllerIdList) {
+        self = this;
+        //console.log('ID to render: ' + nextId);
+        var newController = new Controller({_id: nextId});
+        newController.fetch({success: function(){
+                //console.log('Controller fetched. Remaining: ' + controllerIdList.length);        
+                var newControllerDetailsView = new ControllerDetailsView({model: newController});
+                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                if (controllerIdList.length) {
+                    self.renderNextController(controllerIdList.pop(), controllerIdList);
+                } else {
+                    // Ensure consistency
+                    self.model.save();
+                }
+        },
+                            error: function() {
+                                // Somehow the controller Id we got in the array was not
+                                // valid: remove it from our model, and move on to the next
+                                // one
+                                console.log('Deleting ghost layout');
+                                var controllers = self.model.get('controllers');
+                                controllers.splice(controllers.indexOf(nextId),1);
+                                // No need to set again, right ? Or does Backbone expect it to
+                                // know that there the controllers were changed?
+                                if(controllerIdList.length) {
+                                    self.renderNextController(controllerIdList.pop(), controllerIdList);
+                                } else {
+                                    self.model.save();
+                                }
+                            }});
     },
 
     events: {
@@ -54,7 +88,7 @@ window.LayoutView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
-               // Upload picture file if a new file was dropped in the drop area
+        // Upload picture file if a new file was dropped in the drop area
         if (this.pictureFile) {
             utils.uploadFile("layouts/" + this.model.id, this.pictureFile,
                 function () {
@@ -96,11 +130,30 @@ window.LayoutView = Backbone.View.extend({
     },
     
     addController: function() {
-        // Add a new controller view in our form:
+        self = this;
+        // Add a new controller to our layout:
+        // - 1: create an empty controller
+        // - 2: save it to server so we get an ID
+        // - 3: create the view and display it
         var newController = new Controller();
-        var newControllerDetailsView = new ControllerDetailsView({model: newController});
-        $('#controllers', this.el).append(newControllerDetailsView.render().el);
-        utils.showAlert('Success!', 'Controller created successfully', 'alert-success');
+        newController.save(null, {
+            success: function (newController) {
+                utils.showAlert('Success!', 'Controller added successfully.', 'alert-success');
+                console.log('So the controller looks like this: ' + newController.id);
+                self.model.get('controllers').push(newController.id);
+                // TODO: we should trigger a model save of the layout here, to be sure that
+                // the reference to the controller does not get lost, but then what if
+                // the layout model does not validate ?
+                var newControllerDetailsView = new ControllerDetailsView({model: newController});
+                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                // Ensure consistency
+                self.model.save();
+            },
+            error: function () {
+                console.log('Controller: error saving');
+                utils.showAlert('Error', 'An error occurred while trying to add a controller.', 'alert-error');
+            }
+        });
         return false;
 
     },
@@ -115,7 +168,6 @@ window.LayoutView = Backbone.View.extend({
         $("#picture").removeClass("hover");
         return false;
     },
-
 
     dropHandler: function (event) {
         event.stopPropagation();

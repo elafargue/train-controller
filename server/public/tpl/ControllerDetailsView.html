@@ -1,9 +1,17 @@
 <!-- Details about a controller, used inside a layout detailed view -->
-<!-- Button to trigger modal -->
-<a href="#myModal-<%=_id%>" role="button" class="btn pull-left" data-toggle="modal"><%=name%></a>
+<!-- There can be several of those inside layout detailed views, so we
+      add the controller's Id to any element that needs to have a unique id -->
+<!-- Thumbnail -->
+<li class="span3">
+    <div class="thumbnail">
+        <h5  style="text-align: center;">
+            <%=name%>
+        </h5>
+        <a href="#myModal-<%=_id%>" role="button" class="btn btn-small" data-toggle="modal"><i class="icon-edit"></i></a>
+        <a href="#" role="button" class="btn btn-small controller-delete"><i class="icon-remove-sign"></i></a>
 
 <!-- Modal -->
-<div id="myModal-<%=_id%>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
+            <div id="myModal-<%=_id%>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
     <h3 id="myModalLabel-<%=_id%>">Controller details</h3>
@@ -42,3 +50,6 @@
   </div>
     </form>
 </div>
+
+    </div><!-- thumbnail -->
+    </li>
