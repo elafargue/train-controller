@@ -43,6 +43,7 @@ window.Loco = Backbone.Model.extend({
         reference: "",
         year: "",
         description: "",
+        runtime: 0,
         picture: null
     }
 });

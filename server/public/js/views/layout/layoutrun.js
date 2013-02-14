@@ -10,9 +10,7 @@ window.LayoutRunView = Backbone.View.extend({
     },
 
     render: function () {
-        $(this.el).html(this.template(this.model.toJSON()));
-        // TODO: get all existing controllers and add the
-        // relevant - and populated data into the view
+        this.$el.html(this.template(this.model.toJSON()));
         return this;
     },
     
