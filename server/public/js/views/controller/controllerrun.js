@@ -6,6 +6,9 @@
 window.ControllerRunView = Backbone.View.extend({
 
     initialize: function () {
+        this.socket = this.options.socket;
+        this.socket.on('serialEvent', this.showInput);
+
         this.render();
         // Initialize the jQuery UI vertical slider for power:
         $(".power", this.el).slider({
@@ -34,7 +37,12 @@ window.ControllerRunView = Backbone.View.extend({
         } else if ($(event.target).hasClass('dir-stop')) {
             console.log("Stop train");
         }
-    }
+    },
+    
+    showInput: function(data) {
+        console.log('Controller run: ' + data);
+    },
+
     
     
 });
