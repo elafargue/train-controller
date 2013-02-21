@@ -14,7 +14,7 @@ var controllerCommand = {
         return '{"dir":"s"}';
     },
     speed: function(val) {
-        return '{"speed":"' + val + '"}';
+        return '{"speed":' + val + '}';
     }
 };
 

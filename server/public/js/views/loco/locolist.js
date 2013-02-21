@@ -1,6 +1,6 @@
 window.LocoListView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
         this.render();
     },
     
@@ -13,7 +13,7 @@ window.LocoListView = Backbone.View.extend({
         $(this.el).html('<ul class="thumbnails"></ul>');
 
         for (var i = startPos; i < endPos; i++) {
-            $('.thumbnails', this.el).append(new LocoListItemView({model: locos[i]}).render().el);
+            $('.thumbnails', this.el).append(new LocoListItemView({model: locos[i], settings: this.options.settings}).render().el);
         }
 
         $(this.el).append(new Paginator({model: this.model, page: this.options.page}).render().el);
@@ -52,14 +52,10 @@ window.LocoListItemView = Backbone.View.extend({
     selectLoco: function() {
         console.log('Loco selected: ' + this.model.id);
         var theID = this.model.id;
-        // TODO: this is very bad, there must be a better way...
-        var settings = new Settings();
-        settings.fetch({success: function(){
-                // Now store the loco ID in our settings:
-                settings.set({currentLoco:theID});
-                settings.save();
-                app.navigate('/', true);
-        }});
+        // Now store the loco ID in our settings:
+        this.options.settings.set({currentLoco:theID});
+        this.options.settings.save();
+        app.navigate('/', true);
         return false;
     }
 

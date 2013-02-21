@@ -1,6 +1,13 @@
+// The main screen of our app.
+// 
+// TODO: this view does not manage its subviews properly at all so far, I
+//        need to introduce proper subview management.
+//
+// Our model is the settings object.
+
 window.HomeView = Backbone.View.extend({
 
-    initialize:function () {
+    initialize:function (options) {
         // When we initialize the view, we open a socket.io
         // connection to the server, that is passed
         // to all subviews when they need it. This way, we keep a single
@@ -46,7 +53,9 @@ window.HomeView = Backbone.View.extend({
         return this;
     },
     
-    // Hmmm....
+    // Now we do get a "change" event whenever our settings change,
+    // because we share the same settings object amongst every view (passed
+    // from the main.js app router)
     change: function(event) {
         console.log('Home view: settings changed');
         this.render();

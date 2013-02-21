@@ -13,7 +13,7 @@ window.LayoutListView = Backbone.View.extend({
         $(this.el).html('<ul class="thumbnails"></ul>');
 
         for (var i = startPos; i < endPos; i++) {
-            $('.thumbnails', this.el).append(new LayoutListItemView({model: layouts[i]}).render().el);
+            $('.thumbnails', this.el).append(new LayoutListItemView({model: layouts[i], settings: this.options.settings}).render().el);
         }
 
         $(this.el).append(new Paginator({model: this.model, page: this.options.page}).render().el);
@@ -50,16 +50,10 @@ window.LayoutListItemView = Backbone.View.extend({
     selectLayout: function() {
         console.log('Layout selected: ' + this.model.id);
         var theID = this.model.id;
-        // TODO: this is very bad, there must be a better way...
-        var settings = new Settings();
-        settings.fetch({success: function(){
-                // Now store the loco ID in our settings:
-                console.log('Layout - My settings ID: ' + settings.get('_id'));
-                settings.set({currentLayout:theID});
-                settings.save();
-                app.navigate('/', true);
-
-        }});
+        // Now store the loco ID in our settings:
+        this.options.settings.set({currentLayout:theID});
+        this.options.settings.save();
+        app.navigate('/', true);
         return false;
     }
 

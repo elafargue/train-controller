@@ -14,21 +14,17 @@ window.SettingsView = Backbone.View.extend({
     },
 
     resetSettings: function() {
-        // Retrieve our global settings/state:
-        settings = new Settings();
-        settings.fetch({success: function(){
-            settings.set('currentLayout', null);
-            settings.set('currentLoco', null);
-            settings.save(null, {
+        // Clear our global settings/state:
+        this.model.set({'currentLayout': null, 'currentLoco': null});
+        this.model.save(null, {
                 success: function(model) {
                    utils.showAlert('Success', 'Settings cleared', 'alert-success');
-                    return true;
+                   return true;
                 },
                 error: function () {
                     utils.showAlert('Error', 'An error occurred while trying to clear the settings', 'alert-error');
             }
-            });
-        }});
+        });
         return false;
     }
 

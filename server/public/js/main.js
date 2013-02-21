@@ -19,18 +19,23 @@ var AppRouter = Backbone.Router.extend({
     },
 
     initialize: function () {
+        console.log("Initializing application");
         this.headerView = new HeaderView();
         $('.header').html(this.headerView.el);
+        // TODO: get our settings object here, and
+        // share it afterwards, rather than requesting it
+        // everytime...
+        this.settings = new Settings();
+        // We need to be sure the settings are fetched before moving
+        // further, so we add the Ajax optoin "async" below.
+        this.settings.fetch({async:false});
     },
 
     home: function (id) {
+        console.log("Switching to home view");
         if (!this.homeView) {
-            var settings = new Settings();
-            settings.fetch({success: function(){
-                this.homeView = new HomeView({model: settings});
-                $('#content').html(this.homeView.el);
-                }
-                           });
+            this.homeView = new HomeView({model: this.settings});
+            $('#content').html(this.homeView.el);
         } else {
             // TODO: get the settings object to tell the home view
             // about the currently selected layout & loco
@@ -40,10 +45,11 @@ var AppRouter = Backbone.Router.extend({
     },
 
 	listLocos: function(page) {
+        var self = this;
         var p = page ? parseInt(page, 10) : 1;
         var locoList = new LocoCollection();
         locoList.fetch({success: function(){
-            $("#content").html(new LocoListView({model: locoList, page: p}).el);
+            $("#content").html(new LocoListView({model: locoList, settings: self.settings, page: p}).el);
         }});
         this.headerView.selectMenuItem('menu-loco');
     },
@@ -63,10 +69,11 @@ var AppRouter = Backbone.Router.extend({
 	},
     
 	listLayouts: function(page) {
+        var self = this;
         var p = page ? parseInt(page, 10) : 1;
         var layoutList = new LayoutCollection();
         layoutList.fetch({success: function(){
-            $("#content").html(new LayoutListView({model: layoutList, page: p}).el);
+            $("#content").html(new LayoutListView({model: layoutList, settings: self.settings, page: p}).el);
         }});
         this.headerView.selectMenuItem('menu-layout');
     },
@@ -94,10 +101,7 @@ var AppRouter = Backbone.Router.extend({
     },
 
     settings: function () {
-        var settings = new Settings();
-        settings.fetch({success: function(){
-            $("#content").html(new SettingsView({model: settings}).el);
-        }});
+        $("#content").html(new SettingsView({model: this.settings}).el);
         this.headerView.selectMenuItem('settings-menu');
     }
 

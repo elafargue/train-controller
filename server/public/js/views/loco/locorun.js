@@ -9,10 +9,10 @@ window.LocoRunView = Backbone.View.extend({
         this.totalPoints = 150;
         this.bemf = []; // Table of all BEMF readings
         for (var i=0; i< this.totalPoints; i++) {
-            this.bemf.push(10);
+            this.bemf.push(0);
         }
         this.socket = this.options.socket;
-        this.socket.on('serialEvent', this.showInput);
+        this.socket.on('serialEvent', this.showInput.bind(this));
         this.render();
     },
 
@@ -32,10 +32,11 @@ window.LocoRunView = Backbone.View.extend({
     
     packData: function(table) {
         // zip the our table of Y values with the x values
+        var ret = [];
         for (var i = 0; i < this.totalPoints; ++i){
-            table.push([i, table[i]]);
+            ret.push([i, table[i]]);
         }
-        return table;
+        return ret;
     },
     
     showInput: function(data) {
@@ -45,8 +46,10 @@ window.LocoRunView = Backbone.View.extend({
         var rateVal = parseInt(data.rate);
         
         if (this.plot) {
-            this.bemf.slice(1).push(bemfVal);
+            this.bemf = this.bemf.slice(1);
+            this.bemf.push(bemfVal);
             this.plot.setData([this.packData(this.bemf)]);
+            this.plot.draw();
         }
     },
     
