@@ -144,3 +144,11 @@ legend {
   -moz-box-shadow: 0px 0px 20px rgba(0,136,204,0.8);
   box-shadow: 0px 0px 20px rgba(0,136,204,0.8);
 }
+
+
+/** Fix for Flot table legends when used in bootstrap **/
+/*
+.locochart table {
+    width: auto;
+}
+*/

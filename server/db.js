@@ -15,18 +15,20 @@ var Schema   = mongoose.Schema;
  * - Loco runtime
  * - Loco response curves (bemf/power) over time.
  *     -> In a separate document?
- * - Historical notes, personal notes
+ * - Historical notes and personal notes separated ?
  * - Controller settings for the loco ?
- * - PDF documentation (one PDF or several ?)
+ * - PDF documentation (one PDF document)
  * - Portfolio for the loco: several pictures & PDFs
  *
  */
 var LocoSchema = new Schema({
         name: String,
         year: Date,
-        reference: String,
-        description: String,
-        picture: String
+        reference: String,      // Manufacturer reference
+        description: String,    // Up to the user
+        picture: String,        // Filename in public/pics/locos
+        documentation: String,  // PDF doc, filename in public/pics/locodocs/
+        runtime: Number         // Runtime of the loco in seconds
 });
  
 // Compile the schema by issuing the below:

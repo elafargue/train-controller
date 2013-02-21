@@ -125,53 +125,64 @@ io.sockets.on('connection', function (socket) {
 	if (!connected) {
             console.log('user connected');
             connected = true;
-        }
+    }
 
-        // if the client disconnects:
-        socket.on('disconnect', function () {
-             console.log('user disconnected');
-                console.log('Closing port');
-            if (myPort)
-                myPort.close();
-             connected = false;
-        });
+    // if the client disconnects, we close the 
+    // connection to the controller:
+    socket.on('disconnect', function () {
+        console.log('user disconnected');
+        console.log('Closing port');
+        if (myPort)
+            myPort.close();
+         connected = false;
+    });
     
-        socket.on('openport', function(data) {
-            console.log('Port open request for port name ' + data);
-            // data contains connection type: IP or Serial
-            // and the port name or IP address.
-            //  This opens the serial port:
-            myPort = new SerialPort(data, {
-                baudRate: 9600,
-                dataBits: 8,
-                parity: 'none',
-                stopBits: 1,
-                flowControl: false,
-                // look for return and newline at the end of each data packet:
-                parser: serialport.parsers.readline("\r\n")
-            });
-            myPort.flush();
-            
-            // listen for new serial data:  
-            myPort.on('data', function (data) {
-                try {
-                     // Convert the string into a JSON object:
-                     var serialData = JSON.parse(data);
-                     // for debugging, you should see this in the terminal window:
-                     console.log(data);
-                     // send a serial event to the web client with the data:
-                     socket.emit('serialEvent', serialData);
-                } catch (err) {
-                    console.log('Serial input - json format error');
-                }                   
-            });
-            
-            socket.on('closeport', function(data) {
-                // I assume closing the port will remove
-                // the listeners ??
-                console.log('Closing port');
-                myPort.close();
-            });
+    socket.on('openport', function(data) {
+        console.log('Port open request for port name ' + data);
+        // data contains connection type: IP or Serial
+        // and the port name or IP address.
+        //  This opens the serial port:
+        myPort = new SerialPort(data, {
+            baudRate: 9600,
+            dataBits: 8,
+            parity: 'none',
+            stopBits: 1,
+            flowControl: false,
+            // look for return and newline at the end of each data packet:
+            parser: serialport.parsers.readline("\r\n")
         });
-
+        myPort.flush();
+        
+        // listen for new serial data:  
+        myPort.on('data', function (data) {
+            try {
+                 // Convert the string into a JSON object:
+                 var serialData = JSON.parse(data);
+                 // for debugging, you should see this in the terminal window:
+                 console.log(data);
+                 // send a serial event to the web client with the data:
+                 socket.emit('serialEvent', serialData);
+            } catch (err) {
+                console.log('Serial input - json format error');
+            }                   
+        });
+    });
+        
+    socket.on('closeport', function(data) {
+        // TODO: support multiple ports, right now we
+        // discard 'data' completely.
+        // I assume closing the port will remove
+        // the listeners ?? NOPE!
+        console.log('Closing port');
+        if (myPort)
+            myPort.close();
+    });
+        
+    socket.on('controllerCommand', function(data) {
+        // TODO: do a bit of sanity checking here
+        console.log('Controller command: ' + data);
+        if (myPort)
+            myPort.write(data + '\n');
+    });
+    
 });

@@ -6,6 +6,7 @@
 window.LayoutRunView = Backbone.View.extend({
 
     initialize: function () {
+        console.log('Layout Run View Initialize');
         this.socket = this.options.socket;
         this.connected = false;
         this.render();
@@ -16,27 +17,31 @@ window.LayoutRunView = Backbone.View.extend({
         return this;
     },
     
+    close: function() {
+        console.log('Layout Run View closing...');
+    },
+    
     events: {
         "click .ctrl-connect":  "ctrlConnect",
     },
     
     ctrlConnect: function() {
         var self = this;
-        if (!this.connected) {
-            console.log("Connecting controller port");
-            // First, get controller settings (assume Serial for now)
-            var controllers = this.model.get('controllers');
-            if (controllers.length) {
-                var controller = new Controller({_id:controllers[0]});
-                controller.fetch({success: function() {
+        // First, get controller settings (assume Serial for now)
+        var controllers = this.model.get('controllers');
+        if (controllers.length) {
+            var controller = new Controller({_id:controllers[0]});
+            controller.fetch({success: function() {
+                if (!self.connected) {
                     self.socket.emit('openport', controller.get('port'));
                     $('.ctrl-connect', self.el).html("Disconnect controller.").removeClass('btn-danger').addClass('btn-success');
                     self.connected = true;
-                    }
-                 });
-            }
-        } else {
-            // Disconnect our controller
+                } else {
+                    self.socket.emit('closeport', controller.get('port'));
+                    $('.ctrl-connect', self.el).html("Connect to controller.").addClass('btn-danger').removeClass('btn-success');
+                    self.connected = false;
+                }
+             }});
         }
     }
     

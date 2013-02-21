@@ -5,7 +5,8 @@ window.HomeView = Backbone.View.extend({
         // connection to the server, that is passed
         // to all subviews when they need it. This way, we keep a single
         // connection between server and web app:
-        this.socket = io.connect('http://localhost:8000');        
+        this.socket = io.connect('http://localhost:8000');
+        this.model.on('change', this.change, this);
         this.render();
     },
 
@@ -45,10 +46,6 @@ window.HomeView = Backbone.View.extend({
         return this;
     },
     
-    events: {
-        "change": "change"
-    },
-
     // Hmmm....
     change: function(event) {
         console.log('Home view: settings changed');
