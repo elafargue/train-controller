@@ -44,6 +44,14 @@ window.LocoView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
+        // In case we have a new loco, we must save it first
+        // so that the loco ID is populated, since the ID is used by the
+        // picture save below:
+        if (!this.model.id) {
+            // Force async here: not ideal in terms of performance, but
+            // this is not really a big deal, this is a short operation.
+            this.model.save(null, {async:false});
+        }
        // Upload picture file if a new file was dropped in the drop area
         if (this.pictureFile) {
             utils.uploadFile("locos/" + this.model.id, this.pictureFile,
@@ -63,7 +71,7 @@ window.LocoView = Backbone.View.extend({
 
     saveLoco: function () {
         var self = this;
-        console.log('before save');
+        console.log('Saving loco...');
         this.model.save(null, {
             success: function (model) {
                 self.render();
