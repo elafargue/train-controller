@@ -2,6 +2,8 @@ window.SettingsView = Backbone.View.extend({
 
     initialize:function () {
         this.render();
+        this.model.on('change', this.change, this);
+
     },
 
     render:function () {
@@ -11,6 +13,10 @@ window.SettingsView = Backbone.View.extend({
     
     events: {
            "click #reset": "resetSettings"
+    },
+    
+    change: function() {
+        this.render();
     },
 
     resetSettings: function() {

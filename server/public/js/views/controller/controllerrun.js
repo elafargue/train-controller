@@ -21,27 +21,32 @@ var controllerCommand = {
 window.ControllerRunView = Backbone.View.extend({
 
     initialize: function () {
-        var self = this;
         this.socket = this.options.socket;
         this.socket.on('serialEvent', this.showInput);
 
         this.render();
+    },
+
+    render: function () {
+        var self = this;
+        console.log("Rendering our controller Run View");
+        $(this.el).html(this.template(this.model.toJSON()));
         // Initialize the jQuery UI vertical slider for power:
+        // (reinitializing the .html above cleared everything including
+        // our slider)
         $(".power", this.el).slider({
                         orientation:"vertical",
                         animate: true,
-                        // slide: this.power,
+                        range: "min",
                         stop: function(event,ui) {
                             // Gotta pass the context below, otherwise
                             // this is the jQuery context in "power", and not
                             // our view's context:
                             self.power.call(self,event,ui);
+                            console.log("Range: " +         $(".power .ui-slider-range-min", self.el).height());
                         },
                     });
-    },
 
-    render: function () {
-        $(this.el).html(this.template(this.model.toJSON()));
         // TODO: get all existing controllers and add the
         // relevant - and populated data into the view
         return this;
@@ -72,7 +77,10 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     showInput: function(data) {
-        console.log('Controller run: ' + data);
+        //console.log('Controller run: ' + data);
+        var rateVal = parseInt(data.rate);
+        if (rateVal)
+            $(".power .ui-slider-range-min", self.el).height(rateVal/800*300);
     },
 
     

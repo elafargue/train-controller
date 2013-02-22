@@ -22,29 +22,33 @@ var AppRouter = Backbone.Router.extend({
         console.log("Initializing application");
         this.headerView = new HeaderView();
         $('.header').html(this.headerView.el);
-        // TODO: get our settings object here, and
-        // share it afterwards, rather than requesting it
+        // Get our settings here, and
+        // share them afterwards, rather than requesting it
         // everytime...
         this.settings = new Settings();
         // We need to be sure the settings are fetched before moving
-        // further, so we add the Ajax optoin "async" below.
+        // further, so we add the Ajax option "async" below.
         this.settings.fetch({async:false});
     },
 
     home: function (id) {
         console.log("Switching to home view");
+        // Though other views are lightweight and can - and should
+        // be disposable, we have more in the home views, including
+        // connection to our controller, so we want to preserve it,
+        // which is why we don't re-create it...
         if (!this.homeView) {
             this.homeView = new HomeView({model: this.settings});
             $('#content').html(this.homeView.el);
         } else {
-            // TODO: get the settings object to tell the home view
-            // about the currently selected layout & loco
             $('#content').html(this.homeView.el);
+            this.homeView.render(); // We need this to rebind our events...
         }
         this.headerView.selectMenuItem('home-menu');
     },
 
 	listLocos: function(page) {
+        console.log("Switching to Loco list");
         var self = this;
         var p = page ? parseInt(page, 10) : 1;
         var locoList = new LocoCollection();

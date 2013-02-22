@@ -41,7 +41,7 @@ window.LocoRunView = Backbone.View.extend({
     
     showInput: function(data) {
         var bemfVal = parseInt(data.bemf);
-        console.log('Loco run: ' + bemfVal);
+        //console.log('Loco run: ' + bemfVal);
         var targetVal = parseInt(data.target);
         var rateVal = parseInt(data.rate);
         
