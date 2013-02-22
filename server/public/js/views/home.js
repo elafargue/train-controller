@@ -59,7 +59,9 @@ window.HomeView = Backbone.View.extend({
         var self = this;
         var loco = new Loco({_id: this.model.get('currentLoco')});
         loco.fetch({success: function() {
-            $("#loco-area", self.el).html(new LocoRunView({model: loco, socket: self.socket}).el);
+            var lrv = new LocoRunView({model: loco, socket: self.socket});
+            $("#loco-area", self.el).html(lrv.el);
+            lrv.addPlot();
         }});
     },
     

@@ -18,6 +18,12 @@ window.LocoRunView = Backbone.View.extend({
 
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
+        return this;
+    },
+    
+    // We can only add the plot once the view has finished rendering and its el is
+    // attached to the DOM, so this function has to be called from the home view.
+    addPlot: function() {
         // Now initialize the plot area:
         var options = {
             series: { shadowSize: 0 }, // drawing is faster without shadows
@@ -27,7 +33,6 @@ window.LocoRunView = Backbone.View.extend({
         };
         console.log('Loco chart size: ' + this.$('.locochart').width());
         this.plot = $.plot($(".locochart", this.el), [ this.packData(this.bemf)], options);
-        return this;
     },
     
     packData: function(table) {
