@@ -43,9 +43,9 @@ window.ControllerRunView = Backbone.View.extend({
                             // this is the jQuery context in "power", and not
                             // our view's context:
                             self.power.call(self,event,ui);
-                            console.log("Range: " +         $(".power .ui-slider-range-min", self.el).height());
+                            console.log("Range: " + $(".power .ui-slider-range-min", self.el).height());
                         },
-                    });
+                    }).draggable();
 
         // TODO: get all existing controllers and add the
         // relevant - and populated data into the view
@@ -77,6 +77,8 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     showInput: function(data) {
+        $('.comlink', this.el).toggleClass('btn-success');
+
         //console.log('Controller run: ' + data);
         var rateVal = parseInt(data.rate);
         if (rateVal)

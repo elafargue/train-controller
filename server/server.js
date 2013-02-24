@@ -130,23 +130,25 @@ app.use(express.static(__dirname + '/public'));
 // connections to several train controllers...
 //var portsList = new Array();
 var myPort;
+var portOpen = false;
 
 // listen for new socket.io connections:
 io.sockets.on('connection', function (socket) {
 	// if the client connects:
 	if (!connected) {
-            console.log('user connected');
+            console.log('User connected');
             connected = true;
     }
 
     // if the client disconnects, we close the 
     // connection to the controller:
     socket.on('disconnect', function () {
-        console.log('user disconnected');
+        console.log('User disconnected');
         console.log('Closing port');
         if (myPort)
             myPort.close();
          connected = false;
+        portOpen = false;
     });
     
     socket.on('openport', function(data) {
@@ -163,21 +165,25 @@ io.sockets.on('connection', function (socket) {
             // look for return and newline at the end of each data packet:
             parser: serialport.parsers.readline("\r\n")
         });
-        myPort.flush();
+        console.log('Result of port open attempt: ' + null);
         
-        // listen for new serial data:  
-        myPort.on('data', function (data) {
-            try {
-                 // Convert the string into a JSON object:
-                 var serialData = JSON.parse(data);
-                 // for debugging, you should see this in the terminal window:
-                 console.log(data);
-                 // send a serial event to the web client with the data:
-                 socket.emit('serialEvent', serialData);
+       myPort.on("open", function () {
+           console.log('Port open');
+           myPort.flush();
+           portOpen = true;
+           socket.emit('status', {portopen: portOpen});
+           // listen for new serial data:  
+           myPort.on('data', function (data) {
+           try {
+             // Convert the string into a JSON object:
+             var serialData = JSON.parse(data);
+             // send a serial event to the web client with the data:
+             socket.emit('serialEvent', serialData);
             } catch (err) {
                 console.log('Serial input - json format error');
             }                   
-        });
+           });
+       });
     });
         
     socket.on('closeport', function(data) {
@@ -188,6 +194,13 @@ io.sockets.on('connection', function (socket) {
         console.log('Closing port');
         if (myPort)
             myPort.close();
+        portOpen = false;
+        socket.emit('status', {portopen: portOpen});
+
+    });
+    
+    socket.on('portstatus', function() {
+        socket.emit('status', {portopen: portOpen});
     });
         
     socket.on('controllerCommand', function(data) {

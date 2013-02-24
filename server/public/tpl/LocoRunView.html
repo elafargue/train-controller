@@ -1,10 +1,20 @@
   <div class="row-fluid">
     <div class="span3" id="loco-pic">
         <div class="thumbnail select" style="text-align: center;">
-            <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" width="250" alt="">
+            <a data-toggle="lightbox" href="#locoLightbox"><img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" width="250" alt=""></a>
             <h5><%= name %></h5>
             <%= reference %><br/>
         </div>
+    
+    <div id="locoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+	   <div class='lightbox-header'>
+		  <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+	   <div class='lightbox-content'>
+		 <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>">
+	   </div>
+    </div>
+                
     </div>
     <div class="span3 thumbnail">
         <p>Runtime: 05h23s</p>
