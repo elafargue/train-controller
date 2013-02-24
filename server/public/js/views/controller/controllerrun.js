@@ -21,9 +21,12 @@ var controllerCommand = {
 window.ControllerRunView = Backbone.View.extend({
 
     initialize: function () {
+        console.log("Initialize controller run view");
         this.socket = this.options.socket;
+        // Need to explicitely remove before added to avoid
+        // double bindings
+        this.socket.removeListener('serialEvent', this.showInput);
         this.socket.on('serialEvent', this.showInput);
-
         this.render();
     },
 
@@ -77,9 +80,21 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     showInput: function(data) {
+        // Blink the indicator to show we're getting data
         $('.comlink', this.el).toggleClass('btn-success');
+        if (data.dir) {
+            switch(data.dir) {
+                    case 'f':
+                    $('.dir-fwd',this.el).addClass("btn-success");
+                    $('.dir-back',this.el).removeClass("btn-success");
+                    break;
+                    case 'b':
+                    $('.dir-back',this.el).addClass("btn-success");
+                    $('.dir-fwd',this.el).removeClass("btn-success");
+                    break;
+            }
+        }
 
-        //console.log('Controller run: ' + data);
         var rateVal = parseInt(data.rate);
         if (rateVal)
             $(".power .ui-slider-range-min", self.el).height(rateVal/800*300);

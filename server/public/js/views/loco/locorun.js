@@ -53,11 +53,14 @@ window.LocoRunView = Backbone.View.extend({
     },
     
     showInput: function(data) {
-        // TODO: graph all values, not only BEMF... 
         // TODO : scaling is arbitrary at this stage...
         var bemfVal = parseInt(data.bemf);
         var targetVal = parseInt(data.target);
         var rateVal = parseInt(data.rate);
+
+        // TODO: manage loco runtime here
+                
+        
         
         if (this.plot) {
             this.bemf = this.bemf.slice(1);
