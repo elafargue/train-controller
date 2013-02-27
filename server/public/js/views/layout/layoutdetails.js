@@ -120,12 +120,16 @@ window.LayoutView = Backbone.View.extend({
     },
 
     deleteLayout: function () {
-        this.model.destroy({
-            success: function () {
-                alert('Layout deleted successfully');
-                window.history.back();
-            }
-        });
+        var self = this;
+        // The Bootbox library manages modal dialogs in bootstrap
+        // and makes our life easier:
+        bootbox.confirm("Delete this layout, are you sure?", "Cancel",  "Delete", function(result) {
+                         if (result) {
+                           self.model.destroy({
+                                success: function () {
+                                window.history.back();
+                                }});
+                       }});
         return false;
     },
     

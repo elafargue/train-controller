@@ -31,7 +31,7 @@ window.LocoRunView = Backbone.View.extend({
         // Now initialize the plot area:
         var options = {
             series: { shadowSize: 0 }, // drawing is faster without shadows
-            yaxes: [ {  min:0, max:1024 },
+            yaxes: [ {  min:0, max:250 },
                      {position: "right", alignTicksWithAxis: 1 , min:0, max:900}
                    ],
             xaxes: [ { show: false } ],
@@ -59,7 +59,7 @@ window.LocoRunView = Backbone.View.extend({
         var rateVal = parseInt(data.rate);
 
         // TODO: manage loco runtime here
-                
+        
         
         
         if (this.plot) {
@@ -70,8 +70,8 @@ window.LocoRunView = Backbone.View.extend({
             this.targetbemf = this.targetbemf.slice(1);
             this.targetbemf.push(targetVal);
             this.plot.setData([ { data:this.packData(this.bemf), label: "RPM" },
-                                                      { data:this.packData(this.rate), label: "Power", yaxis: 2},
-                                                      { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
+                                { data:this.packData(this.rate), label: "Power", yaxis: 2},
+                                { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
             this.plot.draw();
         }
     },
