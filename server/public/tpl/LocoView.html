@@ -34,22 +34,10 @@
 
                         <div class="controls">
                             <select class="input-small" id="year" name="year" value="<%= year %>">
+                                <% for(var i= new Date().getFullYear(); i > 1971; i--) { %>
                                 <option
-                                <%= year == 2012?'selected':'' %>>2012</option>
-                                <option
-                                <%= year == 2011?'selected':'' %>>2011</option>
-                                <option
-                                <%= year == 2010?'selected':'' %>>2010</option>
-                                <option
-                                <%= year == 2009?'selected':'' %>>2009</option>
-                                <option
-                                <%= year == 2008?'selected':'' %>>2008</option>
-                                <option
-                                <%= year == 2007?'selected':'' %>>2007</option>
-                                <option
-                                <%= year == 2006?'selected':'' %>>2006</option>
-                                <option
-                                <%= year == 2005?'selected':'' %>>2005</option>
+                                <%= year == i ?'selected':'' %>><%= i %></option>
+                                <% } %>
                             </select>
                         </div>
                     </div>
@@ -68,6 +56,21 @@
                             <input type="text" id="runtime" name="runtime" value="<%= runtime %>"/>
                         </div>
                     </div>
+                        
+                    <div class="control-group">
+                    <label class="control-label"></label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <ul class="thumbnails" id="controllers">
+                                <li>    <div class="thumbnail">
+                                        <h5  style="text-align: center;">Maintenance log</h5>
+                                         <p style="text-align:center;"><a href="#" class="btn addctrl btn-small"><i class="icon-edit"></i>Edit</a></p>
+                                        </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
                         
                 </div>

@@ -12,14 +12,33 @@
     <span class="span5"><hr></span>
     <span class="span2">
     <p style="text-align:center;">Power</p>
-        <div class="power" style="min-height:300px;"></div>
+        <div class="power" style="min-height:300px; margin-bottom: 20px;"></div>
         
     </span>
     <span class="span5"><hr></span>
 </div>
 <div class="row-fluid">
-    <span class="span1">
+    <span class="span2">
         <button class="btn comlink" disabled style="border-radius:20px;"><i class="icon-asterisk"></i></button>
     </span>
-    <span class="span11"></span>
+    <span class="span2">
+        <a href="#PIDmodal" role="button" class="btn" data-toggle="modal" style="border-radius:20px;">PID</a>
+    </span>
+    <span class="span8"></span>
+</div>
+
+<!-- PID Adjustment modal (hidden by default) -->
+<div id="PIDmodal" class="modal hide fase" data-backdrop="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">PID Adjustment</h3>
+  </div>
+  <div class="modal-body">
+    <p>P:   I:    D:    </p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn" aria-hidden="true">Reset</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
 </div>

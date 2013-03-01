@@ -70,4 +70,17 @@ window.utils = {
             self.showAlert('Error!', 'An error occurred while uploading ' + file.name, 'alert-error');
         });
     },
+    
+    hms: function(seconds) {
+        var   h = parseInt(seconds/3600,10)
+            , m = parseInt(seconds/60,10)- h*60
+            , s = Math.floor(seconds%60);
+        return [h,m,s]
+            .join(':')
+            .replace(/\b\d\b/g,
+                     function(a){ 
+                        return Number(a)===0 ? '00' : a<10? '0'+a : a; 
+                     }
+                    );
+    },
 };

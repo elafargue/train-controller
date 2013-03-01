@@ -10,19 +10,47 @@ window.LocoRunView = Backbone.View.extend({
         this.bemf = []; // Table of all BEMF readings
         this.rate = [];
         this.targetbemf = [];
+        this.running = false;
+        this.prevStamp = 0;
         for (var i=0; i< this.totalPoints; i++) {
             this.bemf.push(0);
             this.rate.push(0);
             this.targetbemf.push(0);
         }
-        this.socket = this.options.socket;
-        this.socket.on('serialEvent', this.showInput.bind(this));
+        this.linkManager = this.options.lm;
+        this.linkManager.on('input', this.showInput.bind(this));
+        // Create a timer that updates the running time while power is above zero
+        this.timer = setInterval(this.updateRuntime.bind(this), 5000);
         this.render();
+    },
+    
+    events: {
+        "remove": "onRemove",
+    },
+    
+    onRemove: function() {
+        console.log("Loco run view remove");
+        this.model.save(); // save runtime in particular.
+        clearInterval(this.timer);
     },
 
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
+    },
+    
+    updateRuntime: function() {
+        if (this.running) {
+            var stamp = new Date().getTime()/1000;
+            var runtime = parseInt(this.model.get('runtime'))+stamp-this.prevStamp;
+            this.model.set({"runtime": runtime});
+            $('#runtime',this.el).html(utils.hms(runtime));
+            this.prevStamp = stamp;
+            if (!this.linkManager.connected) {
+                this.running = false;
+                this.model.save();
+            }
+        }
     },
     
     // We can only add the plot once the view has finished rendering and its el is
@@ -57,11 +85,17 @@ window.LocoRunView = Backbone.View.extend({
         var bemfVal = parseInt(data.bemf);
         var targetVal = parseInt(data.target);
         var rateVal = parseInt(data.rate);
-
-        // TODO: manage loco runtime here
-        
-        
-        
+        if (data.rate)
+            if (rateVal > 10) {
+                if (!this.running) {
+                    this.prevStamp = new Date().getTime()/1000;
+                    this.running = true;
+                }
+            } else if (this.running) {
+                this.updateRuntime();
+                this.running = false;
+                this.model.save();
+            }
         if (this.plot) {
             this.bemf = this.bemf.slice(1);
             this.bemf.push(bemfVal);

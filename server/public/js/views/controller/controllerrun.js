@@ -2,31 +2,17 @@
  * This is a view of a layout in running/operations mode.
  *
  */
-
-var controllerCommand = {
-    forward: function() {
-        return '{"dir":"f"}';
-    },
-    backward: function() {
-        return '{"dir":"b"}';
-    },
-    stop: function() {
-        return '{"dir":"s"}';
-    },
-    speed: function(val) {
-        return '{"speed":' + val + '}';
-    }
-};
-
 window.ControllerRunView = Backbone.View.extend({
 
     initialize: function () {
         console.log("Initialize controller run view");
-        this.socket = this.options.socket;
+        this.linkManager = this.options.lm;
         // Need to explicitely remove before added to avoid
         // double bindings
-        this.socket.removeListener('serialEvent', this.showInput);
-        this.socket.on('serialEvent', this.showInput);
+        // TODO: implement this ? TbD
+        //        this.linkManager.removeListener('input', this.showInput);
+        this.linkManager.on('input', this.showInput);
+        this.linkManager.on('status', this.updateStatus.bind(this));
         this.render();
     },
 
@@ -62,21 +48,25 @@ window.ControllerRunView = Backbone.View.extend({
     },
         
     direction: function(event) {
+        event.stopPropagation(); // We have 2 divs with ".dir-XXX" class, so
+                                 // if the inner div gets the even, we don't want the
+                                 // outer div to get it again, hence the stopPropagation.
         if ($(event.target).hasClass('dir-fwd')) {
             console.log("Go forward");
-            this.socket.emit('controllerCommand', controllerCommand.forward());
+            this.linkManager.controllerCommand.forward();
         } else if ($(event.target).hasClass('dir-back')) {
             console.log("Go backwards");
-            this.socket.emit('controllerCommand', controllerCommand.backward());
+            this.linkManager.controllerCommand.backward();
         } else if ($(event.target).hasClass('dir-stop')) {
             console.log("Stop train");
-            this.socket.emit('controllerCommand', controllerCommand.stop());
+            this.linkManager.controllerCommand.stop();
         }
     },
     
     power: function(event, ui) {
         console.log('Power change to ' + ui.value);
-        this.socket.emit('controllerCommand',controllerCommand.speed(ui.value));
+        if (this.linkManager.connected)
+            this.linkManager.controllerCommand.speed(ui.value);
     },
     
     showInput: function(data) {
@@ -85,12 +75,12 @@ window.ControllerRunView = Backbone.View.extend({
         if (data.dir) {
             switch(data.dir) {
                     case 'f':
-                    $('.dir-fwd',this.el).addClass("btn-success");
-                    $('.dir-back',this.el).removeClass("btn-success");
+                    $('.btn-group > .dir-fwd',this.el).addClass("btn-success");
+                    $('.btn-group > .dir-back',this.el).removeClass("btn-success");
                     break;
                     case 'b':
-                    $('.dir-back',this.el).addClass("btn-success");
-                    $('.dir-fwd',this.el).removeClass("btn-success");
+                    $('.btn-group > .dir-back',this.el).addClass("btn-success");
+                    $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
                     break;
             }
         }
@@ -100,6 +90,17 @@ window.ControllerRunView = Backbone.View.extend({
             $(".power .ui-slider-range-min", self.el).height(rateVal/800*300);
     },
 
+    updateStatus: function(data) {
+        if (this.linkManager.connected) {
+            $(':button').removeAttr('disabled');
+            // Weird bug: if you disable the slider, then it becomes draggable across
+            // the whole page! Probably bad interaction with the touch patch
+            // $(".power", this.el).slider('option', 'disabled', false);
+        } else {
+            $(':button', this.el).attr('disabled', true);
+            // $(".power", this.el).slider('option', 'disabled', true);
+        }
+    },
     
     
 });

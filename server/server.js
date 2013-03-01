@@ -165,8 +165,9 @@ io.sockets.on('connection', function (socket) {
             // look for return and newline at the end of each data packet:
             parser: serialport.parsers.readline("\r\n")
         });
-        console.log('Result of port open attempt: ' + null);
+        console.log('Result of port open attempt: ' + myPort);
         
+        // Callback once the port is actually open: 
        myPort.on("open", function () {
            console.log('Port open');
            myPort.flush();

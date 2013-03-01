@@ -12,7 +12,8 @@ window.HomeView = Backbone.View.extend({
         // connection to the server, that is passed
         // to all subviews when they need it. This way, we keep a single
         // connection between server and web app:
-        this.socket = io.connect(); // (we connect on same host, we don't need a URL)
+        // this.socket = io.connect(); // (we connect on same host, we don't need a URL)
+        this.linkManager = new linkManager();
         this.model.on('change:currentLoco', this.change, this);
         this.model.on('change:currentLayout', this.change, this);
         this.render();
@@ -36,7 +37,8 @@ window.HomeView = Backbone.View.extend({
         var self = this;
         var layout = new Layout({_id: this.model.get('currentLayout')});
         layout.fetch({success: function(){
-            $("#layout-area", self.el).html(new LayoutRunView({model: layout, socket: self.socket}).el);
+            var layoutview = new LayoutRunView({model: layout, lm: self.linkManager});
+            $("#layout-area", self.el).html(layoutview.el);
             // Now see whether the layout contains at least a controller, and if so
             // take the 1st controller (all we support right now) and create a running
             // view for it:
@@ -47,7 +49,7 @@ window.HomeView = Backbone.View.extend({
                     // TODO: initialize a controller object that will open the Socket.io
                     // connection + talk to the server, and will be passed to all subviews
                     // so that they can send/receive data.
-                    $('#controller-area', self.el).html(new ControllerRunView({model: controller, socket: self.socket}).el);
+                    $('#controller-area', self.el).html(new ControllerRunView({model: controller, lm: self.linkManager}).el);
                 }
                  });
             }
@@ -59,7 +61,7 @@ window.HomeView = Backbone.View.extend({
         var self = this;
         var loco = new Loco({_id: this.model.get('currentLoco')});
         loco.fetch({success: function() {
-            var lrv = new LocoRunView({model: loco, socket: self.socket});
+            var lrv = new LocoRunView({model: loco, lm: self.linkManager});
             $("#loco-area", self.el).html(lrv.el);
             lrv.addPlot();
         }});

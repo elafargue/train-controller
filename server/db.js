@@ -39,12 +39,12 @@ var Schema   = mongoose.Schema;
  */
 var LocoSchema = new Schema({
         name: String,
-        year: Date,
+        year: String,           // Year the model was produced/bought
         reference: String,      // Manufacturer reference
         description: String,    // Up to the user
         picture: String,        // Filename in public/pics/locos
         documentation: String,  // PDF doc, filename in public/pics/locodocs/
-        runtime: Number         // Runtime of the loco in seconds
+        runtime: Number,        // Runtime of the loco in seconds
 });
  
 // Compile the schema by issuing the below:
