@@ -10,7 +10,7 @@ window.ControllerRunView = Backbone.View.extend({
         // Need to explicitely remove before added to avoid
         // double bindings
         // TODO: implement this ? TbD
-        //        this.linkManager.removeListener('input', this.showInput);
+        this.linkManager.removeListener('input', this.showInput);
         this.linkManager.on('input', this.showInput);
         this.linkManager.on('status', this.updateStatus.bind(this));
         this.render();

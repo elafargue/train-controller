@@ -42,6 +42,27 @@ AbstractEventsDispatcher.prototype = {
     this.dispatch_global(event_name, data);
     return this;
   },
+    
+  removeListener: function(event_name, callback) {
+      var list = this.callbacks[event_name] || [];
+      if (list.length) { // Do we have listeners for this event?
+          var idx = -1;
+          // Go through all callbacks on this event, see if we find
+          // the one we're looking for
+          for (var i=0; i < list.length; i++) {
+              if (list[i] === callback) {
+                  idx = i;
+                  break;
+              }
+          }
+          if (idx < 0)
+              return this;
+          list.splice(idx,1);
+          if (!list.length)
+              delete this.callbacks[event_name];
+      }
+      return this;
+  },
 
     /*
   bind_all: function(callback){
