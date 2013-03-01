@@ -46,6 +46,11 @@ window.LocoListItemView = Backbone.View.extend({
         // We need this because otherwise the enclosing logo thumbnail
         // will get the click, the loco will get selected and we'll end
         // up redirected to the home page.
+        // Somehow, once switching to FuelUX, I had to explicitely make
+        // the app navigate to the correct URL, because stopping event prop
+        // then also stopped the <a> from working too. Weird.
+        var url = event.target.href.substr(event.target.baseURI.length);
+        app.navigate(url, {trigger: true});
         event.stopPropagation();
     },
     

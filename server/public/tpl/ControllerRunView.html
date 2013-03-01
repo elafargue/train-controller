@@ -12,8 +12,9 @@
     <span class="span5"><hr></span>
     <span class="span2">
     <p style="text-align:center;">Power</p>
-        <div class="power" style="min-height:300px; margin-bottom: 20px;"></div>
-        
+        <div class="power progress vertical bottom" style="min-height:300px; margin-bottom: 20px;">
+            <div class="bar" data-percentage="0"></div>
+        </div>
     </span>
     <span class="span5"><hr></span>
 </div>
@@ -34,8 +35,37 @@
     <h3 id="myModalLabel">PID Adjustment</h3>
   </div>
   <div class="modal-body">
-    <p>P:   I:    D:    </p>
-  </div>
+      <div class="horizontal">
+    <span>P:</span>
+    <div class="spinner">
+        <input type="text" class="input-mini spinner-input">
+            <div class="spinner-buttons  btn-group btn-group-vertical">
+                <button class="btn spinner-up"><i class="icon-chevron-up"></i></button>
+                <button class="btn spinner-down"><i class="icon-chevron-down"></i></button>
+            </div>
+    </div>
+
+    <span>&nbsp;&nbsp;&nbsp;I:</span>
+        <div class="spinner">
+        <input type="text" class="input-mini spinner-input">
+            <div class="spinner-buttons  btn-group btn-group-vertical">
+                <button class="btn spinner-up"><i class="icon-chevron-up"></i></button>
+                <button class="btn spinner-down"><i class="icon-chevron-down"></i></button>
+            </div>
+    </div>
+
+    <span>&nbsp;&nbsp;&nbsp;D:</span>
+    <div class="spinner">
+        <input type="text" class="input-mini spinner-input">
+            <div class="spinner-buttons  btn-group btn-group-vertical">
+                <button class="btn spinner-up"><i class="icon-chevron-up"></i></button>
+                <button class="btn spinner-down"><i class="icon-chevron-down"></i></button>
+            </div>
+    </div>
+
+          </div>
+    
+    </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     <button class="btn" aria-hidden="true">Reset</button>

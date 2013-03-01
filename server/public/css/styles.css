@@ -78,6 +78,14 @@ h5 {
 }
 
 /**
+ * A horizontal and mid-height -aligned section
+ */
+.horizontal div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/**
  * Power controller styling
  */
 .power {  

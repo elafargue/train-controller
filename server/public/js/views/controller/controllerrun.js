@@ -20,22 +20,8 @@ window.ControllerRunView = Backbone.View.extend({
         var self = this;
         console.log("Rendering our controller Run View");
         $(this.el).html(this.template(this.model.toJSON()));
-        // Initialize the jQuery UI vertical slider for power:
-        // (reinitializing the .html above cleared everything including
-        // our slider)
-        $(".power", this.el).slider({
-                        orientation:"vertical",
-                        animate: true,
-                        range: "min",
-                        stop: function(event,ui) {
-                            // Gotta pass the context below, otherwise
-                            // this is the jQuery context in "power", and not
-                            // our view's context:
-                            self.power.call(self,event,ui);
-                            console.log("Range: " + $(".power .ui-slider-range-min", self.el).height());
-                        },
-                    }).draggable();
-
+        // Activate Bootstrap progressbar extended funtionality:
+        $('.progress .bar', this.el).progressbar();
         // TODO: get all existing controllers and add the
         // relevant - and populated data into the view
         return this;
@@ -45,6 +31,7 @@ window.ControllerRunView = Backbone.View.extend({
         "click .dir-back": "direction",
         "click .dir-fwd": "direction",
         "click .dir-stop": "direction",
+        "click .power" : "power",
     },
         
     direction: function(event) {
@@ -63,12 +50,16 @@ window.ControllerRunView = Backbone.View.extend({
         }
     },
     
-    power: function(event, ui) {
-        console.log('Power change to ' + ui.value);
+    power: function(event) {
+        var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
+        console.log("Power click at " + percentage + "%");
+        $('.progress .bar', this.el).attr('data-percentage',
+                                          percentage
+                                         ).progressbar();
         if (this.linkManager.connected)
-            this.linkManager.controllerCommand.speed(ui.value);
+            this.linkManager.controllerCommand.speed(percentage);
     },
-    
+        
     showInput: function(data) {
         // Blink the indicator to show we're getting data
         $('.comlink', this.el).toggleClass('btn-success');
@@ -87,7 +78,7 @@ window.ControllerRunView = Backbone.View.extend({
 
         var rateVal = parseInt(data.rate);
         if (rateVal)
-            $(".power .ui-slider-range-min", self.el).height(rateVal/800*300);
+            $(".progress .bar", self.el).attr('data-percentage',rateVal/800*100).progressbar();
     },
 
     updateStatus: function(data) {

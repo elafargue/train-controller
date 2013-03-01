@@ -44,6 +44,8 @@ window.LayoutListItemView = Backbone.View.extend({
     
     editLayout: function(event) {
         // Cf locolist.js for explanation
+        var url = event.target.href.substr(event.target.baseURI.length);
+        app.navigate(url, {trigger: true});
         event.stopPropagation();
     },
         
