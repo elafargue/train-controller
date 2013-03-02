@@ -121,6 +121,9 @@ var linkManager = function() {
         self.emit('status', data);
     }
     
+    this.controllerCommandResponse = function() {
+    }
+    
     this.requestStatus = function(data) {
         this.socket.emit('portstatus','');
     }

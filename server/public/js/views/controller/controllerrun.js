@@ -22,8 +22,18 @@ window.ControllerRunView = Backbone.View.extend({
         $(this.el).html(this.template(this.model.toJSON()));
         // Activate Bootstrap progressbar extended funtionality:
         $('.progress .bar', this.el).progressbar();
-        // TODO: get all existing controllers and add the
-        // relevant - and populated data into the view
+        var options = {
+                minimum: 0,
+                maximum: 10,
+                step: 0.1,
+                value: 0,
+                numberOfDecimals: 2
+        };
+        
+        $('#kp', this.el).spinedit(options);
+        $('#ki', this.el).spinedit(options);
+        $('#kd', this.el).spinedit(options);
+        
         return this;
     },
     
@@ -51,13 +61,14 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     power: function(event) {
+        if (!this.linkManager.connected)
+            return;
         var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
         console.log("Power click at " + percentage + "%");
         $('.progress .bar', this.el).attr('data-percentage',
                                           percentage
                                          ).progressbar();
-        if (this.linkManager.connected)
-            this.linkManager.controllerCommand.speed(percentage);
+        this.linkManager.controllerCommand.speed(percentage);
     },
         
     showInput: function(data) {
