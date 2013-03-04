@@ -107,7 +107,10 @@ var linkManager = function() {
     // Careful: in those functions, "this" is the socket.io context,
     // hence the use of self.
     this.processInput = function(data) {
-        self.emit('input', data);
+//        if (typeof data.bemf != 'undefined')
+            self.emit('input', data); // Only send this signal if we have BEMF value
+        if (typeof data.ack != 'undefined' )
+            self.emit('ack', data.ack);
         self.lastInput = new Date().getTime();
     };
     
@@ -120,7 +123,7 @@ var linkManager = function() {
         // Tell anyone who would be listening that status is updated
         self.emit('status', data);
     }
-    
+        
     this.controllerCommandResponse = function() {
     }
     
@@ -156,7 +159,10 @@ var linkManager = function() {
         },
         speed: function(val) {
             self.socket.emit('controllerCommand','{"speed":' + val + '}');
-        }
+        },
+        getPID: function(val) {
+            self.socket.emit('controllerCommand','{"get": "pid"}');
+        },
     };
 
     // Initialization code:

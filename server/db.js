@@ -58,7 +58,11 @@ var ControllerSchema = new Schema({
     name: String,
     type: String,
     port: String,
-    pidparams: {kp: Number, ki: Number, kd: Number, sample: Number}
+    pidkp: Number,
+    pidki: Number,
+    pidkd: Number,
+    pidsample: Number,
+    updaterate: Number
 });
 
 mongoose.model('Controller', ControllerSchema);

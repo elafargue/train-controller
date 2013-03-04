@@ -20,10 +20,10 @@ window.LayoutView = Backbone.View.extend({
     
     renderNextController: function(nextId, controllerIdList) {
         var self = this;
-        //console.log('ID to render: ' + nextId);
+        console.log('ID to render: ' + nextId);
         var newController = new Controller({_id: nextId});
         newController.fetch({success: function(){
-                //console.log('Controller fetched. Remaining: ' + controllerIdList.length);        
+                console.log('Controller fetched. Remaining: ' + controllerIdList.length);        
                 var newControllerDetailsView = new ControllerDetailsView({model: newController});
                 $('#controllers', self.el).append(newControllerDetailsView.render().el);
                 if (controllerIdList.length) {

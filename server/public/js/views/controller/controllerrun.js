@@ -11,6 +11,7 @@ window.ControllerRunView = Backbone.View.extend({
         // double bindings
         // TODO: implement this ? TbD
         this.linkManager.removeListener('input', this.showInput);
+        this.linkManager.removeListener('status',this.updateStatus);
         this.linkManager.on('input', this.showInput);
         this.linkManager.on('status', this.updateStatus.bind(this));
         this.render();
@@ -30,9 +31,9 @@ window.ControllerRunView = Backbone.View.extend({
                 numberOfDecimals: 2
         };
         
-        $('#kp', this.el).spinedit(options);
-        $('#ki', this.el).spinedit(options);
-        $('#kd', this.el).spinedit(options);
+        $('#kp', this.el).spinedit(options).spinedit('setValue',this.model.get('pidkp'));
+        $('#ki', this.el).spinedit(options).spinedit('setValue',this.model.get('pidki'));;
+        $('#kd', this.el).spinedit(options).spinedit('setValue',this.model.get('pidkd'));;
         
         return this;
     },
@@ -90,6 +91,14 @@ window.ControllerRunView = Backbone.View.extend({
         var rateVal = parseInt(data.rate);
         if (rateVal)
             $(".progress .bar", self.el).attr('data-percentage',rateVal/800*100).progressbar();
+        
+        var kp = parseInt(data.kp);
+        if (kp) {
+            var ki = parseInt(data.ki);
+            var kd = parseInt(data.kd);
+            var sample = parseInt(data.sample);
+            this.model.set('pidparams', {'kp': kp, 'ki':ki, 'kd':kd, 'sample': sample});
+        }
     },
 
     updateStatus: function(data) {

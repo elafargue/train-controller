@@ -1,11 +1,27 @@
 window.ControllerDetailsView = Backbone.View.extend({
 
     initialize: function () {
-        this.render();
+        // No need to force rendering...
+        //this.render();
     },
 
     render: function () {
+        console.log("Render controller details");
         $(this.el).html(this.template(this.model.toJSON()));
+        var options = {
+                minimum: 0,
+                maximum: 10,
+                step: 0.1,
+                numberOfDecimals: 2,
+                value: this.model.get('pidkp')
+        };
+        
+        $('#kp', this.el).spinedit(options);
+        options.value = this.model.get('pidki');
+        $('#ki', this.el).spinedit(options);
+        options.value = this.model.get('pidkd');
+        $('#kd', this.el).spinedit(options);
+
         return this;
     },
 
@@ -22,7 +38,13 @@ window.ControllerDetailsView = Backbone.View.extend({
         // Apply the change to the model
         var target = event.target;
         var change = {};
-        change[target.name] = target.value;
+        // Our Spinedit control returns values as strings even
+        // when they are numbers (uses .val() in the setvalue method),
+        // so we have to attempt to convert it back to a number if it makes
+        // sense:
+        var numval = parseFloat(target.value);
+        console.log("Controller details value change as float: " + numval);
+        change[target.name] = isNaN(numval) ? target.value : numval;
         this.model.set(change);
 
         // Run validation rule (if any) on changed item

@@ -45,7 +45,10 @@ window.Controller = Backbone.Model.extend({
         name: "Default name",
         type: "AVR",
         port: "/dev/tty.usb1234",
-        pidparams: {kp: 0.1, ki: 0.0, kd: 0.0, sample: 100},
+        pidkp: 0.1,
+        pidki: 0.1,
+        pidkd: 0.01,
+        pidsample: 100,
         updaterate: 300
     }
 });
