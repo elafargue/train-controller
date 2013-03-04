@@ -8,7 +8,9 @@ window.LayoutRunView = Backbone.View.extend({
     initialize: function () {
         console.log('Layout Run View Initialize');
         this.linkManager = this.options.lm;
-        this.linkManager.on('status', this.updatestatus.bind(this));
+        // Unbind before rebinding, to avoid double subscriptions
+        this.linkManager.off('status', this.updatestatus);
+        this.linkManager.on('status', this.updatestatus, this);
         this.render();
     },
 

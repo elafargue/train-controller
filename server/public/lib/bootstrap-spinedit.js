@@ -128,15 +128,35 @@ $(function () {
                 value: parseFloat(this.value.toFixed(this.numberOfDecimals))
             });
         },
+        
+        setValueSilent: function(value) {
+            // Same as setValue, but does not trigger a
+            // change event.
+            value = parseFloat(value);
+            if (isNaN(value))
+                value = this.minimum;
+            if (this.value == value)
+                return;
+            if (value < this.minimum)
+                value = this.minimum;
+            if (value > this.maximum)
+                value = this.maximum;
+            this.value = value;
+            this.element.val(this.value.toFixed(this.numberOfDecimals));
+        },
 
         increase: function () {
-            var newValue = this.value + this.step;
-            this.setValue(newValue);
+            if(!this.element.attr('disabled')) {
+                var newValue = this.value + this.step;
+                this.setValue(newValue);
+            }
         },
 
         decrease: function () {
-            var newValue = this.value - this.step;
-            this.setValue(newValue);
+            if(!this.element.attr('disabled')) {
+                var newValue = this.value - this.step;
+                this.setValue(newValue);
+            }
         },
 
         _keypress: function (event) {

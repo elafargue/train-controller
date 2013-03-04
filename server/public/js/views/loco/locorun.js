@@ -18,8 +18,10 @@ window.LocoRunView = Backbone.View.extend({
             this.targetbemf.push(0);
         }
         this.linkManager = this.options.lm;
-        this.linkManager.on('input', this.showInput.bind(this));
+        this.linkManager.off('input', this.showInput);
+        this.linkManager.on('input', this.showInput, this);
         // Create a timer that updates the running time while power is above zero
+        // (cleared when view is removed)
         this.timer = setInterval(this.updateRuntime.bind(this), 5000);
         this.render();
     },
@@ -82,18 +84,20 @@ window.LocoRunView = Backbone.View.extend({
     
     showInput: function(data) {
         // TODO : scaling is arbitrary at this stage...
-        var bemfVal = parseInt(data.bemf);
-        var targetVal = parseInt(data.target);
+        var bemfVal = parseFloat(data.bemf);
+        var targetVal = parseFloat(data.target);
         var rateVal = parseInt(data.rate);
-        if (data.rate)
+        if (!isNaN(data.rate))
             if (rateVal > 10) {
                 if (!this.running) {
                     this.prevStamp = new Date().getTime()/1000;
                     this.running = true;
+                    $('#runtime',this.el).addClass("text-success");
                 }
             } else if (this.running) {
                 this.updateRuntime();
                 this.running = false;
+                $('#runtime',this.el).removeClass("text-success");
                 this.model.save();
             }
         if (this.plot) {

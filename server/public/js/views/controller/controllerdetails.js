@@ -21,6 +21,13 @@ window.ControllerDetailsView = Backbone.View.extend({
         $('#ki', this.el).spinedit(options);
         options.value = this.model.get('pidkd');
         $('#kd', this.el).spinedit(options);
+        options = { step: 10,
+            minimum: 60,
+            maximum: 600,
+            numberOfDecimals: 0,
+            value: this.model.get('pidsample'),
+          };
+        $('#sample', this.el).spinedit(options);
 
         return this;
     },

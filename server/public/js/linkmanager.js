@@ -7,95 +7,6 @@
  */
 
 
-/**
- * Abstract event binding, adatped from https://gist.github.com/ismasan/464257
- *
- *   Example:
- *
- *    var MyEventEmitter = function(){};
- *    MyEventEmitter.prototype = new AbstractEventsDispatcher;
- * 
- *    var emitter = new MyEventEmitter();
- * 
- *    // Bind to single event
- *    emitter.on('foo_event', function(data){ alert(data)} );
- * 
- *    // Bind to all
- *    emitter.bind_all(function(event_name, data){ alert(data) });
- * 
- *    // Bind to all except some
- *    emitter.bind_all_except(['except_this_one', 'and_this_one'], function(event_name, data){ alert(data) });
- */
-var AbstractEventsDispatcher = function(){};
-AbstractEventsDispatcher.prototype = {
-  callbacks: {},
-  global_callbacks: [],
-  
-  on: function(event_name, callback){
-    this.callbacks[event_name] = this.callbacks[event_name] || [];
-    this.callbacks[event_name].push(callback);
-    return this;// chainable
-  },
-  
-  emit: function(event_name, data){
-    this.dispatch(event_name, data);
-    this.dispatch_global(event_name, data);
-    return this;
-  },
-    
-  removeListener: function(event_name, callback) {
-      var list = this.callbacks[event_name] || [];
-      if (list.length) { // Do we have listeners for this event?
-          var idx = -1;
-          // Go through all callbacks on this event, see if we find
-          // the one we're looking for
-          for (var i=0; i < list.length; i++) {
-              if (list[i] === callback) {
-                  idx = i;
-                  break;
-              }
-          }
-          if (idx < 0)
-              return this;
-          list.splice(idx,1);
-          if (!list.length)
-              delete this.callbacks[event_name];
-      }
-      return this;
-  },
-
-    /*
-  bind_all: function(callback){
-    this.global_callbacks.push(callback);
-    return this;
-  },
-  
-  bind_all_except: function(except, handler){
-    this.bind_all(function(event_name, event_data){
-      if(except.indexOf(event_name) > -1) return false;
-      handler(event_name, event_data)
-    });
-    return this
-  },
-  */
-  
-  dispatch: function(event_name, data){
-    var chain = this.callbacks[event_name];
-    if(typeof chain == 'undefined') return; // no callbacks for this event
-    for(var i = 0; i < chain.length; i++){
-      chain[i]( data )
-    }
-  },
-  
-  dispatch_global: function(event_name, data){
-    for(var i = 0; i < this.global_callbacks.length; i++){
-      this.global_callbacks[i]( event_name, data )
-    }
-  }
-  
-};
-
-
 var linkManager = function() {
 
     var self = this;
@@ -108,9 +19,9 @@ var linkManager = function() {
     // hence the use of self.
     this.processInput = function(data) {
 //        if (typeof data.bemf != 'undefined')
-            self.emit('input', data); // Only send this signal if we have BEMF value
+            self.trigger('input', data); // Only send this signal if we have BEMF value
         if (typeof data.ack != 'undefined' )
-            self.emit('ack', data.ack);
+            self.trigger('ack', data.ack);
         self.lastInput = new Date().getTime();
     };
     
@@ -121,7 +32,7 @@ var linkManager = function() {
             self.connected = false;
         }
         // Tell anyone who would be listening that status is updated
-        self.emit('status', data);
+        self.trigger('status', data);
     }
         
     this.controllerCommandResponse = function() {
@@ -163,6 +74,14 @@ var linkManager = function() {
         getPID: function(val) {
             self.socket.emit('controllerCommand','{"get": "pid"}');
         },
+        setPID: function(kp,ki,kd,sample) {
+            // The Arduino aJson library is sensitive to presence or
+            // not of "." in floats...
+            self.socket.emit('controllerCommand','{"pid": {"kp":'+
+                             ((kp==0) ? "0.0" : kp ) +',"ki":'+
+                             ((ki==0) ? "0.0" : ki ) +',"kd":'+
+                             ((kd==0) ? "0.0" : kd ) +',"sample":'+sample+'}}');
+        },
     };
 
     // Initialization code:
@@ -175,5 +94,7 @@ var linkManager = function() {
     this.watchdog = setInterval(this.wdCall.bind(this), 3100);    
 }
 
-// Add the "on" and "emit" methods to our link manager
-linkManager.prototype = new AbstractEventsDispatcher;
+// Add event management to our link manager, from the Backbone.Events class:
+_.extend(linkManager.prototype, Backbone.Events);
+//  linkManager.prototype = new Backbone.Events;
+// linkManager.prototype = new AbstractEventsDispatcher;

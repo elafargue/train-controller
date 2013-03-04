@@ -36,14 +36,16 @@
   </div>
   <div class="modal-body">
       <div class="horizontal">
-          <span>P:&nbsp;</span><input id="kp" type="text" value="<%= pidparams.kp%>" />
-          <span>&nbsp;&nbsp;I:&nbsp;</span><input id="ki" type="text" value="<%= pidparams.ki%>"/>
-          <span>&nbsp;&nbsp;D:&nbsp;</span><input id="kd" type="text" value="<%= pidparams.kd%>"/>
+          <span>P:&nbsp;</span><input id="kp" name="pidkp" type="text" />
+          <span>&nbsp;&nbsp;I:&nbsp;</span><input id="ki" name="pidki" type="text"/>
+          <span>&nbsp;&nbsp;D:&nbsp;</span><input id="kd" name="pidkd" type="text"/>
+          <span>&nbsp;&nbsp;Sample time:&nbsp;</span><input id="sample" name="pidsample" type="text"/>
       </div>
 </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn" aria-hidden="true">Reset</button>
-    <button class="btn btn-primary">Save changes</button>
+    <button class="btn pidquery" aria-hidden="true" data-toggle="tooltip" data-original-title="Get current settings from controller">Query</button>
+    <button class="btn pidreset" aria-hidden="true">Reset</button>
+    <button class="btn pidsave btn-primary">Save changes</button>
   </div>
 </div>
