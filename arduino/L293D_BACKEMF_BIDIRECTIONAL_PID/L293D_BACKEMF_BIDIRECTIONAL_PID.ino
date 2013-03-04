@@ -8,15 +8,13 @@
  *
  * Issue with traditional driving of motor by PWM'ing the EN pin: when EN is low,
  *       the motor actively brakes, which lowers efficiency. This design improves it as it
- *       does not put both motor connectors in HiZ at the same time.
- *
+ *       does not put both motor connectors in HiZ at the same time. so the motor is freerunning.
  *
  *  In this version, we are able to change the direction but still measure BackEMF
  *  easily, without braking the motor when EN is switched off. The drawback is that we
  *  use an extra EN pin on the L293D.
  *
  *  TODO:
- *    - implement JSON input as well as output using aJson
  *    - implement digital filtering rather than rolling averages
  *    - implement point and accessory control
  */
@@ -29,12 +27,10 @@
 #include <aJSON.h>
 
 
-
 //////////////////////////////////////////////////////////////////
 // Enable Debug mode
 //////////////////////////////////////////////////////////////////
 #define DEBUG
-
 
 //////////////////////////////////////////////////////////////////
 // Hardware pinout info
@@ -58,25 +54,22 @@ const int debugpin = 7; // This is connected to a scope to check the speed
 // Global constants and defines
 //////////////////////////////////////////////////////////////////
 
-
 // Define two set/clear macros to do PIN manipulation
 // way way faster than Arduino's digitalWrite.
 // inspired by the the _BV() macro
 #define setpin(port, pin) (port) |= (1 << (pin)) 
 #define clearpin(port, pin) (port) &= ~(1 << (pin))
 
-
 // Direction of the train
 #define STOP 0
 #define FWD  1
 #define BCK  2
 
-// Types of messages that can be output
+// Types of messages that can be output (internal codes)
 #define MSG_NOP 0
 #define MSG_PID_VALUES 1
-
-#define MSG_ACK 98    // Sent to acknowlege a command
-#define MSG_ERROR 99  // Sent to tell command error
+#define MSG_ACK 98          // Sent to acknowlege a command
+#define MSG_ERROR 99        // Sent to tell command error
 #define MSG_JSON_SYNTAX 100 // JSON Syntax error
 
 // ADC Prescaler values to force the ADC to a faster mode
@@ -84,7 +77,6 @@ const unsigned char PS_16 = (1 << ADPS2);
 const unsigned char PS_32 = (1 << ADPS2) | (1 << ADPS0);
 const unsigned char PS_64 = (1 << ADPS2) | (1 << ADPS1);
 const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-
 
 
 //////////////////////////////////////////////////////////////////
@@ -109,6 +101,7 @@ unsigned long last_print; // time when we last output a status message or respon
 unsigned long fr_print;
 #endif
 int next_message; // ID of next message to output
+char* ack_cmd;    // command we are acknowledging for.
 
 
 //////////////////////////////////////////////////////////////////
@@ -240,15 +233,14 @@ ISR(TIMER1_COMPB_vect){
  * samples is a must. Length of the moving average should remain under the PID
  * loop sample time.
  */
- double moving_avg() {
+double moving_avg() {
   double avg =0;
   for (int i=0; i< BUFFER_SIZE; i++) {
     // Note: we took 8 samples, but skipped the averaging
     // in the interrupt to win time, so we divide here:
     avg += ring_buffer[i]/8;
   }
-  return avg/BUFFER_SIZE;
-  
+  return avg/BUFFER_SIZE;  
 }
   
 
@@ -302,9 +294,11 @@ aJsonObject *createMessage()
       break;
     case MSG_ACK:
       aJson.addTrueToObject(msg, "ack");
+      aJson.addStringToObject(msg, "cmd", ack_cmd);
       break;
     case MSG_ERROR:
       aJson.addFalseToObject(msg,"ack");
+      aJson.addStringToObject(msg, "cmd", ack_cmd);
       break;
     case MSG_JSON_SYNTAX:
       aJson.addStringToObject(msg,"error", "json");
@@ -314,7 +308,7 @@ aJsonObject *createMessage()
       aJson.addNumberToObject(msg, "target", target_rpm);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
 #ifdef DEBUG
-      if (millis() - fr_print > 1000) {
+      if (millis() - fr_print > 2000) {
         aJson.addNumberToObject(msg, "freeram", freeRam());
         fr_print = millis();
       }
@@ -360,7 +354,7 @@ void processMessage(aJsonObject *msg)
   //       instance, don't set speed and direction in the
   //       same json packet.
 
-  // Reply with the message (debug)
+  // Reply with the message
   aJson.print(msg, &serial_stream);
   Serial.println();
 
@@ -381,6 +375,7 @@ void processMessage(aJsonObject *msg)
     measured_rpm = moving_avg();
     target_rpm = measured_rpm;
     myPID.SetMode(AUTOMATIC); // Reset the PID to new RPM target
+    ack_cmd = "speed";
     next_message = MSG_ACK;
     return;
   }
@@ -392,6 +387,7 @@ void processMessage(aJsonObject *msg)
     }
     
     if (strcmp(jsptr->valuestring,"f")==0) {
+      ack_cmd = "dir";
       next_message = MSG_ACK;
       if (current_direction == FWD)
         return;
@@ -408,6 +404,7 @@ void processMessage(aJsonObject *msg)
     }
 
     if (strcmp(jsptr->valuestring,"b")==0) {
+      ack_cmd = "dir";
       next_message = MSG_ACK;
       if (current_direction == BCK)
         return;
@@ -447,6 +444,7 @@ void processMessage(aJsonObject *msg)
     if (!arg) return;
     if (arg->type != aJson_Int) return;
     // We now have all values:
+    ack_cmd = "pid";
     next_message = MSG_ACK;
     sampleTime = arg->valueint;
     Kp = newKp;
@@ -478,6 +476,7 @@ void processMessage(aJsonObject *msg)
       int updt = arg->valueint;
       if (updt < 100) return; // Don't accept updates faster than this
       updateRate = updt;
+      ack_cmd = "set";
       next_message = MSG_ACK;
       return;
     }
