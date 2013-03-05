@@ -127,7 +127,7 @@ double Kp=0.40, Ki=1.45, Kd=0;
 // We need a fast running loop, because the trains are
 // very lightweight, so their speed changes very fast when
 // any perturbation occurs.
-int sampleTime = 80; // Lower than 80 is longer than the loop, so the PID calculations
+int sampleTime = 80; // Lower than 80 is shorter than the loop, so the PID calculations
                      // will be wrong, don't go lower than this.
 
 
