@@ -22,7 +22,7 @@ window.LocoRunView = Backbone.View.extend({
         this.linkManager.on('input', this.showInput, this);
         // Create a timer that updates the running time while power is above zero
         // (cleared when view is removed)
-        this.timer = setInterval(this.updateRuntime.bind(this), 5000);
+        this.timer = setInterval(this.updateRuntime.bind(this), 1000);
         this.render();
     },
     

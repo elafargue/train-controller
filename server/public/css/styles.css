@@ -89,7 +89,7 @@ h5 {
 /**
  * Power controller styling
  */
-.power {  
+.power {
     border-width: 1px;  
     border-style: solid;  
     border-color: #333 #333 #777 #333;  
@@ -102,34 +102,15 @@ h5 {
     background-repeat: repeat-x;
     box-shadow: inset 0 1px 5px 0px rgba(0, 0, 0, .5),   
                  0 1px 0 0px rgba(250, 250, 250, .5);
-}
-
-/* Color gradient consistent with the btn-danger color */
-.power .ui-slider-range {
-  color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #da4f49;
-  *background-color: #bd362f;
-  background-image: -moz-linear-gradient(left, #ee5f5b, #bd362f);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#bd362f));
-  background-image: -webkit-linear-gradient(left, #ee5f5b, #bd362f);
-  background-image: -o-linear-gradient(left, #ee5f5b, #bd362f);
-  background-image: linear-gradient(to right, #ee5f5b, #bd362f);
-  background-repeat: repeat-x;
-  border-color: #bd362f #bd362f #802420;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b', endColorstr='#ffbd362f', GradientType=0);
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-}
-
-.power .ui-slider-handle {  
-    z-index: 2;  
-    min-width: 48px;  
-    height: 10px;  
     cursor: pointer;
-    color: #1C94C4;  
-    outline: none;  
-}  
+}
+
+.power[disabled="disabled"] {
+    background-color:#eeeeee;
+    background-image: none;
+    box-shadow: none;
+    border-color: #cccccc;
+}
 
 /**
  * Flot charts styling

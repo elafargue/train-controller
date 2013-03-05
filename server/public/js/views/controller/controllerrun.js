@@ -160,7 +160,8 @@ window.ControllerRunView = Backbone.View.extend({
             this.linkManager.controllerCommand.backward();
         } else if ($(event.target).hasClass('dir-stop')) {
             console.log("Stop train");
-            this.linkManager.controllerCommand.stop();
+            //this.linkManager.controllerCommand.stop();
+            this.linkManager.controllerCommand.speed(0);
         }
     },
     
@@ -208,22 +209,29 @@ window.ControllerRunView = Backbone.View.extend({
                 }
             }
         }
-        if (data.dir) {
+        if (data.dir) { // Controller replays each command it receives, handy!
+            $('.power', this.el).removeAttr('disabled');
             switch(data.dir) {
                     case 'f':
-                    $('.btn-group > .dir-fwd',this.el).addClass("btn-success");
-                    $('.btn-group > .dir-back',this.el).removeClass("btn-success");
-                    break;
+                        $('.btn-group > .dir-fwd',this.el).addClass("btn-success");
+                        $('.btn-group > .dir-back',this.el).removeClass("btn-success");
+                        break;
                     case 'b':
-                    $('.btn-group > .dir-back',this.el).addClass("btn-success");
-                    $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
-                    break;
+                        $('.btn-group > .dir-back',this.el).addClass("btn-success");
+                        $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
+                        break;
             }
         }
 
         var rateVal = parseInt(data.rate);
-        if (!isNaN(rateVal))
+        if (!isNaN(rateVal)) {
             $(".progress .bar", self.el).attr('data-percentage',rateVal/800*100).progressbar();
+            if (rateVal < 10) { // We consider the train stopped under a PWM rate of 10.
+                $('.btn-group > .dir-stop',this.el).addClass("btn-danger");
+            } else {
+                $('.btn-group > .dir-stop',this.el).removeClass("btn-danger");
+            }
+        }
         
         var kp = parseFloat(data.kp);
         if (!isNaN(kp)) {
@@ -247,7 +255,6 @@ window.ControllerRunView = Backbone.View.extend({
             // TODO: right now, we're retrieving from the
             // controller, when should we be setting ?
             this.linkManager.controllerCommand.getPID();
-
             $(':button', this.el).removeAttr('disabled');
             $(':input', this.el).removeAttr('disabled');
             // Weird bug: if you disable the slider, then it becomes draggable across
@@ -256,6 +263,10 @@ window.ControllerRunView = Backbone.View.extend({
         } else {
             $(':button', this.el).attr('disabled', true);
             $(':input', this.el).attr('disabled', true);
+            $('.power', this.el).attr('disabled', true);
+            $('.btn-group > .dir-back',this.el).removeClass("btn-success");
+            $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
+            $('.btn-group > .dir-stop',this.el).removeClass("btn-danger");
             // $(".power", this.el).slider('option', 'disabled', true);
         }
     },
