@@ -230,9 +230,9 @@ window.ControllerRunView = Backbone.View.extend({
             var ki = parseFloat(data.ki);
             var kd = parseFloat(data.kd);
             var sample = parseInt(data.sample);
-            this.model.set('pidpk', kp);
-            this.model.set('pidpi', ki);
-            this.model.set('pidpd', kd);
+            this.model.set('pidkp', kp);
+            this.model.set('pidki', ki);
+            this.model.set('pidkd', kd);
             this.model.set('pidsample', sample);
             $('#kp', this.el).spinedit('setValueSilent', kp);
             $('#ki', this.el).spinedit('setValueSilent', ki);

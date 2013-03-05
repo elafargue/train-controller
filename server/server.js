@@ -156,6 +156,8 @@ io.sockets.on('connection', function (socket) {
         // data contains connection type: IP or Serial
         // and the port name or IP address.
         //  This opens the serial port:
+        if (myPort)
+            myPort.close();
         myPort = new SerialPort(data, {
             baudRate: 9600,
             dataBits: 8,
@@ -165,21 +167,27 @@ io.sockets.on('connection', function (socket) {
             // look for return and newline at the end of each data packet:
             parser: serialport.parsers.readline("\r\n")
         });
+        myPort.flush();
         console.log('Result of port open attempt: ' + myPort);
         
         // Callback once the port is actually open: 
        myPort.on("open", function () {
            console.log('Port open');
-           myPort.flush();
-           portOpen = true;
-           socket.emit('status', {portopen: portOpen});
-           // listen for new serial data:  
+           var successCtr = 0;
+           // listen for new serial data:
            myPort.on('data', function (data) {
            try {
              // Convert the string into a JSON object:
              var serialData = JSON.parse(data);
              // send a serial event to the web client with the data:
              socket.emit('serialEvent', serialData);
+             if (!portOpen && successCtr > 4) { // Only declare open once we undersand what the
+                                                // controller is sending
+                portOpen = true;
+                socket.emit('status', {portopen: portOpen});
+              } else if (successCtr < 5) { // avoid a wrap after a few hours...
+                  successCtr++;
+              }
             } catch (err) {
                 console.log('Serial input - json format error');
             }                   

@@ -52,7 +52,7 @@ var linkManager = function() {
     
     this.wdCall = function() {
         var ts = new Date().getTime();
-        if ((ts-this.lastInput) > 3000)
+        if ((ts-this.lastInput) > 5000)
             this.requestStatus();
     }
     
@@ -91,7 +91,7 @@ var linkManager = function() {
     this.socket.emit('portstatus','');
     // Start a 3-seconds interval watchdog to listen for input:
     // if no input in the last 2 seconds, then request port status
-    this.watchdog = setInterval(this.wdCall.bind(this), 3100);    
+    this.watchdog = setInterval(this.wdCall.bind(this), 5000);    
 }
 
 // Add event management to our link manager, from the Backbone.Events class:

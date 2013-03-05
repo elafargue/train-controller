@@ -38,14 +38,20 @@ window.LayoutRunView = Backbone.View.extend({
         // Depending on port status, update our controller
         // connect button:
         if (this.linkManager.connected) {
-            $('.ctrl-connect', this.el).html("Disconnect controller.").removeClass('btn-danger').addClass('btn-success');
+            $('.ctrl-connect', this.el).html("Disconnect controller.")
+                .removeClass('btn-danger').addClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
         } else {
-            $('.ctrl-connect', this.el).html("Connect to controller.").addClass('btn-danger').removeClass('btn-success');
+            $('.ctrl-connect', this.el).html("Connect to controller.")
+                .addClass('btn-danger').removeClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
         }
     },
     
     ctrlConnect: function() {
         var self = this;
+        if ($('.ctrl-connect', this.el).attr('disabled'))
+            return;
+        $('.ctrl-connect', this.el).html("Connect to controller.").addClass('btn-warning').removeClass('btn-success')
+                                   .removeClass('btn-danger').attr('disabled', true);
         // First, get controller settings (assume Serial for now)
         var controllers = this.model.get('controllers');
         if (controllers.length) {
