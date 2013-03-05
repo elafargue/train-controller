@@ -222,7 +222,7 @@ window.ControllerRunView = Backbone.View.extend({
         }
 
         var rateVal = parseInt(data.rate);
-        if (rateVal)
+        if (!isNaN(rateVal))
             $(".progress .bar", self.el).attr('data-percentage',rateVal/800*100).progressbar();
         
         var kp = parseFloat(data.kp);
