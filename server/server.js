@@ -185,6 +185,11 @@ io.sockets.on('connection', function (socket) {
             }                   
            });
        });
+        
+        myPort.on("close", function() {
+            portOpen = false;
+            socket.emit('status', {portopen: portOpen});
+        });
     });
         
     socket.on('closeport', function(data) {
@@ -195,9 +200,6 @@ io.sockets.on('connection', function (socket) {
         console.log('Closing port');
         if (myPort)
             myPort.close();
-        portOpen = false;
-        socket.emit('status', {portopen: portOpen});
-
     });
     
     socket.on('portstatus', function() {
