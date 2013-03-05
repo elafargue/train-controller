@@ -24,10 +24,13 @@ window.ControllerRunView = Backbone.View.extend({
         // Variables for throttling PID updates so that our
         // controller can keep up: don't send updates faster
         // than every 300ms
-        this.pidstamp = new Date().getTime()/1000;
+        this.pidstamp = new Date().getTime();
         this.pidupdatepending = false;
         this.pidupdateneeded = true;
         this.pidwd = null;
+        
+        // Also throttle sending speed udpates to the controller
+        this.speedstamp = new Date().getTime();
         
         this.render();
     },
@@ -80,6 +83,7 @@ window.ControllerRunView = Backbone.View.extend({
         "click .dir-fwd": "direction",
         "click .dir-stop": "direction",
         "click .power" : "power",
+        "touchmove .power": "power",
         "remove": "onRemove",
     },
     
@@ -103,8 +107,8 @@ window.ControllerRunView = Backbone.View.extend({
         }
         this.pidupdatepending = true;
         var stamp = new Date().getTime()/1000;
-        if (stamp - this.stamp > 400) {
-            this.stamp = stamp;
+        if (stamp - this.pidstamp > 400) {
+            this.pidstamp = stamp;
             this.sendPIDupdate();
         } else {
             // Set a timer to delay the PID update command:
@@ -163,7 +167,18 @@ window.ControllerRunView = Backbone.View.extend({
     power: function(event) {
         if (!this.linkManager.connected)
             return;
+        // Detect if we're on a tablet and behave accordingly:
+        if (event.type === "touchmove") {
+            event.preventDefault(); // block finger scrolling of the page
+            // Assume we only have one finger on the screen, ok ?
+            var touch = event.originalEvent.touches[0];
+            event.pageY = touch.pageY; // Yeah, hack the jQuery event!
+        }
         var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
+        var stamp = new Date().getTime();
+        if ((stamp - this.speedstamp) < 400)
+            return;
+        this.speedstamp = stamp;
         console.log("Power click at " + percentage + "%");
         $('.progress .bar', this.el).attr('data-percentage',
                                           percentage
