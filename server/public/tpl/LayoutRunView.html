@@ -1,25 +1,12 @@
 <div class="row-fluid">
-    <div class="span8">
-        <p>
-            Layout is selected. 
-        </p>
+    <div class="span2">
+                <h5><%= name %></h5> 
         <p>
             <a href="#" role="button" class="ctrl-connect btn btn-warning">Connect to controller</a>
         </p>
-
+                    <p>More info and controls will go below.</p>
     </div>
-    <div class="thumbnail span4" style="text-align: center;">
-        <img src="<%= picture === null ? 'pics/layouts/generic.jpg' : 'pics/layouts/' + picture %>" width="250" alt="">
-        <h5><%= name %></h5>
-    </div>
-
-
-</div>
-
-<div class="row-fluid status-bar">
-    <div class="span12">
-        <div class="alert alert-success" id="layout-alert" style="display: none">
-            <b>Success!</b> Layout saved successfully
-        </div>
+    <div class="thumbnail span10" id="layoutarea" style="position:relative;">
+        <img src="<%= picture === null ? 'pics/layouts/generic.jpg' : 'pics/layouts/' + picture %>" id="layoutpic" width="100%">
     </div>
 </div>

@@ -34,7 +34,7 @@
                         <div class="controls">
                             <div class="row-fluid">
                                 <ul class="thumbnails" id="controllers">
-                                    <li>    <div class="thumbnail">
+                                    <li><div class="thumbnail">
                                             <h5  style="text-align: center;">Add new...</h5>
                                              <a href="#" class="btn addctrl btn-small"><i class="icon-plus-sign"></i></a>
                                             </div>
@@ -46,9 +46,18 @@
 
                     <div class="control-group">
                         <label class="control-label">Accessories:</label>
-                        <div class="controls" id="accessories">
-                                <a href="#" class="btn addacc pull-left"><i class="icon-plus-sign"></i></a>                            
+                        <div class="controls" >
+                              <div class="row-fluid">
+                                <ul class="thumbnails" id="accessories">
+                                    <li><div class="thumbnail">
+                                            <h5  style="text-align: center;">Add new...</h5>
+                                             <a href="#" class="btn addacc btn-small"><i class="icon-plus-sign"></i></a>
+                                            </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+                        
                     </div>
 
 
@@ -57,7 +66,7 @@
                 <div class="span4">
                     <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
                         <p><img id="picture" width="180" src="<%= picture === null ? 'pics/layouts/generic.jpg' : 'pics/layouts/' + picture %>"/></p>
-                        <p style="color:#999;">To change the picture, drag a new picture from your file system onto the box above.</p>
+                        <p style="color:#999;">To change the picture, drag a new picture from your computer onto the box above.</p>
                     </div>
                 </div>
 

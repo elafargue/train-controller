@@ -1,0 +1,63 @@
+<!-- Details about an accessory, used inside a layout detailed view -->
+<!-- There can be several of those inside layout detailed views, so we
+      add the controller's Id to any element that needs to have a unique id -->
+<!-- Thumbnail -->
+<li class="span3">
+    <div class="thumbnail">
+        <h5  style="text-align: center;">
+            <%=name%>
+        </h5>
+        <a href="#accModal-<%=_id%>" role="button" class="btn btn-small" data-toggle="modal"><i class="icon-edit"></i></a>
+        <a href="#" role="button" class="btn btn-small accessory-delete"><i class="icon-remove-sign"></i></a>
+
+<!-- Modal -->
+<div id="accModal-<%=_id%>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel-<%=_id%>">Accessory details</h3>
+  </div>
+    <form class="form-horizontal">
+        <div class="modal-body">
+            <p>
+                Accessory ID: <%=_id %>
+            </p>
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+                    <div class="controls">
+                        <input type="text" name="name" placeholder="Accessory name" value="<%=name  %>">
+                    </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="type">Type</label>
+                    <div class="controls">
+                        <select name="type" >
+                            <option value="Turnout" <%= type == "Turnout" ? 'selected="selected"'  : '' %>>Turnout</option>
+                            <option value="Uncoupler" <%= type == "Uncoupler" ? 'selected="selected"'  : '' %>>Uncoupler</option>
+                            <option value="Isolating" <%= type == "Isolating" ? 'selected="selected"'  : '' %>>Isolating</option>
+                        </select>
+                    </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="controllerAddress">Address</label>
+                    <div class="controls">
+                        <input type="text" name="controllerAddress" value="<%= controllerAddress  %>">
+                    </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label" for"pid">Symbol</label>
+                 <div class="controls">
+
+                </div>
+            </div>
+
+        </div><!-- modal-body -->
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary accessory-save">Save changes</button>
+  </div>
+    </form>
+</div>
+
+    </div><!-- thumbnail -->
+    </li>

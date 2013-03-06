@@ -12,8 +12,15 @@ window.LayoutView = Backbone.View.extend({
         var controllers = new Array().concat(this.model.get('controllers'));
         if(controllers.length) {
             console.log('We have ' + controllers.length + ' controllers for this layout');
+            $('.addctrl',this.el).attr('disabled',true);
             // We are going to start a recursive creation of all controller views:
             this.renderNextController(controllers.pop(), controllers);
+        }
+        var accessories = new Array().concat(this.model.get('accessories'));
+        if (accessories.length) {
+            console.log('We have ' + accessories.length + ' accessories for this layout');
+            // We are going to start a recursive creation of all accessory views:
+            this.renderNextAccessory(accessories.pop(), accessories);
         }
         return this;
     },
@@ -49,12 +56,46 @@ window.LayoutView = Backbone.View.extend({
                                 }
                             }});
     },
+    
+    renderNextAccessory: function(nextId, accessoryIdList) {
+    var self = this;
+    console.log('ID to render: ' + nextId);
+    var newAccessory = new Accessory({_id: nextId});
+    newAccessory.fetch({success: function(){
+            console.log('Accessory fetched. Remaining: ' + accessoryIdList.length);        
+            var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory});
+            $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+            if (accessoryIdList.length) {
+                self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);
+            } else {
+                // Ensure consistency
+                self.model.save();
+            }
+    },
+                        error: function() {
+                            // Somehow the accessory Id we got in the array was not
+                            // valid: remove it from our model, and move on to the next
+                            // one
+                            console.log('Deleting ghost accessory');
+                            var accessories = self.model.get('accessories');
+                            accessories.splice(accessories.indexOf(nextId),1);
+                            // No need to set again, right ? Or does Backbone expect it to
+                            // know that there the controllers were changed?
+                            if(accessoryIdList.length) {
+                                self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);
+                            } else {
+                                self.model.save();
+                            }
+                        }});
+    },
+
 
     events: {
         "change"        : "change",
         "click .save"   : "beforeSave",
         "click .delete" : "deleteLayout",
         "click .addctrl": "addController",
+        "click .addacc" : "addAccessory",
 //        "click .delctrl": "deleteController",
         "dragover #picture"     : "dragOver",
         "dragleave #picture"     : "dragLeave",
@@ -134,6 +175,9 @@ window.LayoutView = Backbone.View.extend({
     },
     
     addController: function() {
+        if ($('.addctrl',this.el).attr('disabled'))
+            return false;
+
         self = this;
         // Add a new controller to our layout:
         // - 1: create an empty controller
@@ -158,9 +202,40 @@ window.LayoutView = Backbone.View.extend({
                 utils.showAlert('Error', 'An error occurred while trying to add a controller.', 'alert-error');
             }
         });
-        return false;
+        $('.addctrl',this.el).attr('disabled',true);
 
+        return false;
     },
+    
+    addAccessory: function() {
+        self = this;
+        // Add a new accessory to our layout:
+        // - 1: create an empty accessory
+        // - 2: save it to server so we get an ID
+        // - 3: create the view and display it
+        var newAccessory = new Accessory();
+        newAccessory.save(null, {
+            success: function (newAccessory) {
+                utils.showAlert('Success!', 'Accessory created successfully.', 'alert-success');
+                console.log('So the accessory looks like this: ' + newAccessory.id);
+                self.model.get('accessories').push(newAccessory.id);
+                // TODO: we should trigger a model save of the layout here, to be sure that
+                // the reference to the accessory does not get lost, but then what if
+                // the layout model does not validate ?
+                var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory});
+                $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+                // Ensure consistency
+                self.model.save();
+            },
+            error: function () {
+                console.log('Accessory: error saving');
+                utils.showAlert('Error', 'An error occurred while trying to add an accessory.', 'alert-error');
+            }
+        });
+
+        return false;
+    },
+
     
     dragOver: function(event) {
         console.log('Something gettting dragged in here');

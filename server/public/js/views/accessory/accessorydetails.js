@@ -1,4 +1,4 @@
-window.ControllerDetailsView = Backbone.View.extend({
+window.AccessoryDetailsView = Backbone.View.extend({
 
     initialize: function () {
         // No need to force rendering...
@@ -6,36 +6,15 @@ window.ControllerDetailsView = Backbone.View.extend({
     },
 
     render: function () {
-        console.log("Render controller details");
+        console.log("Render accessory details");
         $(this.el).html(this.template(this.model.toJSON()));
-        var options = {
-                minimum: 0,
-                maximum: 10,
-                step: 0.1,
-                numberOfDecimals: 2,
-                value: this.model.get('pidkp')
-        };
-        
-        $('#kp', this.el).spinedit(options);
-        options.value = this.model.get('pidki');
-        $('#ki', this.el).spinedit(options);
-        options.value = this.model.get('pidkd');
-        $('#kd', this.el).spinedit(options);
-        options = { step: 10,
-            minimum: 60,
-            maximum: 600,
-            numberOfDecimals: 0,
-            value: this.model.get('pidsample'),
-          };
-        $('#sample', this.el).spinedit(options);
-
         return this;
     },
 
     events: {
         "change"        : "change",
-        "click .controller-save"   : "beforeSave",
-        "click .controller-delete": "deleteController",
+        "click .accessory-save"   : "beforeSave",
+        "click .accessory-delete": "deleteAccessory",
     },
 
     change: function (event) {
@@ -45,12 +24,7 @@ window.ControllerDetailsView = Backbone.View.extend({
         // Apply the change to the model
         var target = event.target;
         var change = {};
-        // Our Spinedit control returns values as strings even
-        // when they are numbers (uses .val() in the setvalue method),
-        // so we have to attempt to convert it back to a number if it makes
-        // sense:
-        var numval = parseFloat(target.value);
-        change[target.name] = isNaN(numval) ? target.value : numval;
+        change[target.name] = target.value;
         this.model.set(change);
 
         // Run validation rule (if any) on changed item
@@ -70,17 +44,17 @@ window.ControllerDetailsView = Backbone.View.extend({
 
     beforeSave: function () {
         var self = this;
-        console.log('Controller: before save for controller ' + this.model.id);
+        console.log('Controller: before save for accessory ' + this.model.id);
         var check = this.model.validateAll();
         if (check.isValid === false) {
             utils.displayValidationErrors(check.messages);
             return false;
         }
-        this.saveController();
+        this.saveAccessory();
         return false;
     },
 
-    saveController: function () {
+    saveAccessory: function () {
         var self = this;
         // Upon save, we need to save the data into the layout
         this.model.save(null, {
@@ -88,9 +62,9 @@ window.ControllerDetailsView = Backbone.View.extend({
                 // Dismiss the modal (containts ID since we can have
                 // several controller views on the same page for different
                 // controllers:
-                $('#myModal-' + self.model.id).modal('hide');
+                $('#accModal-' + self.model.id).modal('hide');
                 // Wait until modal finishes hiding...
-                $('#myModal-' + self.model.id).on('hidden', function () {
+                $('#accModal-' + self.model.id).on('hidden', function () {
                     console.log('Hidden modal');
                     // ... and trigger a render since the name might have changed
                     // (there should be a better way of doing this?)
@@ -104,9 +78,9 @@ window.ControllerDetailsView = Backbone.View.extend({
         });
     },
 
-    deleteController: function () {
+    deleteAccessory: function () {
         self = this;
-        console.log("Delete controller " + this.model.id);
+        console.log("Delete accessory " + this.model.id);
         this.model.destroy({
             success: function () {
                 //alert('Controller deleted successfully');

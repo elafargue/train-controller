@@ -85,6 +85,26 @@ h5 {
     vertical-align: middle;
 }
 
+/**
+ * The little accessory items on the layout view
+ */
+.accessoryitem {
+    padding: 1px;
+    position: absolute;
+    max-width: 50px;
+    max-height: 50px;
+    top:10px;
+    left: 10px;
+    text-align: center;
+    background:#ffffff;
+    opacity: 0.6;
+    z-index:10;
+}
+
+.accessoryitem:hover {
+    opacity: 1.0;
+}
+
 
 /**
  * Power controller styling

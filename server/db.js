@@ -70,12 +70,18 @@ mongoose.model('Controller', ControllerSchema);
 /**
  * Accessories. Can be a point, or something else.
  * accessories have an adress on a controller, and are located
- * on layouts
+ * on layouts.
+ *
+ * In this first revision, we only support one controller, so we don't
+ * need to store the controllerId
  */
 var AccessorySchema = new Schema({
                 name: String,
-                loc : { x:Number, y:Number},
-                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
+                locX: Number,
+                locY: Number,
+                symbol: String,
+                type: String,
+//                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
                 controllerAddress: Number
 });
 
@@ -85,7 +91,8 @@ mongoose.model('Accessory', AccessorySchema);
  * We never manage controllers and accessories outside of
  * layouts, so no need to define separate schemas for those.
  *
- * This schema supports multiple controllers.
+ * This schema supports multiple controllers, but the app only supports
+ * one max for now.
  */
 var LayoutSchema = new Schema({
         name: String,

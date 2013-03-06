@@ -62,7 +62,7 @@ require('./db.js');
 var express = require('express'),
     loco = require('./routes/locomotives.js'),
     controllers = require('./routes/controllers.js'),
-//    accessories = require('./routes/accessories.js'),
+    accessories = require('./routes/accessories.js'),
     layouts = require('./routes/layouts.js'),
     settings = require('./routes/settings.js');
 
@@ -108,6 +108,16 @@ app.get('/controllers/:id', controllers.findById);
 app.post('/controllers', controllers.addController);
 app.put('/controllers/:id', controllers.updateController);
 app.delete('/controllers/:id', controllers.deleteController);
+
+/**
+ * Interface for managing accessories
+ */
+app.get('/accessories', accessories.findAll);
+app.get('/accessories/:id', accessories.findById);
+app.post('/accessories', accessories.addAccessory);
+app.put('/accessories/:id', accessories.updateAccessory);
+app.delete('/accessories/:id', accessories.deleteAccessory);
+
 
 /**
  * Interface for our settings. Only one settings object,
