@@ -14,6 +14,8 @@ var linkManager = function() {
     
     this.connected = false;
     this.lastInput = 0;
+    this.turnouts = 0; // Max number of turnouts supported on the controller.
+                       // (never changes, so we cache it)
     
     // Careful: in those functions, "this" is the socket.io context,
     // hence the use of self.
@@ -22,6 +24,10 @@ var linkManager = function() {
             self.trigger('input', data); // Only send this signal if we have BEMF value
         if (typeof data.ack != 'undefined' )
             self.trigger('ack', data.ack);
+        if (typeof data.turnouts != 'undefined' ) {
+            self.turnouts = data.turnouts;
+            self.trigger('turnouts', data.turnouts);
+        }
         self.lastInput = new Date().getTime();
     };
     
@@ -59,6 +65,7 @@ var linkManager = function() {
     // TODO: right now we have one type of controllerCommand. But we can
     // extend it for other types of protocols if we want to:
     this.controllerCommand = {
+        
         forward: function() {
             self.socket.emit('controllerCommand', '{"dir":"f"}');
         },
@@ -78,9 +85,21 @@ var linkManager = function() {
             // The Arduino aJson library is sensitive to presence or
             // not of "." in floats...
             self.socket.emit('controllerCommand','{"pid": {"kp":'+
-                             ((kp==0) ? "0.0" : kp ) +',"ki":'+
-                             ((ki==0) ? "0.0" : ki ) +',"kd":'+
-                             ((kd==0) ? "0.0" : kd ) +',"sample":'+sample+'}}');
+                             ((kp%1==0) ? kp+".0" : kp ) +',"ki":'+
+                             ((ki%1==0) ? ki+".0" : ki ) +',"kd":'+
+                             ((kd%1==0) ? kd+".0" : kd ) +',"sample":'+sample+'}}');
+        },
+        getProp: function(prop) {
+            self.socket.emit('controllerCommand','{"get": "'+prop+'"}');
+        },
+        getTurnouts: function() {
+            // Note: with rapid successive getTurnouts calls, we will end up
+            // calling the controller several times still, but this is better
+            // than no caching at all.
+            if (self.turnouts>0) {
+                self.trigger('turnouts',self.turnouts);
+            } else
+                self.socket.emit('controllerCommand','{"get": "turnouts"}');
         },
     };
 

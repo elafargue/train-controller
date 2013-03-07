@@ -1,13 +1,27 @@
 window.AccessoryDetailsView = Backbone.View.extend({
 
     initialize: function () {
-        // No need to force rendering...
-        //this.render();
+        this.linkManager = this.options.lm;
     },
 
     render: function () {
+        var self = this;
         console.log("Render accessory details");
         $(this.el).html(this.template(this.model.toJSON()));
+        
+        // Populate address dropdown based on controller properties
+        if (this.linkManager.connected) {
+            this.linkManager.once('turnouts',function(tn) {
+                // fill in
+                console.log("Turnouts: " + tn);
+                $('#tn_ids', self.el).empty().removeAttr('disabled');
+                for (var i=0; i < tn; i++) {
+                    $('#tn_ids', self.el).append('<option' +
+                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
+                }
+            });
+            this.linkManager.controllerCommand.getTurnouts();
+        }
         return this;
     },
 

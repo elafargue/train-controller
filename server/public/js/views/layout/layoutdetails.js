@@ -1,6 +1,7 @@
 window.LayoutView = Backbone.View.extend({
 
     initialize: function () {
+        this.linkManager = this.options.lm;
         this.render();
     },
 
@@ -13,6 +14,7 @@ window.LayoutView = Backbone.View.extend({
         if(controllers.length) {
             console.log('We have ' + controllers.length + ' controllers for this layout');
             $('.addctrl',this.el).attr('disabled',true);
+            $('.addacc',this.el).removeAttr('disabled');
             // We are going to start a recursive creation of all controller views:
             this.renderNextController(controllers.pop(), controllers);
         }
@@ -21,6 +23,12 @@ window.LayoutView = Backbone.View.extend({
             console.log('We have ' + accessories.length + ' accessories for this layout');
             // We are going to start a recursive creation of all accessory views:
             this.renderNextAccessory(accessories.pop(), accessories);
+        }
+        
+        // Update the warning/OK label depending on whether the controller is connected
+        if (this.linkManager.connected) {
+            $('#connection-label', this.el).html('OK').removeClass('label-warning').addClass('label-success');
+            $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
         }
         return this;
     },
@@ -63,7 +71,7 @@ window.LayoutView = Backbone.View.extend({
     var newAccessory = new Accessory({_id: nextId});
     newAccessory.fetch({success: function(){
             console.log('Accessory fetched. Remaining: ' + accessoryIdList.length);        
-            var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory});
+            var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
             $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
             if (accessoryIdList.length) {
                 self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);
@@ -177,7 +185,7 @@ window.LayoutView = Backbone.View.extend({
     addController: function() {
         if ($('.addctrl',this.el).attr('disabled'))
             return false;
-
+        
         self = this;
         // Add a new controller to our layout:
         // - 1: create an empty controller
@@ -196,6 +204,7 @@ window.LayoutView = Backbone.View.extend({
                 $('#controllers', self.el).append(newControllerDetailsView.render().el);
                 // Ensure consistency
                 self.model.save();
+                $('.addacc',self.el).removeAttr('disabled'); // We have a controller, we can now add accessories
             },
             error: function () {
                 console.log('Controller: error saving');
@@ -208,6 +217,9 @@ window.LayoutView = Backbone.View.extend({
     },
     
     addAccessory: function() {
+        if ($('.addacc',this.el).attr('disabled'))
+            return false;
+
         self = this;
         // Add a new accessory to our layout:
         // - 1: create an empty accessory

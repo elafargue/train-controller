@@ -8,12 +8,7 @@
 window.HomeView = Backbone.View.extend({
 
     initialize:function (options) {
-        // When we initialize the view, we open a socket.io
-        // connection to the server, that is passed
-        // to all subviews when they need it. This way, we keep a single
-        // connection between server and web app:
-        // this.socket = io.connect(); // (we connect on same host, we don't need a URL)
-        this.linkManager = new linkManager();
+        this.linkManager = this.options.lm;
         this.model.on('change:currentLoco', this.change, this);
         this.model.on('change:currentLayout', this.change, this);
         this.render();

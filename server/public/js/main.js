@@ -29,6 +29,11 @@ var AppRouter = Backbone.Router.extend({
         // We need to be sure the settings are fetched before moving
         // further, so we add the Ajax option "async" below.
         this.settings.fetch({async:false});
+        
+        // Create our link manager: it is in charge of talking
+        // to the server-side controller interface through a socket.io
+        // web socket. It is passed to all views who need it.
+        this.linkManager =  new linkManager();
     },
 
     home: function (id) {
@@ -38,7 +43,7 @@ var AppRouter = Backbone.Router.extend({
         // connection to our controller, so we want to preserve it,
         // which is why we don't re-create it...
         if (!this.homeView) {
-            this.homeView = new HomeView({model: this.settings});
+            this.homeView = new HomeView({model: this.settings, lm: this.linkManager});
             $('#content').html(this.homeView.el);
         } else {
             $('#content').html(this.homeView.el);
@@ -83,9 +88,10 @@ var AppRouter = Backbone.Router.extend({
     },
 
     layoutDetails: function (id) {
+        var self = this;
         var layout = new Layout({_id: id});
         layout.fetch({success: function(){
-            $("#content").html(new LayoutView({model: layout}).el);
+            $("#content").html(new LayoutView({model: layout, lm:self.linkManager}).el);
         }});
         this.headerView.selectMenuItem();
     },
