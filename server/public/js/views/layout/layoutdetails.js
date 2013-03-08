@@ -250,7 +250,7 @@ window.LayoutView = Backbone.View.extend({
 
     
     dragOver: function(event) {
-        console.log('Something gettting dragged in here');
+        //console.log('Something gettting dragged in here');
         $("#picture").addClass("hover");
         return false;
     },
