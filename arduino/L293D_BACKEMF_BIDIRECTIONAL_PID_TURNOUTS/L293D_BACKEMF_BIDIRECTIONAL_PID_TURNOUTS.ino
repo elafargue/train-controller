@@ -104,7 +104,6 @@ const int spi_ss = 6;
 const int turnout_max = 16; // 2x 74HC595 + ULN2083A low side driver
 const int turnout_banks = 4; // We have 4 banks of 4 turnouts
 
-
 //////////////////////////////////////////////////////////////////
 // Global Variables
 //////////////////////////////////////////////////////////////////
@@ -128,6 +127,11 @@ unsigned long fr_print;
 #endif
 int next_message; // ID of next message to output
 char* ack_cmd;    // command we are acknowledging for.
+
+// Accessory global variables
+double accessory_on_timestamp = 0; // On time stamp
+int accessory_on_id = -1;           // ID of accessory that was turned on
+int accessory_on_port = 0;
 
 
 //////////////////////////////////////////////////////////////////
@@ -210,7 +214,7 @@ void setup() {
    SPI.begin();
    
    pinMode(spi_ss,OUTPUT);
-
+   SPI.transfer(0); // Make sure all outputs are Zero at startup!
 }
 
 /**
@@ -323,7 +327,7 @@ int freeRam () {
  * dir: true or false (straight or not)
  * op : one of OP_PULSE, OP_ON, OP_OFF
  */
-boolean accessoryCommand(int address, boolean dir, int op)
+boolean accessoryCommand(int address, int port, int op)
 {
   byte response;
   // Compute the turnout bank we should enable
@@ -331,21 +335,37 @@ boolean accessoryCommand(int address, boolean dir, int op)
   int bank = address / turnout_banks;
   
   // Compute the actual I/O we should pulse
-  int io = (address%turnout_banks*2);
-  if (dir) io++;
+  int io = 1 << (address%turnout_banks*2);
+  io = io << port;
   
    // Enable the turnout bank (highside driver)
    // TODO (not on hardware prototype yet)
   
+    if (op == OP_ON) {
+      // Save timestamp & accessory ID:
+      accessory_on_id = address;
+      accessory_on_port = port;
+      accessory_on_timestamp = millis();
+    }
+#ifdef DEBUG
+    aJsonObject *msg = aJson.createObject();
+    aJson.addNumberToObject(msg, "io", io);
+    aJson.print(msg, &serial_stream);
+    Serial.println();
+    aJson.deleteItem(msg);
+#endif
    // Send pulse on the hardware SPI bus (lowside driver)
-   digitalWrite(spi_ss,HIGH);
+   digitalWrite(spi_ss,LOW);
    if (op != OP_OFF)
-     SPI.transfer(address);
-   if (op == OP_PULSE)
-     delay(turnoutPulse);
+     response = SPI.transfer(io);
+     if (op == OP_PULSE) {
+        digitalWrite(spi_ss,HIGH);
+        delay(turnoutPulse);
+        digitalWrite(spi_ss,LOW);
+   }
    if (op != OP_ON)
      response = SPI.transfer(0);
-   digitalWrite(spi_ss,LOW);
+   digitalWrite(spi_ss,HIGH);
    
    // Disable the turnout bank
    
@@ -528,6 +548,46 @@ void processMessage(aJsonObject *msg)
     // Did not understand the argument
     return;
   }
+
+  jsptr = aJson.getObjectItem(msg, "acc");
+  if (jsptr) {
+      ack_cmd = "acc";
+      aJsonObject *arg = aJson.getObjectItem(jsptr, "id");
+      if (!arg) return;
+      if (arg->type != aJson_Int) return;
+      int id = arg->valueint;
+      if (id > turnout_max) return;
+      arg = aJson.getObjectItem(jsptr, "port");
+      if (!arg) return;
+      if (arg->type != aJson_Int) return;
+      int port = arg->valueint;
+      if (port > 1) return;
+      arg = aJson.getObjectItem(jsptr, "cmd");
+      if (!arg) return;
+      if (arg->type != aJson_String) return;
+      if (strcmp(arg->valuestring,"p")==0) {
+        if (accessory_on_id > -1) return; // We only allow one accessory command at a time.
+                                          // so if an accessory is still on, we return.
+        accessoryCommand(id, port, OP_PULSE);
+        next_message = MSG_ACK;
+        return;
+      }
+      if (strcmp(arg->valuestring,"on")==0) {
+        if (accessory_on_id > -1) return; // We only allow one accessory command at a time.
+                                          // so if an accessory is still on, we return.
+        // Switch on
+        accessoryCommand(id, port, OP_ON);
+        next_message = MSG_ACK;
+        return;
+      }
+      if (strcmp(arg->valuestring,"off")==0) {
+        // Switch off
+        accessoryCommand(id, port, OP_OFF);
+        next_message = MSG_ACK;
+        return;
+      }
+      return;
+  }
   
   jsptr = aJson.getObjectItem(msg, "pid");
   if (jsptr) {
@@ -637,27 +697,38 @@ int test = 0;
  */
 void loop() {
   
-    
+  ///////
+  // Regular serial port output
+  ///////  
   if (millis() - last_print > updateRate) {
     aJsonObject *msg = createMessage();
     aJson.print(msg, &serial_stream);
     Serial.println();
     aJson.deleteItem(msg);
     last_print = millis();
-    test = test++%255;
-    accessoryCommand(test, true, OP_PULSE);
+  }
+
+  ///////
+  // Safeguard: switch off an accessory that remained
+  // on for too long
+  ///////
+  if (accessory_on_id > -1) {
+    if (millis() - accessory_on_timestamp > turnoutMaxOn)
+        accessoryCommand(accessory_on_id,accessory_on_port, OP_OFF);
+        accessory_on_id = -1;
   }
  
- measured_rpm = moving_avg();
- myPID.Compute(); // Most important part!
- pwm(pwm_rate);
+  ///////
+  // PID calculations
+  ///////  
+   measured_rpm = moving_avg();
+   myPID.Compute(); // Most important part!
+   pwm(pwm_rate);
 
+  ///////
+  // Process incoming commands
+  ///////  
   if (serial_stream.available()) {
-    // We use a filter to avoid crashing the controller if someone
-    // tries to send bogus json data we don't understand and swamps our
-    // very limited memory.
-    // TODO: removed the filter, looking at the aJson code, filtering is not
-    // actually implemented at all, unless I missed something ???
     aJsonObject *msg = aJson.parse(&serial_stream);
     if (!msg) {
       // We were not able to decode this, let's
