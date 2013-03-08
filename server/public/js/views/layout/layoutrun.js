@@ -55,13 +55,21 @@ window.LayoutRunView = Backbone.View.extend({
         "remove": "onRemove",
         "dragstart .accessoryitem": "accdragstart",
         "dragover #layoutpic"     : "dragOver",
+        "dragover .accessoryitem" : "dragOver",
         "dragleave #layoutpic"    : "dragLeave",
-        "drop #layoutpic"         : "dropHandler"
+        "drop #layoutpic"         : "dropHandler",
+        "drop .accessoryitem"     : "dropHandler"
     },
 
+    
+    d2: function(event) {
+        return false;
+    },
     dragOver: function(event) {
-        //console.log('Something gettting dragged in here');
         $("#layoutpic").addClass("hover");
+        // Snap to grid here:
+        this.dm.style.left = Math.floor((event.originalEvent.pageX - this.imgOffset.left-this.myOffsetLeft+5)/10)*10 + 'px';
+        this.dm.style.top =  Math.floor((event.originalEvent.pageY - this.imgOffset.top-this.myOffsetTop+5)/10)*10 + 'px';
         return false;
     },
     
@@ -73,41 +81,35 @@ window.LayoutRunView = Backbone.View.extend({
     
     accdragstart: function(event) {
         console.log("Drag start");
-        var style = window.getComputedStyle(event.target, null);
-        // We gotta check the unit of getPropertyValue (can be px or %)
-        // Note: we assume that if 'left' is in %, then 'top' is in % too.
-        var unitIsPercent = style.getPropertyValue("left").indexOf('%');
-        var left = parseFloat(style.getPropertyValue("left"),10);
-        var top  = parseFloat(style.getPropertyValue("top"),10)
-        if (unitIsPercent>0) {
-            var width  = $('#layoutpic', this.el).width();
-            var height = $('#layoutpic', this.el).height();
-            left = width*left/100;
-            top =  height*top/100;
-        } 
         event.originalEvent.dataTransfer.setData("text/plain",
-                    (left - event.originalEvent.clientX) + ',' +
-                    (top - event.originalEvent.clientY) + ',' +
-                                                event.currentTarget.id);
+                    event.currentTarget.id);
+        // Set a few variables to speed up the drag and drop ops:
+        this.imgOffset = $("#layoutpic", this.el).offset();
+        this.dm = document.getElementById(event.target.id);
+        // Offset within the clicked accessory (passed as part of the event context:
+        this.myOffsetLeft = event.originalEvent.offsetX;
+        this.myOffsetTop = event.originalEvent.offsetY;
     },
     
     dropHandler: function(event) {
+        var self = this;
         console.log("Drop on layout pic");
         $("#layoutpic").removeClass("hover");
         var offset = event.originalEvent.dataTransfer.getData("text/plain").split(',');
-        var dm = document.getElementById(offset[2]);
         // Compute style in percent of the containing image, so that we can handle
         // window resizes automatically:
-        var imgWidth = event.currentTarget.clientWidth;
-        var imgHeight = event.currentTarget.clientHeight;
-        dm.style.left = (event.originalEvent.clientX + parseFloat(offset[0],10))/imgWidth*100 + '%';
-        dm.style.top = (event.originalEvent.clientY + parseFloat(offset[1],10))/imgHeight*100 + '%';
+        var imgWidth = $("#layoutpic").width();
+        var imgHeight = $("#layoutpic").height();
+        // Note: most browsers round the percentage to ceil, so the DIV moves slightly
+        // when converting from pixel to percentage, I don't know how to avoid this
+        this.dm.style.left = parseInt(this.dm.style.left)/imgWidth*100 + '%';
+        this.dm.style.top = parseInt(this.dm.style.top)/imgHeight*100 + '%';
         
         // Now save this new position: (get ID from the element's ID, since it's "acc-ID"
-        var id = offset[2].substr(4);
+        var id = offset[0].substr(4);
         var accessory = new Accessory({_id: id});
         accessory.fetch({success: function(){
-                accessory.save({locX: parseFloat(dm.style.left,10), locY: parseFloat(dm.style.top)});
+                accessory.save({locX: parseFloat(self.dm.style.left,10), locY: parseFloat(self.dm.style.top)});
         }});
         event.preventDefault();
         return false;
