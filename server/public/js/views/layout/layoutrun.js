@@ -33,7 +33,7 @@ window.LayoutRunView = Backbone.View.extend({
         var self = this;
         var newAccessory = new Accessory({_id: nextId});
         newAccessory.fetch({success: function(){
-                var newAccessoryItemView = new AccessoryItemView({model: newAccessory});
+                var newAccessoryItemView = new AccessoryItemView({model: newAccessory, lm:self.linkManager});
                 $('#layoutarea', self.el).append(newAccessoryItemView.render().el);
                 if (accessoryIdList.length) {
                     self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);

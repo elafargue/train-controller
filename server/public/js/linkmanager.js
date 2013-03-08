@@ -101,6 +101,11 @@ var linkManager = function() {
             } else
                 self.socket.emit('controllerCommand','{"get": "turnouts"}');
         },
+        accessoryCmd: function(address, port, op) {
+            self.socket.emit('controllerCommand', '{"acc":{"id":' + address + ', "port":'+ port
+                                                   + ', "cmd":"'+op+'"}}');
+        
+        },
     };
 
     // Initialization code:
