@@ -7,6 +7,7 @@ window.LayoutRunView = Backbone.View.extend({
 
     initialize: function () {
         console.log('Layout Run View Initialize');
+        
         this.linkManager = this.options.lm;
         // Unbind before rebinding, to avoid double subscriptions
         this.linkManager.off('status', this.updatestatus);
@@ -65,11 +66,13 @@ window.LayoutRunView = Backbone.View.extend({
     d2: function(event) {
         return false;
     },
+    
     dragOver: function(event) {
         $("#layoutpic").addClass("hover");
         // Snap to grid here:
-        this.dm.style.left = Math.floor((event.originalEvent.pageX - this.imgOffset.left-this.myOffsetLeft+5)/10)*10 + 'px';
-        this.dm.style.top =  Math.floor((event.originalEvent.pageY - this.imgOffset.top-this.myOffsetTop+5)/10)*10 + 'px';
+        console.log('left:' + event.originalEvent.pageX + ' - ' + this.imgOffset.left + ' - ' + this.myOffsetLeft);
+        this.dm.css('left',Math.floor((event.originalEvent.pageX - this.imgOffset.left-this.myOffsetLeft+5)/this.gridX)*this.gridX+'px');
+        this.dm.css('top', Math.floor((event.originalEvent.pageY - this.imgOffset.top-this.myOffsetTop+5)/this.gridY)*this.gridY+'px');
         return false;
     },
     
@@ -85,10 +88,25 @@ window.LayoutRunView = Backbone.View.extend({
                     event.currentTarget.id);
         // Set a few variables to speed up the drag and drop ops:
         this.imgOffset = $("#layoutpic", this.el).offset();
-        this.dm = document.getElementById(event.target.id);
-        // Offset within the clicked accessory (passed as part of the event context:
-        this.myOffsetLeft = event.originalEvent.offsetX;
-        this.myOffsetTop = event.originalEvent.offsetY;
+        console.log(this.imgOffset.top);
+        this.dm = $("#" + event.target.id, this.el);
+        // We need to store the image width and height and divide by 30 to get
+        // the pixel number for a 3.3% grid consistent at all image sizes
+        this.gridX = $("#layoutpic",this.el).width()/30;
+        this.gridY = $("#layoutpic", this.el).height()/30;
+        // Offset within the clicked accessory:
+        // Careful: we get into browser compatibility issues: offsetX / offsetY don't
+        // exist on Firefox.
+        var e = event.originalEvent;
+        if (e.offsetX == undefined) {
+            // Firefox
+            this.myOffsetLeft = e.pageX - this.dm.offset().left;
+            this.myOffsetTop = e.pageY - this.dm.offset().top;
+        } else {
+            // Webkit
+            this.myOffsetLeft = e.offsetX;
+            this.myOffsetTop = e.offsetY;
+        }
     },
     
     dropHandler: function(event) {
@@ -102,14 +120,17 @@ window.LayoutRunView = Backbone.View.extend({
         var imgHeight = $("#layoutpic").height();
         // Note: most browsers round the percentage to ceil, so the DIV moves slightly
         // when converting from pixel to percentage, I don't know how to avoid this
-        this.dm.style.left = parseInt(this.dm.style.left)/imgWidth*100 + '%';
-        this.dm.style.top = parseInt(this.dm.style.top)/imgHeight*100 + '%';
+        var leftPercent = parseInt(this.dm.css('left'))/imgWidth*100;
+        var topPercent = parseInt(this.dm.css('top'))/imgHeight*100;
+        
+        this.dm.css('left',leftPercent+'%');
+        this.dm.css('top', topPercent+'%');
         
         // Now save this new position: (get ID from the element's ID, since it's "acc-ID"
         var id = offset[0].substr(4);
         var accessory = new Accessory({_id: id});
         accessory.fetch({success: function(){
-                accessory.save({locX: parseFloat(self.dm.style.left,10), locY: parseFloat(self.dm.style.top)});
+                accessory.save({locX: leftPercent, locY: topPercent});
         }});
         event.preventDefault();
         return false;
