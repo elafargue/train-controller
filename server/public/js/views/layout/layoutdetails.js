@@ -234,7 +234,7 @@ window.LayoutView = Backbone.View.extend({
                 // TODO: we should trigger a model save of the layout here, to be sure that
                 // the reference to the accessory does not get lost, but then what if
                 // the layout model does not validate ?
-                var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory});
+                var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
                 $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
                 // Ensure consistency
                 self.model.save();
