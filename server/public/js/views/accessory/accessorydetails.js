@@ -19,6 +19,18 @@ window.AccessoryDetailsView = Backbone.View.extend({
                     $('#tn_ids', self.el).append('<option' +
                                                  ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
                 }
+                if (self.model.get('type') === 'Uncoupler') {
+                    $('#portA',self.el).removeAttr('disabled');
+                    $('#portB',self.el).removeAttr('disabled');
+                    switch (self.model.get('controllerSubAddress')) {
+                            case 0:
+                                $('#portA', self.el).button('toggle');
+                                break;
+                            case 1:
+                                $('#portB', self.el).button('toggle');
+                                break;
+                    }
+                }
             });
             this.linkManager.controllerCommand.getTurnouts();
         }
@@ -29,11 +41,24 @@ window.AccessoryDetailsView = Backbone.View.extend({
         "change"        : "change",
         "click .accessory-save"   : "beforeSave",
         "click .accessory-delete": "deleteAccessory",
+        "click .portButton": "updateAccessoryPort",
+    },
+    
+    updateAccessoryPort: function(event) {
+        switch (event.target.id) {
+                case 'portA':
+                    this.model.set('controllerSubAddress', 0);
+                    break;
+                case 'portB':
+                    this.model.set('controllerSubAddress', 1);
+                    break;
+        }
     },
 
     change: function (event) {
         // Remove any existing alert message
         utils.hideAlert();
+        console.log("Model Changed");
 
         // Apply the change to the model
         var target = event.target;
@@ -47,6 +72,19 @@ window.AccessoryDetailsView = Backbone.View.extend({
             utils.addValidationError(target.id, check.message);
         } else {
             utils.removeValidationError(target.id);
+        }
+        
+        if (this.model.get('type') === 'Uncoupler') {
+            $('#portA',this.el).removeAttr('disabled');
+            $('#portB',this.el).removeAttr('disabled');
+            switch (this.model.get('controllerSubAddress')) {
+                case 0:
+                    $('#portA', this.el).button('toggle');
+                    break;
+                case 1:
+                    $('#portB', this.el).button('toggle');
+                    break;
+            }
         }
         
         // TODO: is this right ?

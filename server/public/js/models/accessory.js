@@ -44,8 +44,9 @@ window.Accessory = Backbone.Model.extend({
                 locX: 0,
                 locY: 0,
                 symbol: "turnout-right",
-                type: "turnout",
-                controllerAddress: 3
+                type: "Turnout",
+                controllerAddress: 0,
+                controllerSubAddress: -1,
     }
 });
 

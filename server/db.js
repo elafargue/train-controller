@@ -77,12 +77,14 @@ mongoose.model('Controller', ControllerSchema);
  */
 var AccessorySchema = new Schema({
                 name: String,
-                locX: Number,
+                locX: Number, // Location (in %) on the layout drawing
                 locY: Number,
                 symbol: String,
-                type: String,
+                type: String, // Can be "Turnout", "Uncoupler", "Isolating"
 //                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
-                controllerAddress: Number
+                controllerAddress: Number,
+                controllerSubAddress: Number, // Only used for Uncouplers right now, to indicate the port (0 or 1) directly.
+                
 });
 
 mongoose.model('Accessory', AccessorySchema);
