@@ -70,9 +70,18 @@ window.LayoutRunView = Backbone.View.extend({
     dragOver: function(event) {
         $("#layoutpic").addClass("hover");
         // Snap to grid here:
-        console.log('left:' + event.originalEvent.pageX + ' - ' + this.imgOffset.left + ' - ' + this.myOffsetLeft);
-        this.dm.css('left',Math.floor((event.originalEvent.pageX - this.imgOffset.left-this.myOffsetLeft+5)/this.gridX)*this.gridX+'px');
-        this.dm.css('top', Math.floor((event.originalEvent.pageY - this.imgOffset.top-this.myOffsetTop+5)/this.gridY)*this.gridY+'px');
+        // console.log('left:' + event.originalEvent.pageX + ' - ' + this.imgOffset.left + ' - ' + this.myOffsetLeft);
+        var left = Math.floor((event.originalEvent.pageX - this.imgOffset.left-this.myOffsetLeft+5)/this.gridX)*this.gridX;
+        var top = Math.floor((event.originalEvent.pageY - this.imgOffset.top-this.myOffsetTop+5)/this.gridY)*this.gridY;
+        // Constraint 'left' and 'top' to the layout area (otherwise by dragging slowly we can actually move the
+        // accessories all over the screen!
+        left = (left < 0) ? 0 : left;
+        top = (top < 0) ? 0 : top;
+        left = (left > this.gridX*30) ? this.gridX*30 : left; // We use gridX*30 to avoid doing a jQuery selector which takes
+                                                              // much more time
+        top = (top > this.gridY*30) ? this.gridY*30 : top;
+        this.dm.css('left',left+'px');
+        this.dm.css('top', top+'px');
         return false;
     },
     
