@@ -121,4 +121,17 @@ var ApplicationSettingsSchema = new Schema({
 mongoose.model('Settings',ApplicationSettingsSchema);
 
 
+/**
+ * Logbook entries
+ */
+var LogbookSchema = new Schema({
+    locoid: {type: Schema.Types.ObjectId, ref:'Loco', default:null},
+    date: Date,
+    runtime: Number,
+    comment: String
+});
+
+mongoose.model('Logbook', LogbookSchema);
+
+
 mongoose.connect( 'mongodb://localhost/traindb' );

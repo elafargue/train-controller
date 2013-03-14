@@ -52,7 +52,7 @@ window.LayoutView = Backbone.View.extend({
                                 // Somehow the controller Id we got in the array was not
                                 // valid: remove it from our model, and move on to the next
                                 // one
-                                console.log('Deleting ghost layout');
+                                console.log('Deleting ghost controller');
                                 var controllers = self.model.get('controllers');
                                 controllers.splice(controllers.indexOf(nextId),1);
                                 // No need to set again, right ? Or does Backbone expect it to

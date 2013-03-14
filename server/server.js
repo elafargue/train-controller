@@ -60,7 +60,8 @@ require('./db.js');
  * Setup the HTTP server and routes
  */
 var express = require('express'),
-    loco = require('./routes/locomotives.js'),
+    locos = require('./routes/locomotives.js'),
+    logbook = require('./routes/logbooks.js'),
     controllers = require('./routes/controllers.js'),
     accessories = require('./routes/accessories.js'),
     layouts = require('./routes/layouts.js'),
@@ -83,12 +84,21 @@ var connected = false;
 /**
  * Interface for managing the locomotives
  */
-app.get('/locos', loco.findAll);
-app.get('/locos/:id', loco.findById);
-app.post('/locos', loco.addLoco);
-app.post('/locos/:id/picture', loco.uploadPic);
-app.put('/locos/:id', loco.updateLoco);
-app.delete('/locos/:id', loco.deleteLoco);
+app.get('/locos', locos.findAll);
+app.get('/locos/:id', locos.findById);
+app.post('/locos', locos.addLoco);
+app.post('/locos/:id/picture', locos.uploadPic);
+app.put('/locos/:id', locos.updateLoco);
+app.delete('/locos/:id', locos.deleteLoco);
+
+/**
+ * Interface for managing loco logbooks
+*/
+app.get('/locos/:id/logbook', logbook.findByLocoId);
+app.post('/logbooks', logbook.addEntry);
+app.get('/logbooks/', logbook.findAll);
+app.put('/logbooks/:id', logbook.updateEntry);
+app.delete('/logbooks/:id', logbook.deleteEntry);
 
 /**
  * Interface for managing the layouts

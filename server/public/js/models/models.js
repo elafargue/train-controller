@@ -14,6 +14,10 @@ window.Loco = Backbone.Model.extend({
         this.validators.reference = function (value) {
             return value.length > 0 ? {isValid: true} : {isValid: false, message: "You must enter a reference"};
         };
+        
+        // Initialise this loco's logbook:
+        this.logbook = new Logbook;
+        this.logbook.url = '/locos/' + this.id + '/logbook';
 
     },
 
@@ -44,7 +48,8 @@ window.Loco = Backbone.Model.extend({
         year: "",
         description: "",
         runtime: 0,
-        picture: null
+        picture: null,
+        // maintenanceLog: []
     }
 });
 
@@ -54,4 +59,28 @@ window.LocoCollection = Backbone.Collection.extend({
 
     url: "/locos"
 
+});
+
+window.LogbookEntry = Backbone.Model.extend({
+    
+    idAttribute: "_id",
+    urlRoot: "/logbooks",
+
+    initialize: function() {
+        this.bind("remove", function() {
+                                        this.destroy();
+                                        });    
+    },
+        
+    defaults: {
+        date: new Date(),
+        runtime: 0,
+        comment: ""
+    }
+    
+});
+
+window.Logbook = Backbone.Collection.extend({
+    model: LogbookEntry,
+    
 });
