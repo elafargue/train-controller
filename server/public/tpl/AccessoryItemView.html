@@ -2,12 +2,24 @@
     <h6><%= name %></h6>
         <% if (type == 'Uncoupler') {
             if (controllerSubAddress == 0) { %>
-                <button class="btn btn-mini btn-success" id="buttonA" type="button">X</button>
+                <div class="visible-desktop">
+                <button class="btn btn-mini btn-success buttonA" type="button">X</button></div>
+                <div class="hidden-desktop">
+                <button class="btn btn-success buttonA" type="button">X</button></div>
                 <% } else { %>
-                <button class="btn btn-mini btn-success" id="buttonB" type="button">X</button>                    
+                <div class="visible-desktop">
+                <button class="btn btn-mini btn-success buttonB" type="button">X</button></div>
+                <div class="hidden-desktop">
+                <button class="btn btn-success buttonB" type="button">X</button></div>
                     <% } %>
         <% } else { %>
-    <button class="btn btn-mini btn-danger" id="buttonA" type="button">A</button>
-    <button class="btn btn-mini btn-success" id="buttonB" type="button">B</button>
+            <div class="visible-desktop">
+                <button class="btn btn-mini btn-danger buttonA" type="button">A</button>
+                <button class="btn btn-mini btn-success buttonB" type="button">B</button>
+            </div>
+            <div class="hidden-desktop">
+                <button class="btn btn-danger buttonA" type="button">A</button>
+                <button class="btn btn-success buttonB" type="button">B</button>
+            </div>
                 <% } %>
 </div>
