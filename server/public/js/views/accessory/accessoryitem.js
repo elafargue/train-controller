@@ -12,8 +12,8 @@ window.AccessoryItemView = Backbone.View.extend({
 
     events: {
         "change"        : "change",
-        "click #buttonA": "command",
-        "click #buttonB": "command"
+        "click .buttonA": "command",
+        "click .buttonB": "command"
     },
 
     change: function (event) {
@@ -23,7 +23,7 @@ window.AccessoryItemView = Backbone.View.extend({
     command: function(event) {
         console.log("Accessory: Take action on click");
         var address = this.model.get('controllerAddress');
-        var port = (event.target.id == 'buttonA') ? 0 : 1;
+        var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
         this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
     },
         
