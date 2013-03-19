@@ -32196,7 +32196,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <text x="289.56" y="60.96" size="1.778" layer="91">High Side</text>
 <text x="134.62" y="182.88" size="1.778" layer="91">Bank 1</text>
 <text x="228.6" y="180.34" size="1.778" layer="91">Bank 2</text>
-<text x="274.32" y="177.8" size="1.778" layer="91">Bank 1&amp;2 V+</text>
+<text x="241.3" y="119.38" size="1.778" layer="91">Bank 1&amp;2 V+</text>
 <text x="134.62" y="132.08" size="1.778" layer="91">Bank 3</text>
 <text x="228.6" y="132.08" size="1.778" layer="91">Bank 4</text>
 <text x="144.78" y="203.2" size="1.778" layer="91">"wire to board Eurostyle terminal blocks"</text>
@@ -32526,17 +32526,16 @@ at 5V for 1A input current.</text>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="VDD"/>
-<wire x1="182.88" y1="66.04" x2="182.88" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="182.88" y1="66.04" x2="182.88" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="C10" gate="G$1" pin="1"/>
-<wire x1="182.88" y1="60.96" x2="177.8" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="177.8" y1="60.96" x2="175.26" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="182.88" y1="58.42" x2="175.26" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="+5V3" gate="VCC" pin="VCC"/>
 <wire x1="175.26" y1="58.42" x2="175.26" y2="60.96" width="0.1524" layer="91"/>
 <junction x="175.26" y="58.42"/>
 <pinref part="IC1" gate="G$1" pin="EN"/>
-<wire x1="200.66" y1="66.04" x2="195.58" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="195.58" y1="60.96" x2="182.88" y2="60.96" width="0.1524" layer="91"/>
-<junction x="182.88" y="60.96"/>
+<wire x1="200.66" y1="66.04" x2="200.66" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="58.42" x2="182.88" y2="58.42" width="0.1524" layer="91"/>
+<junction x="182.88" y="58.42"/>
 </segment>
 </net>
 <net name="V+" class="0">
