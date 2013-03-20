@@ -1,27 +1,30 @@
 /**
- * This is a test to experiment with L293D drivers on a Z-Scale train, nothing fancy
- * (c) Ed Lafargue 2013
- * Licence: GPLv3
- *
- * This is a simple model train controller that includes speed regulation using a
- * PID controller.
- *
- * Issue with traditional driving of motor by PWM'ing the EN pin: when EN is low,
- *       the motor actively brakes, which lowers efficiency. This design improves it as it
- *       does not put both motor connectors in HiZ at the same time. so the motor is freerunning.
- *
- *  In this version, we are able to change the direction but still measure BackEMF
- *  easily, without braking the motor when EN is switched off. The drawback is that we
- *  use an extra EN pin on the L293D.
+ * This is a Z-scale integrated train and turnout controller, with a serial
+ * port JSON interface. It features backward/forward driving of one locomotive
+ * with speed regulation, and control of up to 16 turnouts or up to 32 
+ * single solenoid accessories.
  *
  *  TODO:
- *    - implement digital filtering rather than rolling averages
- *
- *  ONGOING:
- *    - implement point and accessory control
+ *    - implement proper digital filtering rather than rolling averages
  *
  * 2013.03.06: add SPI library to control a 75HC595 for quick prototyping
  * 2013.03.16: use two MC33880 for control of up to 16 accessories
+ *
+ * (c) 2013 Edouard Lafargue, edouard@lafargue.name
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
  
 /* We use the Timer1 library to get more options on PWM frequency and interrupts*/
@@ -33,7 +36,6 @@
 #include <aJSON.h>
 /* The hardware SPI library is used to control turnouts */
 #include <SPI.h>
-
 
 //////////////////////////////////////////////////////////////////
 // Enable Debug mode
@@ -84,8 +86,9 @@ const int debugpin = 7; // This is connected to a scope to check the speed
 #define MSG_ERROR 99        // Sent to tell command error
 #define MSG_JSON_SYNTAX 100 // JSON Syntax error
 
-// Autotest at controller startup:
-#define SPI_INTEGRITY_FAULT 1
+// We are able to run a few autotests at startup,
+// result codes are defined here:
+#define SPI_INTEGRITY_FAULT 1  // Issue on SPI bus
 
 // ADC Prescaler values to force the ADC to a faster mode
 const unsigned char PS_16 = (1 << ADPS2);
@@ -95,17 +98,17 @@ const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
 // Turnout control below
 #define OP_PULSE 0
-#define OP_ON 1
-#define OP_OFF 2
+#define OP_ON    1
+#define OP_OFF   2
 
 // SPI Connection to the shift register/relay driver
-const int spi_mosi = 11;
-const int spi_miso = 12;
+const int spi_mosi  = 11;
+const int spi_miso  = 12;
 const int spi_clock = 13;
-const int spi_ss = 6;
+const int spi_ss    =  6;
 
-const int turnout_max = 16; // 1 x MC33880 = 8 ports = 4 turnouts
-const int turnout_banks = 4; // We have 4 banks of 4 turnouts
+const int turnout_max   = 16; // 1 x MC33880 = 8 ports = 4 turnouts
+const int turnout_banks =  4; // We have 4 banks of 4 turnouts
 
 //////////////////////////////////////////////////////////////////
 // Global Variables
@@ -125,16 +128,14 @@ double measured_rpm = 0;
 
 aJsonStream serial_stream(&Serial);
 unsigned long last_print; // time when we last output a status message or response
-#ifdef DEBUG
 unsigned long fr_print;
-#endif
 int next_message; // ID of next message to output
 char* ack_cmd;    // command we are acknowledging for.
 
 // Accessory global variables
-double accessory_on_timestamp = 0; // On time stamp
-int accessory_on_id = -1;           // ID of accessory that was turned on
-int accessory_on_port = 0;
+double accessory_on_timestamp = 0;    // On time stamp
+int accessory_on_id   = -1;           // ID of accessory that was turned on
+int accessory_on_port =  0;
 
 // In order to simplify PCB layout, I used MC33880 pins out of order,
 // so I'm using a static mapping array to remap the pins for both
@@ -142,11 +143,13 @@ int accessory_on_port = 0;
 // Turnout bank mapping: what pin matches what port
 //                  Port:    0    1    2    3    4   5   6   7 
 //const byte lowside_map[] = {  7,   3,   2,   4,   7,  1,  0,  5 };
+// Test: direct mapping
 const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
 
 // Turnout pinout mapping
 //                  Port:    0    1    2    3
 //const int highside_map[] = {  1,   0,   2,   3};
+// Test: direct mapping:
 const byte highside_map[] = {  0,   1,   2,   3};
 
 // Fault map: for bank 1 to 4 (lowside), a bit in a bank's byte means
@@ -329,7 +332,7 @@ double moving_avg() {
   double avg =0;
   for (int i=0; i< BUFFER_SIZE; i++) {
     // Note: we took 8 samples, but skipped the averaging
-    // in the interrupt to win time, so we divide here:
+    // in the interrupt to save time, so we divide here:
     avg += ring_buffer[i]/8;
   }
   return avg/BUFFER_SIZE;  
@@ -368,24 +371,21 @@ int freeRam () {
 /**
  * Set a turnout
  * Arguments: 
- * address: turnout number (starts at zero)
+ * address: turnout number (starts at ONE)
  * dir: true or false (straight or not)
  * op : one of OP_PULSE, OP_ON, OP_OFF
  */
 boolean accessoryCommand(int address, int port, int op)
 {
   byte response;
+  address--; // we start at one in the command, this is more human friendly.
   // Compute the turnout bank we should enable
   // TODO (not on hardware prototype yet)
   byte bank = address / turnout_banks;
   byte bankio = 1 << highside_map[bank];
-  //Serial.println("-----------");
-  //Serial.print("Bank pin: ");
-  //Serial.println(bankio);
   
   // Compute the actual I/O we should pulse
-  int io = 1 << (lowside_map[address%turnout_banks*2]);
-  io = io << port;
+  int io = 1 << (lowside_map[address%turnout_banks*2+port]);
   
     if (op == OP_ON) {
       // Save timestamp & accessory ID:
@@ -419,28 +419,25 @@ boolean accessoryCommand(int address, int port, int op)
  #ifdef DEBUG
     aJsonObject *msg = aJson.createObject();
     aJson.addNumberToObject(msg, "bank", bank);
+    aJson.addNumberToObject(msg, "bankio", bankio);
+    aJson.addNumberToObject(msg, "io", io);    
     aJson.addNumberToObject(msg, "faults", response);
     aJson.print(msg, &serial_stream);
     Serial.println();
     aJson.deleteItem(msg);
 #endif
 
-     //Serial.print("Lowside fault upon bank select: ");
-     //Serial.println(response,BIN);
    }
     if (op == OP_PULSE) {
-        digitalWrite(spi_ss,HIGH);    // Update outputs + fault status
+        digitalWrite(spi_ss,HIGH);    // Updates outputs + fault status
         delay(turnoutPulse);
         digitalWrite(spi_ss,LOW);
    }
    if (op != OP_ON) {
      response = SPI.transfer(0);      // Switch off Highside
-     //Serial.print("Highside fault after lowside select: ");
-     //Serial.println(response,BIN);
+     //response is now Highside fault status after lowside select
      response = SPI.transfer(0);      // Switch off Lowside
-     //Serial.print("Lowside fault after lowside select: ");
-     //Serial.println(response,BIN);
-
+     //response is now Lowside fault status after lowside select
    }
    digitalWrite(spi_ss,HIGH);
 }
@@ -491,12 +488,10 @@ aJsonObject *createMessage()
       aJson.addNumberToObject(msg, "bemf", measured_rpm);
       aJson.addNumberToObject(msg, "target", target_rpm);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
-#ifdef DEBUG
       if (millis() - fr_print > 2000) {
         aJson.addNumberToObject(msg, "freeram", freeRam());
         fr_print = millis();
       }
-#endif
       break;
   }
  
@@ -630,6 +625,7 @@ void processMessage(aJsonObject *msg)
       if (arg->type != aJson_Int) return;
       int id = arg->valueint;
       if (id > turnout_max) return;
+      if (id < 1) return;
       arg = aJson.getObjectItem(jsptr, "port");
       if (!arg) return;
       if (arg->type != aJson_Int) return;
