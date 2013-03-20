@@ -14,6 +14,7 @@ var AppRouter = Backbone.Router.extend({
         "layouts/page/:page": "listLayouts",
         "layouts/add"       : "addLayout",
         "layouts/:id"       : "layoutDetails",
+        "diagnostics"       : "diagnostics",
         "settings"          : "settings",
         "about"             : "about"
     },
@@ -101,6 +102,12 @@ var AppRouter = Backbone.Router.extend({
         $('#content').html(new LayoutView({model: layout}).el);
         this.headerView.selectMenuItem('add-menu');
 	},
+
+
+    diagnostics: function () {
+        $("#content").html(new DiagnosticsView({model: this.settings, lm: this.linkManager}).el);
+        this.headerView.selectMenuItem('home-menu');
+    },
     
     about: function () {
         if (!this.aboutView) {
@@ -119,7 +126,7 @@ var AppRouter = Backbone.Router.extend({
 
 utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
                     'ControllerDetailsView', 'SettingsView', 'LayoutRunView', 'LocoRunView', 'ControllerRunView', 'AccessoryDetailsView',
-                    'AccessoryItemView'
+                    'AccessoryItemView', 'DiagnosticsView'
                    ], function() {
     app = new AppRouter();
     Backbone.history.start();

@@ -15,7 +15,7 @@ window.AccessoryDetailsView = Backbone.View.extend({
                 // fill in
                 console.log("Turnouts: " + tn);
                 $('#tn_ids', self.el).empty().removeAttr('disabled');
-                for (var i=0; i < tn; i++) {
+                for (var i=1; i <= tn; i++) {
                     $('#tn_ids', self.el).append('<option' +
                                                  ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
                 }

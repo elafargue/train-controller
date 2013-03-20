@@ -155,9 +155,12 @@ window.LayoutRunView = Backbone.View.extend({
         if (this.linkManager.connected) {
             $('.ctrl-connect', this.el).html("Disconnect controller.")
                 .removeClass('btn-danger').addClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
+            $('.ctrl-diag', this.el).removeClass('disabled');
         } else {
             $('.ctrl-connect', this.el).html("Connect to controller.")
                 .addClass('btn-danger').removeClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
+            $('.ctrl-diag', this.el).addClass('disabled');
+
         }
     },
     
