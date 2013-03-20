@@ -14,7 +14,7 @@ window.LocoView = Backbone.View.extend({
     fillLogbook: function() {
         var self = this;
         var logbook = this.model.logbook;
-        $('#logbook', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th><th>Delete</th></tr>");
+        $('#logbook', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th><th></th></tr>");
         var fill = function() {
             for (var i=0; i< logbook.length; i++) {
                 var entry = logbook.at(i);
@@ -22,7 +22,7 @@ window.LocoView = Backbone.View.extend({
                 $('#logbook', this.el).append('<tr><td><small>' +
                                               d.toLocaleString() + '</small></td><td>' +
                                               utils.hms(entry.get('runtime')) + '</td><td>' +
-                                              '<input type="text" name="lb-'+i+'" value="' +entry.get('comment') + '"></td><td><a href="#" role="button" class="btn btn-mini deleteentry" name="'+ i +'"><i class="icon-remove-sign"></i></a></td></tr>');
+                                              '<input type="text" name="lb-'+i+'" value="' +entry.get('comment') + '"></td><td><a href="#" title="Delete" role="button" class="btn btn-mini deleteentry" name="'+ i +'"><i class="icon-remove-sign"></i></a></td></tr>');
             }
             self.logbookFetched = true;
         };
