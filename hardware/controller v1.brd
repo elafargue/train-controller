@@ -196,7 +196,7 @@
 <text x="23.114" y="16.51" size="0.8128" layer="21">IC1</text>
 <text x="55.88" y="32.766" size="0.8128" layer="21">IC2</text>
 <text x="35.56" y="50.8" size="0.8128" layer="21">IC3</text>
-<text x="33.02" y="32.004" size="0.8128" layer="21">C11</text>
+<text x="34.036" y="31.242" size="0.8128" layer="21">C11</text>
 <text x="37.846" y="56.388" size="0.8128" layer="21">C10</text>
 <text x="49.784" y="55.118" size="0.8128" layer="21">C6</text>
 <text x="19.558" y="28.702" size="0.8128" layer="21">C8</text>
@@ -218,6 +218,7 @@
 <text x="72.644" y="27.178" size="0.8128" layer="21">R1</text>
 <text x="17.526" y="62.738" size="1.778" layer="21">COM</text>
 <text x="17.78" y="56.896" size="0.8128" layer="21">(c) E. Lafargue 2013</text>
+<text x="69.088" y="16.002" size="0.8128" layer="21">C13</text>
 </plain>
 <libraries>
 <library name="adafruit">
@@ -281,6 +282,18 @@ grid 5 mm, outline 2.5 x 7.5 mm</description>
 </library>
 <library name="rcl-ez">
 <packages>
+<package name="C0805K">
+<description>&lt;b&gt;Ceramic Chip Capacitor KEMET 0805 Reflow solder&lt;/b&gt;&lt;p&gt;
+Metric Code Size 2012</description>
+<wire x1="-0.925" y1="0.6" x2="0.925" y2="0.6" width="0.1016" layer="51"/>
+<wire x1="0.925" y1="-0.6" x2="-0.925" y2="-0.6" width="0.1016" layer="51"/>
+<smd name="1" x="-1" y="0" dx="1.3" dy="1.6" layer="1"/>
+<smd name="2" x="1" y="0" dx="1.3" dy="1.6" layer="1"/>
+<text x="-1" y="0.875" size="1.016" layer="25">&gt;NAME</text>
+<text x="-1" y="-1.9" size="1.016" layer="27">&gt;VALUE</text>
+<rectangle x1="-1" y1="-0.65" x2="-0.5" y2="0.65" layer="51"/>
+<rectangle x1="0.5" y1="-0.65" x2="1" y2="0.65" layer="51"/>
+</package>
 <package name="C025-025X050">
 <description>&lt;b&gt;CAPACITOR&lt;/b&gt;&lt;p&gt;
 grid 2.5 mm, outline 2.5 x 5 mm</description>
@@ -3064,7 +3077,7 @@ design rules under a new name.</description>
 <element name="C8" library="rcl-ez" package="C025-025X050" value="0.1uF 6V" x="21.082" y="26.924" rot="R180"/>
 <element name="C9" library="rcl" package="E2,5-6E" value="10uF 20V" x="21.082" y="21.59" rot="R180"/>
 <element name="C10" library="rcl-ez" package="C025-025X050" value="0.1uF 6V" x="39.878" y="54.61"/>
-<element name="C11" library="rcl-ez" package="C025-025X050" value="1pF 6V" x="37.846" y="31.75"/>
+<element name="C11" library="rcl-ez" package="C0805K" value="1pF 6V" x="38.1" y="31.75"/>
 <element name="BANK12" library="adafruit" package="1X2-3.5MM" value="1X2-3.5MM" x="20.32" y="6.35"/>
 <element name="BANK34" library="adafruit" package="1X2-3.5MM" value="1X2-3.5MM" x="20.32" y="68.58"/>
 <element name="CON4" library="aerodynes" package="1X08-3.5MM" value="1X08-CONN3.5MM" x="39.37" y="68.58" rot="R180"/>
@@ -3107,10 +3120,6 @@ design rules under a new name.</description>
 <contactref element="IC1" pad="12"/>
 <contactref element="C11" pad="2"/>
 <wire x1="37.13" y1="50.8" x2="39.116" y2="50.8" width="0.6096" layer="1"/>
-<wire x1="39.116" y1="45.72" x2="39.116" y2="36.83" width="0.6096" layer="1"/>
-<wire x1="39.116" y1="36.83" x2="37.13" y2="36.83" width="0.6096" layer="1"/>
-<wire x1="46.69" y1="36.83" x2="39.116" y2="36.83" width="0.6096" layer="1"/>
-<wire x1="39.116" y1="31.75" x2="39.116" y2="36.83" width="0.6096" layer="1"/>
 <contactref element="C3" pad="2"/>
 <wire x1="64.7192" y1="27.559" x2="64.7192" y2="26.289" width="0.4064" layer="1"/>
 <wire x1="64.7192" y1="26.289" x2="64.7192" y2="25.019" width="0.4064" layer="1"/>
@@ -3126,16 +3135,13 @@ design rules under a new name.</description>
 <contactref element="U$1" pad="GND1"/>
 <contactref element="IC3" pad="17"/>
 <contactref element="IC3" pad="12"/>
-<wire x1="39.37" y1="26.37" x2="39.37" y2="31.496" width="0.3048" layer="1"/>
-<wire x1="39.37" y1="31.496" x2="39.116" y2="31.75" width="0.3048" layer="1"/>
+<wire x1="39.37" y1="26.37" x2="39.37" y2="29.718" width="0.3048" layer="1"/>
+<wire x1="39.37" y1="29.718" x2="39.37" y2="31.496" width="0.3048" layer="1"/>
+<wire x1="39.37" y1="31.496" x2="39.1" y2="31.75" width="0.3048" layer="1"/>
 <wire x1="39.37" y1="16.81" x2="39.37" y2="19.05" width="0.3048" layer="1"/>
 <via x="39.37" y="19.05" extent="1-16" drill="0.6" shape="square"/>
-<wire x1="39.37" y1="19.05" x2="39.37" y2="31.496" width="1.016" layer="16"/>
-<wire x1="39.37" y1="31.496" x2="39.243" y2="31.623" width="0.3048" layer="16"/>
-<wire x1="39.243" y1="31.623" x2="39.243" y2="31.877" width="0.3048" layer="16"/>
-<wire x1="39.243" y1="31.877" x2="39.116" y2="32.004" width="0.3048" layer="16"/>
-<wire x1="39.116" y1="32.004" x2="39.116" y2="31.75" width="0.3048" layer="16"/>
-<polygon width="0.3048" layer="1" isolate="0.3048" thermals="no">
+<wire x1="39.37" y1="19.05" x2="39.37" y2="29.718" width="1.016" layer="16"/>
+<polygon width="0.3048" layer="1" isolate="0.3048" thermals="no" rank="2">
 <vertex x="15.748" y="75.184"/>
 <vertex x="84.582" y="75.184"/>
 <vertex x="84.582" y="64.008"/>
@@ -3149,7 +3155,7 @@ design rules under a new name.</description>
 </polygon>
 <contactref element="PWR" pad="K"/>
 <contactref element="SL2" pad="2"/>
-<polygon width="0.254" layer="16" isolate="0.3048">
+<polygon width="0.254" layer="16" isolate="0.3048" rank="2">
 <vertex x="14.732" y="0"/>
 <vertex x="14.732" y="75.438"/>
 <vertex x="88.9" y="75.438"/>
@@ -3173,6 +3179,24 @@ design rules under a new name.</description>
 <contactref element="IC1" pad="25"/>
 <contactref element="IC1" pad="4"/>
 <contactref element="IC1" pad="3"/>
+<via x="39.37" y="29.718" extent="1-16" drill="0.6" shape="square"/>
+<via x="20.32" y="37.084" extent="1-16" drill="0.6" shape="square"/>
+<via x="35.052" y="37.592" extent="1-16" drill="0.6" shape="square"/>
+<via x="69.342" y="38.354" extent="1-16" drill="0.6" shape="square"/>
+<via x="74.93" y="29.21" extent="1-16" drill="0.6" shape="square"/>
+<via x="46.99" y="16.256" extent="1-16" drill="0.6" shape="square"/>
+<via x="59.69" y="25.654" extent="1-16" drill="0.6" shape="square"/>
+<via x="74.93" y="32.766" extent="1-16" drill="0.6" shape="square"/>
+<via x="74.93" y="36.068" extent="1-16" drill="0.6" shape="square"/>
+<via x="69.342" y="36.068" extent="1-16" drill="0.6" shape="square"/>
+<via x="80.264" y="64.008" extent="1-16" drill="0.6" shape="square"/>
+<via x="69.596" y="64.008" extent="1-16" drill="0.6" shape="square"/>
+<via x="53.848" y="64.008" extent="1-16" drill="0.6" shape="square"/>
+<via x="42.926" y="57.404" extent="1-16" drill="0.6" shape="square"/>
+<via x="51.562" y="57.404" extent="1-16" drill="0.6" shape="square"/>
+<via x="20.32" y="49.784" extent="1-16" drill="0.6" shape="square"/>
+<via x="25.4" y="8.382" extent="1-16" drill="0.6" shape="square"/>
+<via x="76.2" y="16.002" extent="1-16" drill="0.6" shape="square"/>
 </signal>
 <signal name="VCC">
 <contactref element="C4" pad="+"/>
@@ -3434,9 +3458,9 @@ design rules under a new name.</description>
 <wire x1="26.67" y1="35.052" x2="27.432" y2="34.29" width="0.3048" layer="1"/>
 <wire x1="27.432" y1="34.29" x2="36.576" y2="34.29" width="0.3048" layer="1"/>
 <wire x1="36.576" y1="34.29" x2="37.13" y2="34.29" width="0.3048" layer="1"/>
-<wire x1="36.576" y1="31.75" x2="36.576" y2="34.29" width="0.3048" layer="1"/>
-<wire x1="36.576" y1="31.75" x2="36.576" y2="30.988" width="0.3048" layer="1"/>
-<wire x1="36.576" y1="30.988" x2="37.592" y2="29.718" width="0.3048" layer="1"/>
+<wire x1="37.1" y1="31.75" x2="36.576" y2="34.29" width="0.3048" layer="1"/>
+<wire x1="37.1" y1="31.75" x2="37.592" y2="30.988" width="0.3048" layer="1"/>
+<wire x1="37.592" y1="30.988" x2="37.592" y2="29.718" width="0.3048" layer="1"/>
 <wire x1="41.91" y1="16.81" x2="41.91" y2="20.574" width="0.3048" layer="1"/>
 <wire x1="41.91" y1="20.574" x2="37.592" y2="20.574" width="0.3048" layer="1"/>
 <via x="37.592" y="20.574" extent="1-16" drill="0.6" shape="square"/>

@@ -53,6 +53,7 @@ window.LayoutRunView = Backbone.View.extend({
         
     events: {
         "click .ctrl-connect":  "ctrlConnect",
+        "click .ctrl-diag": "ctrlDiag",
         "remove": "onRemove",
         "dragstart .accessoryitem": "accdragstart",
         "dragover #layoutpic"     : "dragOver",
@@ -60,6 +61,12 @@ window.LayoutRunView = Backbone.View.extend({
         "dragleave #layoutpic"    : "dragLeave",
         "drop #layoutpic"         : "dropHandler",
         "drop .accessoryitem"     : "dropHandler"
+    },
+    
+    ctrlDiag: function(event) {
+        if ($('.ctrl-diag', this.el).hasClass('disabled'))
+            return false;
+        return true;
     },
 
     

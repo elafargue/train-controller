@@ -82,6 +82,8 @@ const int debugpin = 7; // This is connected to a scope to check the speed
 #define MSG_ACCM_VALUE 3
 #define MSG_UPDT_VALUE 4
 #define MSG_TURNOUTS_VALUE 5
+#define MSG_POST_VALUE 6
+#define MSG_FAULT_VALUES 7
 #define MSG_ACK 98          // Sent to acknowlege a command
 #define MSG_ERROR 99        // Sent to tell command error
 #define MSG_JSON_SYNTAX 100 // JSON Syntax error
@@ -141,8 +143,8 @@ int accessory_on_port =  0;
 // so I'm using a static mapping array to remap the pins for both
 // turnouts and banks:
 // Turnout bank mapping: what pin matches what port
-//                  Port:    0    1    2    3    4   5   6   7 
-//const byte lowside_map[] = {  7,   3,   2,   4,   7,  1,  0,  5 };
+//                     Port:    0    1    2    3    4   5   6   7 
+//const byte lowside_map[] = {  6,   3,   2,   4,   7,  1,  0,  5 };
 // Test: direct mapping
 const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
 
@@ -152,13 +154,14 @@ const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
 // Test: direct mapping:
 const byte highside_map[] = {  0,   1,   2,   3};
 
-// Fault map: for bank 1 to 4 (lowside), a bit in a bank's byte means
-//            we have an open circuit.
-//    Note: remapped to natural order (or is it? to be confirmed)
-byte fault_map[] = {0,0,0,0};
+// Connection map: for port 1 to 32
+// false: accessory not connected
+// true: accessory connected
+#define ACCESSORY_PORTS 32
+int accessory_map[ACCESSORY_PORTS];
 
 // Auto-test of the board at startup:
-byte post_result;
+byte post_result = 0;
 
 //////////////////////////////////////////////////////////////////
 // Default controller settings (powerup settings)
@@ -219,6 +222,11 @@ void setup() {
 #ifdef DEBUG
    pinMode(debugpin,OUTPUT);
 #endif
+
+   // Initialise our accessory map:
+   for (int i=0; i<32; i++) {
+     accessory_map[i]=false;
+   };
    
    Timer1.initialize(1e6/PWMFREQUENCY);
    // enable timer compare interrupt
@@ -256,11 +264,11 @@ void setup() {
    val = SPI.transfer(0); 
    //Serial.print("3rd startup byte (Test hiside, should be 170): ");
    //Serial.println(val);
-   post_result |= (val==170) ? SPI_INTEGRITY_FAULT : 0;
+   post_result |= (val!=170) ? SPI_INTEGRITY_FAULT : 0;
    val = SPI.transfer(0);
    //Serial.print("3rd startup byte (Test lowside, should be 170): ");
    //Serial.println(val);
-   post_result |= (val==170) ? SPI_INTEGRITY_FAULT : 0;
+   post_result |= (val!=170) ? SPI_INTEGRITY_FAULT : 0;
       
    digitalWrite(spi_ss,HIGH);
 }
@@ -368,6 +376,20 @@ int freeRam () {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
+// Using the fault register value and bank number,
+// update our connected accessory map
+void remap_faults(byte bank, byte faults) {
+  byte v;  
+  for (int i=0; i<8; i++) {
+    v = faults & (1<<i);
+    if (v>0) {
+      accessory_map[bank*8+i] = 0;
+    } else {
+      accessory_map[bank*8+i] = 1;      
+    }
+  }
+}
+
 /**
  * Set a turnout
  * Arguments: 
@@ -375,7 +397,7 @@ int freeRam () {
  * dir: true or false (straight or not)
  * op : one of OP_PULSE, OP_ON, OP_OFF
  */
-boolean accessoryCommand(int address, int port, int op)
+void accessoryCommand(int address, int port, int op)
 {
   byte response;
   address--; // we start at one in the command, this is more human friendly.
@@ -414,7 +436,7 @@ boolean accessoryCommand(int address, int port, int op)
      // This response value tells up which pins are connected to
      // an accessory and which are not:
      // a connected pin will be zero, an unconnected one will be 1 ("Open")
-     fault_map[bank] = response;
+     remap_faults(bank,response);
 
  #ifdef DEBUG
     aJsonObject *msg = aJson.createObject();
@@ -477,6 +499,25 @@ aJsonObject *createMessage()
       aJson.addTrueToObject(msg, "ack");
       aJson.addStringToObject(msg, "cmd", ack_cmd);
       break;
+    case MSG_POST_VALUE:
+      if (post_result ==0) {
+         aJson.addStringToObject(msg,"post","PASS");
+      } else {
+         aJson.addStringToObject(msg,"post","FAIL");
+         if (post_result & SPI_INTEGRITY_FAULT)
+           aJson.addStringToObject(msg,"err","SPI");
+      }
+      break;
+    case MSG_FAULT_VALUES: {
+      // First, issue a "OFF" command to the first port of each bank
+      // to make sure the fault map is fully updated:
+      accessoryCommand(1, 0, OP_PULSE);
+      accessoryCommand(5, 0, OP_PULSE);
+      accessoryCommand(9, 0, OP_PULSE);
+      accessoryCommand(13,0, OP_PULSE);
+      aJsonObject *pst = aJson.createIntArray(accessory_map,ACCESSORY_PORTS);
+      aJson.addItemToObject(msg,"ports",pst);
+      break; }
     case MSG_ERROR:
       aJson.addFalseToObject(msg,"ack");
       aJson.addStringToObject(msg, "cmd", ack_cmd);
@@ -511,6 +552,10 @@ aJsonObject *createMessage()
  *             "accp"    : Accessory pulse length (ms)
  *             "accm"    : Accessory max on time (ms)
  *             "turnouts": Max number of turnouts supported
+ *              "ports"  : do an accessory connected/disconnected diag.
+ *                         Will return a list of all accessory port statuses.
+ *              "post"   : return result of Power-on self test.
+ *
  *     speed : set speed of the train
  *             0 to 100 (in percent)
  *     dir   : direction
@@ -530,6 +575,7 @@ aJsonObject *createMessage()
  *                       Note: accessory will go back to off after "accm"
  *                       milliseconds in every case, or the next command
  *                       (design only allows one accessory at a time)
+ *
  *
  *  Examples:
  *    { "pid": {"kp":0.015, "ki":0.45, "kd":0.001, "sample":80}}
@@ -714,7 +760,15 @@ void processMessage(aJsonObject *msg)
     if (strcmp(jsptr->valuestring,"turnouts")==0) {
       next_message = MSG_TURNOUTS_VALUE;
       return;
-    }    
+    }
+    if (strcmp(jsptr->valuestring,"post")==0) {
+      next_message = MSG_POST_VALUE;
+      return;
+    }
+    if (strcmp(jsptr->valuestring,"ports")==0) {
+      next_message = MSG_FAULT_VALUES;
+      return;
+    }
     return;
   }
 

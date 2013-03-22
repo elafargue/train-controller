@@ -126,7 +126,7 @@ var AppRouter = Backbone.Router.extend({
 
 utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
                     'ControllerDetailsView', 'SettingsView', 'LayoutRunView', 'LocoRunView', 'ControllerRunView', 'AccessoryDetailsView',
-                    'AccessoryItemView', 'DiagnosticsView'
+                    'AccessoryItemView', 'DiagnosticsView', 'AccessoryItemDiagView'
                    ], function() {
     app = new AppRouter();
     Backbone.history.start();

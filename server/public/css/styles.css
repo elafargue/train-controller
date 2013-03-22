@@ -117,10 +117,24 @@ h5 {
     }
 }
 
-
 .accessoryitem:hover {
     opacity: 1.0;
 }
+
+.accessorydiagitem {
+    padding: 5px;
+    margin: 5px;
+    display: inline-block;
+    max-width: 80px;
+    max-height: 80px;
+    top:10px;
+    left: 10px;
+    float: left;
+    text-align: center;
+    background:#ffffff;
+    z-index:10;
+}
+
 
 
 

@@ -106,6 +106,28 @@ var linkManager = function() {
                                                    + ', "cmd":"'+op+'"}}');
         
         },
+        getPOST: function() {
+            self.socket.emit('controllerCommand','{"get":"post"}');
+        },
+        portTest: function() {
+            self.socket.emit('controllerCommand','{"get":"ports"}');
+        },
+        setAccPulse: function(val) {
+            self.socket.emit('controllerCommand','{"set":{"accp":'+val+'}}');
+        },
+        getAccPulse: function(val) {
+            self.socket.emit('controllerCommand','{"get":"accp"}');
+        },
+        setAccMaxOn: function(val) {
+            self.socket.emit('controllerCommand','{"set":{"accm":'+val+'}}');
+        },
+        getAccMaxOn: function(val) {
+            self.socket.emit('controllerCommand','{"get":"accm"}');
+        },
+        getSetting: function(val) {
+            self.socket.emit('controllerCommand','{"get":"'+val+'"}');
+        },
+
     };
 
     // Initialization code:

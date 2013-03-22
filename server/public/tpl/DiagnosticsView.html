@@ -1,22 +1,51 @@
 <div class="row-fluid">
 <div class="span9">
+<div class="row-fluid">
   <div class="well" id="diags-area">
-    <h2>Diagnostics</h2>
-    <p>
-        This will be the diagnostics view.
-    </p>
+      <div class="row-fluid">
+          <div class="span12">
+    <button class="btn comlink" type="button" style="float:right;">Link active</button>
+    <h2>Diagnostics <button class="btn btn-info refresh" title="Refresh" type="button" ><i class="icon-refresh"></i></button>
+</h2>
+</div></div>
+      <div class="row-fluid">
+          <div class="span6">
+    <h4>Current status</h4>
+      <ul>
+          <li>Power on test: <span class="badge" id="post">n.a.</span>&nbsp;<span id="post2"></span></li>
+          <li>Free RAM: <span id="freeram">n.a.</span></li>
+          <li>Track voltage value: <span id="bemf">n.a.</span></li>
+          <li>Track current value: n.a.</li>
+      </ul>
+      </div>
+          <div class="span6  thumbnail">
+              <h4>Controler settings</h4>
+              <div class="input-append"><span class="add-on">Acc.  Pulse length (ms)</span><input class="span2" id="accp" value="" type="text" maxlength="4"><button type="button" class="btn" id="accpset"><i class="icon-check"></i></button></div>
+              <div class="input-append"><span class="add-on">Acc. max on (ms)</span><input class="span2" id="accm" value="" type="text" maxlength="4"><button role="button" class="btn" id="accmset"><i class="icon-check"></i></button></div>
+          </div>
+          </div>
+          
+      <h4>Port diagnostics</h4>
+      <p>Use the controls below to manually test each port</p>
+    <div class="thumbnails" id="accessoryarea" style="position:relative;"></div>
+
+
+      
   </div>
-</div><!--/span-->
+    </div>
+    <div class="row-fluid">
+    <div class="well">
+        <textarea id="input" style="height:200px; width:98%;"></textarea>
+        </div>
+    </div>
+</div><!--/span9-->
 
   <div class="span3">
   <div class="well" id="help-area">
-      
-      <p>In this screen, you can get detailed controller diagnostics.</p>
-          <ul>
-              <li>Power-on self test results</li>
-              <li>Accessory manual tests.</li>
-              <li>Accessory connectivity check.</li>
-      </ul>
+      <h4>Port connections</h4>
+      <p><span class="badge badge-important">Red</span> no accessory detected ("open circuit").<span class="badge badge-success">Green</span> accessory detected:</p>
+      <div class="thumbnails" id="accessorydetect" style="position:relative;"></div>
+
       
   </div><!--/.well -->
 </div><!--/span-->
