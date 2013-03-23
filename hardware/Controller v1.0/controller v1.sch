@@ -32294,6 +32294,8 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <text x="144.78" y="203.2" size="1.778" layer="91">"wire to board Eurostyle terminal blocks"</text>
 <text x="129.54" y="-40.64" size="1.778" layer="91">R6 at 10k leads to CURR_MEASURE
 at 5V for 1A input current.</text>
+<text x="256.54" y="-22.86" size="1.778" layer="91">Copyright (c) 2013 Edouard Lafargue
+License: CC-BY-SA 3.0</text>
 </plain>
 <instances>
 <instance part="IC2" gate="G$1" x="40.64" y="-7.62"/>
