@@ -99,7 +99,7 @@ var AppRouter = Backbone.Router.extend({
 
 	addLayout: function() {
         var layout = new Layout();
-        $('#content').html(new LayoutView({model: layout}).el);
+        $('#content').html(new LayoutView({model: layout, lm:self.linkManager}).el);
         this.headerView.selectMenuItem('add-menu');
 	},
 
