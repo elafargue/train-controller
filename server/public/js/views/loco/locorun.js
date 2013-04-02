@@ -12,6 +12,7 @@ window.LocoRunView = Backbone.View.extend({
         this.targetbemf = [];
         this.running = false;
         this.prevStamp = 0;
+        this.logbookFetched = false;
         for (var i=0; i< this.totalPoints; i++) {
             this.bemf.push(0);
             this.rate.push(0);
@@ -38,8 +39,31 @@ window.LocoRunView = Backbone.View.extend({
 
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
+        // Update last maintenance entry here:
+        this.fillMaintenance();
+        
         return this;
     },
+    
+    fillMaintenance: function() {
+        var self = this;
+        var logbook = this.model.logbook;
+        $('#maintenance', this.el).empty();
+        var fill = function() {
+            var entry = logbook.at(logbook.length-1);
+            var d = new Date(entry.get('date'));
+            $('#maintenance', this.el).html(utils.hms(entry.get('runtime')));
+            self.logbookFetched = true;
+        };
+        if (this.logbookFetched) {
+            fill();
+            
+        } else {
+            logbook.fetch({success:function() {fill();}
+                          });
+        }
+    },
+
     
     updateRuntime: function() {
         if (this.running) {
