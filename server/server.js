@@ -210,6 +210,7 @@ io.sockets.on('connection', function (socket) {
            // listen for new serial data:
            myPort.on('data', function (data) {
            try {
+             if (Debug) console.log('Raw input:\n' + Hexdump.dump(data));
              // Clean our input data to improve chances of JSON parser not complaining
              // remove all non-ascii:
              data = data.replace(/[^A-Za-z 0-9\.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
