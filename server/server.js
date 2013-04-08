@@ -37,6 +37,11 @@
 var serialport = require('serialport'),
     SerialPort  = serialport.SerialPort;
 
+// Utility function to get a Hex dump
+var Hexdump = require('./hexdump.js');
+var Debug = true;
+
+
 /**
  * Debug: get a list of available serial
  * ports on the server - we'll use this later
@@ -56,6 +61,7 @@ serialport.list(function (err, ports) {
  */
 require('./db.js');
 
+
 /**
  * Setup the HTTP server and routes
  */
@@ -65,7 +71,8 @@ var express = require('express'),
     controllers = require('./routes/controllers.js'),
     accessories = require('./routes/accessories.js'),
     layouts = require('./routes/layouts.js'),
-    settings = require('./routes/settings.js');
+    settings = require('./routes/settings.js'),
+    backup = require('./routes/backup.js');
 
 var app = express(),
     server = require('http').createServer(app),
@@ -136,7 +143,13 @@ app.delete('/accessories/:id', accessories.deleteAccessory);
 app.get('/settings', settings.getSettings);
 app.put('/settings/:id', settings.updateSettings);
 
- 
+/**
+ * Interface for triggering a backup and a restore
+ */
+app.get('/backup', backup.generateBackup);
+app.post('/restore', backup.restoreBackup);
+
+
 // Our static resources are in 'public'
 // GET /javascripts/jquery.js
 // GET /style.css
@@ -197,6 +210,9 @@ io.sockets.on('connection', function (socket) {
            // listen for new serial data:
            myPort.on('data', function (data) {
            try {
+             // Clean our input data to improve chances of JSON parser not complaining
+             // remove all non-ascii:
+             data = data.replace(/[^A-Za-z 0-9\.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
              // Convert the string into a JSON object:
              var serialData = JSON.parse(data);
              // send a serial event to the web client with the data:
