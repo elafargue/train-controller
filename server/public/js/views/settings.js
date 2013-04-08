@@ -12,11 +12,18 @@ window.SettingsView = Backbone.View.extend({
     },
     
     events: {
-           "click #reset": "resetSettings"
+        "change"      : "change",
+        "click #reset": "resetSettings"
     },
     
     change: function() {
-        this.render();
+        // Apply the change to the model
+        var target = event.target;
+        var change = {};
+        change[target.name] = target.value;
+        this.model.set(change);
+        this.model.save();
+
     },
 
     resetSettings: function() {

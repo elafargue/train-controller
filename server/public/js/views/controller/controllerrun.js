@@ -7,6 +7,8 @@ window.ControllerRunView = Backbone.View.extend({
     initialize: function () {
         console.log("Initialize controller run view");
         this.linkManager = this.options.lm;
+        this.settings = this.options.settings;
+        this.powersliderstyle = this.settings.get('powersliderstyle');
         // Need to explicitely remove before added to avoid
         // double bindings
         this.linkManager.off('input', this.showInput);
@@ -23,7 +25,7 @@ window.ControllerRunView = Backbone.View.extend({
         
         // Variables for throttling PID updates so that our
         // controller can keep up: don't send updates faster
-        // than every 300ms
+        // than every XXXms
         this.pidstamp = new Date().getTime();
         this.pidupdatepending = false;
         this.pidupdateneeded = true;
@@ -43,7 +45,7 @@ window.ControllerRunView = Backbone.View.extend({
         $('.progress .bar', this.el).progressbar();
         this.fillspinners();
         
-        $('.dial', this.el).knob({'change': function(v) { self.power2(v,self);}});
+        $('.dial', this.el).knob({'change': function(v) { self.powerknob(v,self);}});
         
         $('.pidquery', this.el).tooltip({delay:1200, placement:'bottom'});
         return this;
@@ -189,7 +191,7 @@ window.ControllerRunView = Backbone.View.extend({
         this.linkManager.controllerCommand.speed(percentage);
     },
 
-    power2: function(value,self) {
+    powerknob: function(value,self) {
         if (!self.linkManager.connected)
             return;
         var stamp = new Date().getTime();
@@ -239,7 +241,8 @@ window.ControllerRunView = Backbone.View.extend({
 
         var rateVal = parseInt(data.rate);
         if (!isNaN(rateVal)) {
-            $(".progress .bar", self.el).attr('data-percentage',rateVal/800*100).progressbar();
+            $('.progress .bar', self.el).attr('data-percentage',rateVal/800*100).progressbar();
+            $('.dial', this.el).val(rateVal/800*100).trigger('change');
             if (rateVal < 10) { // We consider the train stopped under a PWM rate of 10.
                 $('.btn-group > .dir-stop',this.el).addClass("btn-danger");
             } else {

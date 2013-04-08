@@ -44,7 +44,7 @@ window.HomeView = Backbone.View.extend({
                     // TODO: initialize a controller object that will open the Socket.io
                     // connection + talk to the server, and will be passed to all subviews
                     // so that they can send/receive data.
-                    $('#controller-area', self.el).html(new ControllerRunView({model: controller, lm: self.linkManager}).el);
+                    $('#controller-area', self.el).html(new ControllerRunView({model: controller, lm: self.linkManager, settings: self.model}).el);
                 }
                  });
             }

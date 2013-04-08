@@ -13,6 +13,7 @@ window.Settings = Backbone.Model.extend({
 
     defaults: {
         currentLayout: null,
-        currentLoco: null
+        currentLoco: null,
+        powersliderstyle: "slider", // Can be "slider" or "knob"
     }
 });

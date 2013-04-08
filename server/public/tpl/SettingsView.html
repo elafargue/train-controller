@@ -1,15 +1,31 @@
 <div class="row-fluid">
-    <div class="span8 hero-unit">
+    <div class="span8 ">
+        <div class="row-fluid">
+            <div class="span12 well">
         <h4>Application settings</h4>
-        <p>At the moment, this application does not have user settings.</p>
         <p>
             <a href="#" role="button" id="reset" class="btn pull-left">Reset all settings.</a>
         </p>
-        <p>&nbsp;</p>
+                <br><br>
+        <h4>Backup and restore</h4>
+        <p>Backup all settings in a backup file (.tbz): <a href="#" role="button" class="do-backup btn">Backup</a>
+            <p>Drop a backup file here to restore your settings:</p>
+            <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
+                    <p><img id="picture" width="180" src="pics/locos/generic.jpg"/></p>
+            
+            </div>
+                
+                <p>&nbsp;</p>
+        <h4>Power slider style</h4>
+            <select name="powersliderstyle" >
+                <option value="Slider" <%= powersliderstyle == "Slider" ? 'selected="selected"'  : '' %>>Slider</option>
+                <option value="Knob" <%= powersliderstyle == "Knob" ? 'selected="selected"'  : '' %>>Round</option>
+            </select>
+
+     </div>
+    <div class="span12 thumbnails">
         <p>Todo list for this app:</p>
         <ul>
-            <li>Test 1st ever run on an empty DB</li>
-            <li>Settings/Database backup and restore as tar file.</li>
             <li>Proper implementation of controller models and protocols</li>
             <li>Finalise input validation on all forms</li>
             <li>Manage locomotive PWM/BEMF ratio table</li>
@@ -17,7 +33,6 @@
             <li>Tooltips on various parts of the UI</li>
             <li>Option to disable tooltips in settings screen</li>
             <li>Select serial port for controller by requesting a list from the server</li>
-            <li>Zoom in on layout picture using a lightbox</li>
             <li>Manage instructions in PDF for locos</li>
             <li>Loading of controller settings upon connection</li>
             <li>DB cleanup for stray documents (controllers/accessories)</li>
@@ -25,12 +40,14 @@
         
         <h4>Ongoing</h4>
         <ul>
-            <li>Screen for adjustment of controller settings</li>
+            <li>Settings/Database backup and restore as tar file.</li>
         </ul>
         
         
         <h4>Done</h4>
         <ul>
+            <li>Screen for adjustment of controller settings</li>
+            <li>Test 1st ever run on an empty DB</li>
             <li>Implement power slider on controller in run view including touch support</li>
             <li>Manage controller acknowledgements when sending commands</li>
             <li>Implement graph of controller variables in loco info area</li>
@@ -47,6 +64,7 @@
             <li>Keep track of Loco service times</li>
         </ul>
     </div>
+                </div></div>
     <div class="span4">
         <p>
             Debug:
