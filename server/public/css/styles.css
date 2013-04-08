@@ -162,6 +162,7 @@ h5 {
     background-image: none;
     box-shadow: none;
     border-color: #cccccc;
+    cursor: default;
 }
 
 /**

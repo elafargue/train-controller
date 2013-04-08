@@ -43,6 +43,8 @@ window.ControllerRunView = Backbone.View.extend({
         $('.progress .bar', this.el).progressbar();
         this.fillspinners();
         
+        $('.dial', this.el).knob({'change': function(v) { self.power2(v,self);}});
+        
         $('.pidquery', this.el).tooltip({delay:1200, placement:'bottom'});
         return this;
     },
@@ -186,6 +188,18 @@ window.ControllerRunView = Backbone.View.extend({
                                          ).progressbar();
         this.linkManager.controllerCommand.speed(percentage);
     },
+
+    power2: function(value,self) {
+        if (!self.linkManager.connected)
+            return;
+        var stamp = new Date().getTime();
+        if ((stamp - self.speedstamp) < 800)
+            return;
+        self.speedstamp = stamp;
+        console.log("Power knob click at " + value + "%");
+        this.linkManager.controllerCommand.speed(value);
+    },
+
     
     onRemove: function() {
         console.log("Controller run view remove");
