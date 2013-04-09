@@ -82,10 +82,12 @@ window.DiagnosticsView = Backbone.View.extend({
             if (data.post === "PASS") {
                 $('#post',this.el).addClass('badge-success').removeClass('badge-important');
                 $('#post2',this.el).html('');
+                $('#port-diags',this.el).removeAttr('disabled');
             }
             if (data.post === "FAIL") {
                 $('#post',this.el).removeClass('badge-success').addClass('badge-important');
                 $('#post2',this.el).html(" - " + data.err);
+                if (data.err === "SPI") $('#port-diags',this.el).attr('disabled',true);
             }
            if (!this.queriesDone) {
                this.linkManager.controllerCommand.portTest();
