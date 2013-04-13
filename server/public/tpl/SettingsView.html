@@ -1,70 +1,36 @@
 <div class="row-fluid">
     <div class="span8 ">
         <div class="row-fluid">
-            <div class="span12 well">
-        <h4>Application settings</h4>
-        <p>
-            <a href="#" role="button" id="reset" class="btn pull-left">Reset all settings.</a>
-        </p>
-                <br><br>
-        <h4>Backup and restore</h4>
-        <p>Backup all settings in a backup file (.tbz): <a href="#" role="button" class="do-backup btn">Backup</a>
-            <p>Drop a backup file here to restore your settings:</p>
-            <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
-                    <p><img id="picture" width="180" src="pics/locos/generic.jpg"/></p>
-            
+            <div class="span6 well">
+                <h4>Application settings</h4>
+                <p>
+                    <a href="#" role="button" id="reset" class="btn pull-left">Reset all settings.</a>
+                </p>
             </div>
-                
-                <p>&nbsp;</p>
-        <h4>Power slider style</h4>
-            <select name="powersliderstyle" >
-                <option value="Slider" <%= powersliderstyle == "Slider" ? 'selected="selected"'  : '' %>>Slider</option>
-                <option value="Knob" <%= powersliderstyle == "Knob" ? 'selected="selected"'  : '' %>>Round</option>
-            </select>
-
-     </div>
-    <div class="span12 thumbnails">
-        <p>Todo list for this app:</p>
-        <ul>
-            <li>Proper implementation of controller models and protocols</li>
-            <li>Finalise input validation on all forms</li>
-            <li>Manage locomotive PWM/BEMF ratio table</li>
-            <li>Manage cars as well as locomotives</li>
-            <li>Tooltips on various parts of the UI</li>
-            <li>Option to disable tooltips in settings screen</li>
-            <li>Select serial port for controller by requesting a list from the server</li>
-            <li>Manage instructions in PDF for locos</li>
-            <li>Loading of controller settings upon connection</li>
-            <li>DB cleanup for stray documents (controllers/accessories)</li>
-        </ul>
-        
-        <h4>Ongoing</h4>
-        <ul>
-            <li>Settings/Database backup and restore as tar file.</li>
-        </ul>
-        
-        
-        <h4>Done</h4>
-        <ul>
-            <li>Screen for adjustment of controller settings</li>
-            <li>Test 1st ever run on an empty DB</li>
-            <li>Implement power slider on controller in run view including touch support</li>
-            <li>Manage controller acknowledgements when sending commands</li>
-            <li>Implement graph of controller variables in loco info area</li>
-            <li>Zoom in on loco picture using a lightbox</li>
-            <li>Manage runtime</li>
-            <li>Implement connection to controller using socket.io</li>
-            <li>Confirm layout/loco delete with modal dialog</li>
-            <li>Locomotive: input year from 1972 onwards, by script not hardcoded</li>
-            <li>Manage accessories in layouts</li>
-            <ul>
-                <li>Create/Update/Delete accessories in layout settings screen</li>
-                <li>Manage accessories in layout run screen</li>
-            </ul>
-            <li>Keep track of Loco service times</li>
-        </ul>
+            <div class="span6 well">
+                <h4>Power slider style</h4>
+                <select name="powersliderstyle" >
+                    <option value="Slider" <%= powersliderstyle == "Slider" ? 'selected="selected"'  : '' %>>Slider</option>
+                    <option value="Knob" <%= powersliderstyle == "Knob" ? 'selected="selected"'  : '' %>>Round</option>
+                </select>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12"><h4>Backup and restore</h4></div>
+        </div>
+        <div class="row-fluid">
+            <div class="span6 well">
+                <p>Backup all settings in a backup file (.tbz): <a href="/backup" role="button" class="do-backup btn">Backup</a>
+            </div>
+            <div class="span6 well">                
+            <p>Drop a backup file on the box below to restore your settings:</p>
+                <div style="width:120px; height:107px; position:relative;margin: 0px auto;">
+                        <div style="position:absolute; bottom:0;"><img id="restore-area" width="120" src="img/package-open.png"/></div>
+                </div>
+            </div>
+        </div>                  
     </div>
-                </div></div>
+    
     <div class="span4">
         <p>
             Debug:

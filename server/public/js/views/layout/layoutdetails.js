@@ -139,7 +139,7 @@ window.LayoutView = Backbone.View.extend({
         }
         // Upload picture file if a new file was dropped in the drop area
         if (this.pictureFile) {
-            utils.uploadFile("layouts/" + this.model.id, this.pictureFile,
+            utils.uploadFile("layouts/" + this.model.id + '/picture', this.pictureFile,
                 function () {
                     // The server will rename the file to the ID of the loco,
                     // so let's set the picture accordingly and keep the

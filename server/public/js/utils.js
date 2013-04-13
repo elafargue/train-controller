@@ -55,16 +55,16 @@ window.utils = {
         var data = new FormData();
         data.append('file', file);
         $.ajax({
-            url: path + '/picture',
+            url: path,
             type: 'POST',
             data: data,
             processData: false,
             cache: false,
             contentType: false
         })
-        .done(function () {
+        .done(function (val) {
             console.log(file.name + " uploaded successfully");
-            callbackSuccess();
+            callbackSuccess(val);
         })
         .fail(function () {
             self.showAlert('Error!', 'An error occurred while uploading ' + file.name, 'alert-error');
