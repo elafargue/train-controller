@@ -32220,7 +32220,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
 <part name="P+9" library="supply1" deviceset="V+" device=""/>
-<part name="C7" library="rcl-ez" deviceset="CPOL-US" device="E2.5-6" value="100uF/16V"/>
+<part name="C7" library="rcl-ez" deviceset="CPOL-US" device="E2.5-6" value="330uF/25V"/>
 <part name="R1" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="R2" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
@@ -32240,14 +32240,14 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="P+2" library="supply1" deviceset="V+" device=""/>
 <part name="+5V2" library="supply1" deviceset="VCC" device=""/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
-<part name="C6" library="rcl" deviceset="CPOL-US" device="E2,5-6E" value="10uF 20V"/>
+<part name="C6" library="rcl" deviceset="CPOL-US" device="E2,5-6E" value="100uF 25V"/>
 <part name="C8" library="rcl-ez" deviceset="C-US" device="025-025X050" value="0.1uF 6V"/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="FRAME2" library="frames" deviceset="A3L-LOC" device=""/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
 <part name="P+3" library="supply1" deviceset="V+" device=""/>
-<part name="C9" library="rcl" deviceset="CPOL-US" device="E2,5-6E" value="10uF 20V"/>
+<part name="C9" library="rcl" deviceset="CPOL-US" device="E2,5-6E" value="100uF 25V"/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="+5V3" library="supply1" deviceset="VCC" device=""/>
 <part name="C10" library="rcl-ez" deviceset="C-US" device="025-025X050" value="0.1uF 6V"/>
