@@ -49,8 +49,8 @@
 // How the L293D H Bridge is connected to the Arduino
 const int fwdpwm = 9;  // Used for PWM, L293D EN1
 const int bckpwm = 10; // Used for PWM, L293D EN2
-const int pin1a = 2;   // Pin 1A
-const int pin4a = 3;   // Pin 4A
+const int pin1a = 3;   // Pin 1A
+const int pin4a = 2;   // Pin 4A
 const int bemfpin = 0; // Analog0 Pin connected to BEMF measurement point
 
 // Connect GND, VCC1 and VCC2 on the L293D
@@ -144,15 +144,18 @@ int accessory_on_port =  0;
 // turnouts and banks:
 // Turnout bank mapping: what pin matches what port
 //                     Port:    0    1    2    3    4   5   6   7 
-//const byte lowside_map[] = {  6,   3,   2,   4,   7,  1,  0,  5 };
+
+const byte lowside_map[] = {  5,   0,   1,   7,   4,  2,  3,  6 };
+const byte lowside_inverse_map[] =  {  1,   2,   5,   6,   4,  0,  7,  3 };
+
 // Test: direct mapping
-const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
+//const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
 
 // Turnout pinout mapping
 //                  Port:    0    1    2    3
-//const int highside_map[] = {  1,   0,   2,   3};
+const int highside_map[] = {  0,   1,   2,   3};
 // Test: direct mapping:
-const byte highside_map[] = {  0,   1,   2,   3};
+//const byte highside_map[] = {  0,   1,   2,   3};
 
 // Connection map: for port 1 to 32
 // false: accessory not connected
@@ -269,8 +272,8 @@ void setup() {
    //Serial.print("3rd startup byte (Test lowside, should be 170): ");
    //Serial.println(val);
    post_result |= (val!=170) ? SPI_INTEGRITY_FAULT : 0;
-      
    digitalWrite(spi_ss,HIGH);
+
 }
 
 /**
@@ -383,9 +386,9 @@ void remap_faults(byte bank, byte faults) {
   for (int i=0; i<8; i++) {
     v = faults & (1<<i);
     if (v>0) {
-      accessory_map[bank*8+i] = 0;
+      accessory_map[bank*8+lowside_inverse_map[i]] = 0;
     } else {
-      accessory_map[bank*8+i] = 1;      
+      accessory_map[bank*8+lowside_inverse_map[i]] = 1;      
     }
   }
 }
@@ -402,7 +405,6 @@ void accessoryCommand(int address, int port, int op)
   byte response;
   address--; // we start at one in the command, this is more human friendly.
   // Compute the turnout bank we should enable
-  // TODO (not on hardware prototype yet)
   byte bank = address / turnout_banks;
   byte bankio = 1 << highside_map[bank];
   
@@ -420,12 +422,12 @@ void accessoryCommand(int address, int port, int op)
    digitalWrite(spi_ss,LOW);
    response = SPI.transfer(bankio); // Highside driver value (bank select)
    response = SPI.transfer(0);      // Lowside: all zeroes for now (all accessories off)
-   digitalWrite(spi_ss,HIGH); // Upon transistion to high, fault status is udpated in the
-                              // 33880 register: the next two SPI commands will return those,
-                              // see below.   
+   digitalWrite(spi_ss,HIGH);       // Turn outputs on/off
    delay(1); // Required to give the 33880 time to do open circuit fault detection (has to be > 300us)
    // Send pulse (lowside driver)
-   digitalWrite(spi_ss,LOW);
+   digitalWrite(spi_ss,LOW); // Upon transistion to low, fault status is udpated in the
+                              // 33880 register: the next two SPI commands will return those,
+                              // see below. 
    if (op != OP_OFF) {
      //Serial.print("Lowside select value: ");
      //Serial.println(io);

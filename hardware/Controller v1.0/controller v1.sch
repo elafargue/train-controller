@@ -32228,7 +32228,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="SL2" library="adafruit" deviceset="1X2" device="-3.5MM"/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
-<part name="C1" library="resistor" deviceset="C-EU" device="C0805" value="220n"/>
+<part name="C1" library="resistor" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="C2" library="rcl-ez" deviceset="C-US" device="025-025X050" value="0.1uF"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
 <part name="C3" library="rcl-ez" deviceset="C-US" device="025-025X050" value="0.1uF"/>
@@ -32270,12 +32270,12 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="PWR" library="minimidi" deviceset="LED" device="3MM"/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
-<part name="R5" library="resistor" deviceset="R-EU_" device="M1206" value="50m"/>
-<part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
-<part name="R7" library="resistor" deviceset="R-EU_" device="R0603"/>
+<part name="R5" library="resistor" deviceset="R-EU_" device="M1206" value="100m"/>
+<part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
+<part name="R7" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
-<part name="C13" library="resistor" deviceset="C-EU" device="C0805K"/>
+<part name="C13" library="resistor" deviceset="C-EU" device="C0805K" value="100n"/>
 <part name="U$3" library="aerodynes" deviceset="ZXCT1009" device="-F"/>
 <part name="JP1" library="jumper" deviceset="JP1E" device=""/>
 </parts>
@@ -32292,7 +32292,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <text x="134.62" y="132.08" size="1.778" layer="91">Bank 3</text>
 <text x="228.6" y="132.08" size="1.778" layer="91">Bank 4</text>
 <text x="144.78" y="203.2" size="1.778" layer="91">"wire to board Eurostyle terminal blocks"</text>
-<text x="129.54" y="-40.64" size="1.778" layer="91">R6 at 10k leads to CURR_MEASURE
+<text x="129.54" y="-40.64" size="1.778" layer="91">R6 at 5k leads to CURR_MEASURE
 at 5V for 1A input current.</text>
 <text x="256.54" y="-22.86" size="1.778" layer="91">Copyright (c) 2013 Edouard Lafargue
 License: CC-BY-SA 3.0</text>
