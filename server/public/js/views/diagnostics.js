@@ -96,7 +96,8 @@ window.DiagnosticsView = Backbone.View.extend({
         if (typeof data.ports != 'undefined') {
             // Create a report of open-closed accessories
             for (var i= 0; i < data.ports.length; i++) {
-                $('#accessorydetect',this.el).append('<div class="thumbnail glowthumbnail accessorydiagitem" ><h6>'+(i+1)+'</h6><div>' +
+                $('#accessorydetect',this.el).append('<div class="thumbnail glowthumbnail accessorydiagitem" ><h6>'+Math.ceil((i+1)/2)+
+                                                     ((Math.ceil((i+1)/2) != (i+1)/2) ? 'a': 'b') + '</h6><div>' +
                 '<span class="badge ' + ((data.ports[i]) ? 'badge-success' : 'badge-important') + '">&nbsp</span></div></div>');
             }
            if (!this.queriesDone) {
