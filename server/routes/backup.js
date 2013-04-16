@@ -13,16 +13,17 @@ var fs = require('fs');
 
 // http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
 var deleteDirectoryRecursive = function(dirpath) {
-    if( fs.existsSync(path) ) {
-      fs.readdirSync(path).forEach(function(file,index){
-        var curPath = path + "/" + file;
+    if( fs.existsSync(dirpath) ) {
+        console.log("deleteDirectoryRecursive starting");
+      fs.readdirSync(dirpath).forEach(function(file,index){
+        var curPath = dirpath + "/" + file;
         if(fs.statSync(curPath).isDirectory()) { // recurse
           deleteDirectoryRecursive(curPath);
         } else { // delete file
           fs.unlinkSync(curPath);
         }
       });
-    fs.rmdirSync(path);
+    fs.rmdirSync(dirpath);
   }
 };
 
@@ -43,7 +44,7 @@ exports.generateBackup = function(req, res) {
         options= { cwd: path.resolve(__dirname, '../public/pics/'),
                     env: process.env
                 };
-    var mongodump = spawn('/usr/local/mongodb/bin/mongodump', args, options);
+    var mongodump = spawn('mongodump', args, options);
     /*
     mongodump.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
@@ -80,10 +81,10 @@ exports.restoreBackup = function(req, res) {
         var filename = req.files.file.path;
         // Phase I: check that we have a "valid_train_backup" tag in the
         // tar backup:
-        var args = ['tjf', filename, 'valid_train_backup']
-        options= { cwd: path.resolve(__dirname, '../public/pics/'),
-                    env: process.env
-                };
+        var args = ['tjf', filename, 'valid_train_backup'],
+            options= { cwd: path.resolve(__dirname, '../public/pics/'),
+                       env: process.env
+                     };
         var check = spawn('tar', args, options);
         check.on('exit', function(code) {
             console.log('Backup file check: ' + code);
@@ -94,14 +95,28 @@ exports.restoreBackup = function(req, res) {
                 console.log("Invalid backup file, deleting...");
             } else {
                 // Phase II: clean up current image directories
-                
+                var dirpath = path.resolve(__dirname, '../public/pics/locos/');
+                console.log("Deleting " + dirpath);
+                deleteDirectoryRecursive(dirpath);
+                dirpath = path.resolve(__dirname, '../public/pics/locodocs/');
+                deleteDirectoryRecursive(dirpath);
+                dirpath = path.resolve(__dirname, '../public/pics/layouts/');
+                deleteDirectoryRecursive(dirpath);
+                dirpath = path.resolve(__dirname, '../public/pics/dump/');
+                deleteDirectoryRecursive(dirpath);
                 // Phase III: Restore images files
-                
-                // Phase IV: restore database
-                
-                // Phase V: remove backup file
-                fs.unlinkSync(req.files.file.path);                
-                res.send(true);
+                args = ['xjf', filename];
+                check = spawn('tar', args, options);
+                check.on('exit', function(code) {
+                    // Phase IV: restore database
+                    args = ['--drop', 'dump' ];
+                    check = spawn('mongorestore', args, options);
+                    check.on('exit', function(code) {
+                        // Phase V: remove backup file
+                        fs.unlinkSync(req.files.file.path);                
+                        res.send(true);
+                    });                    
+                });
             }
         });
     } else {
