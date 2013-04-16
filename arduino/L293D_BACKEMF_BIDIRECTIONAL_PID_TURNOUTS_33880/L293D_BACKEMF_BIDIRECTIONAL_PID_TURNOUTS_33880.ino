@@ -132,7 +132,7 @@ aJsonStream serial_stream(&Serial);
 unsigned long last_print; // time when we last output a status message or response
 unsigned long fr_print;
 int next_message; // ID of next message to output
-char* ack_cmd;    // command we are acknowledging for.
+const char* ack_cmd;    // command we are acknowledging for.
 
 // Accessory global variables
 double accessory_on_timestamp = 0;    // On time stamp
@@ -532,6 +532,17 @@ aJsonObject *createMessage()
       aJson.addNumberToObject(msg, "target", target_rpm);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
       if (millis() - fr_print > 2000) {
+        switch (current_direction) {
+            case STOP:
+              aJson.addStringToObject(msg,"dir","s");
+              break;
+            case FWD:
+              aJson.addStringToObject(msg,"dir","f");
+              break;
+            case BCK:
+              aJson.addStringToObject(msg,"dir","b");
+              break;
+        }
         aJson.addNumberToObject(msg, "freeram", freeRam());
         fr_print = millis();
       }
