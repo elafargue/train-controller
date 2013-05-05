@@ -36,7 +36,7 @@ module.exports = {
 	dump_block: function( block ) {
 		var dumped = "";
 		
-		var chunks = block.match( /.{1,4}/g );
+		var chunks = block.match( /[\s\S.]{1,4}/g );
 		for( var i = 0; i < 4; i++ ) {
 			if( i < chunks.length ) {
 				dumped += this.dump_chunk( chunks[i] );
@@ -54,7 +54,7 @@ module.exports = {
 	dump: function( s ) {
 		var dumped = "";
 		
-		var blocks = s.match( /.{1,16}/g );
+		var blocks = s.match( /[\s\S.]{1,16}/g );
 		for( var block in blocks ) {
 			dumped += this.dump_block( blocks[block] ) + "\n";
 		}
