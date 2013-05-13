@@ -11,6 +11,8 @@ window.AccessoryDetailsView = Backbone.View.extend({
         
         // Populate address dropdown based on controller properties
         if (this.linkManager.connected) {
+            $('.buttonA', this.el).removeAttr('disabled');
+            $('.buttonB', this.el).removeAttr('disabled');
             this.linkManager.once('turnouts',function(tn) {
                 // fill in
                 console.log("Turnouts: " + tn);
@@ -42,7 +44,19 @@ window.AccessoryDetailsView = Backbone.View.extend({
         "click .accessory-save"   : "beforeSave",
         "click .accessory-delete": "deleteAccessory",
         "click .portButton": "updateAccessoryPort",
+        "click .buttonA": "command",
+        "click .buttonB": "command"
+
     },
+    
+    command: function(event) {
+        console.log("Accessory: Take action on click");
+        var address = this.model.get('controllerAddress');
+        var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
+        if (this.model.get('reverse')) port = 1-port;
+        this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+    },
+
     
     updateAccessoryPort: function(event) {
         switch (event.target.id) {
@@ -63,7 +77,11 @@ window.AccessoryDetailsView = Backbone.View.extend({
         // Apply the change to the model
         var target = event.target;
         var change = {};
-        change[target.name] = target.value;
+        if (target.type == "checkbox") {
+            change[target.name] = target.checked;
+        } else {
+            change[target.name] = target.value;
+        }
         this.model.set(change);
 
         // Run validation rule (if any) on changed item

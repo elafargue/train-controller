@@ -18,9 +18,10 @@
   </div>
     <form class="form-horizontal">
         <div class="modal-body">
-            <p>
+            <!-- <p>
                 Accessory ID: <%=_id %>
             </p>
+            -->
             <div class="control-group">
                 <label class="control-label" for="name">Name</label>
                     <div class="controls">
@@ -45,14 +46,14 @@
                         </select>
                     </div>
             </div>
-            
+            <!--
             <div class="control-group">
                 <label class="control-label">Symbol</label>
                  <div class="controls">
 
                 </div>
             </div>
-
+            -->
             <div class="control-group">
                 <label class="control-label">Uncoupler port:</label>
                  <div class="controls">
@@ -69,7 +70,14 @@
                      <input type="checkbox" name="reverse" <%=reverse ? "checked":'' %>>
                 </div>
             </div>
-
+            
+            <div class="control-group">
+                <label class="control-label">Test:</label>
+                <div>&nbsp;
+                    <button class="btn btn-danger buttonA" disabled="true"  type="button">A</button>
+                    <button class="btn btn-success buttonB" disabled="true" type="button">B</button>
+                </div>
+            </div>
             
         </div><!-- modal-body -->
   <div class="modal-footer">
