@@ -164,8 +164,9 @@ window.ControllerRunView = Backbone.View.extend({
             this.linkManager.controllerCommand.backward();
         } else if ($(event.target).hasClass('dir-stop')) {
             console.log("Stop train");
-            //this.linkManager.controllerCommand.stop();
             this.linkManager.controllerCommand.speed(0);
+            // Give it 2 seconds before setting controller to stop:
+            setTimeout(2000, this.linkManager.controllerCommand.stop());
         }
     },
     
@@ -235,6 +236,10 @@ window.ControllerRunView = Backbone.View.extend({
                     case 'b':
                         $('.btn-group > .dir-back',this.el).addClass("btn-success");
                         $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
+                        break;
+                    case 's':
+                        $('.btn-group > .dir-fwd',this.el).removeClass("btn-success");
+                        $('.btn-group > .dir-back',this.el).removeClass("btn-success");
                         break;
             }
         }
