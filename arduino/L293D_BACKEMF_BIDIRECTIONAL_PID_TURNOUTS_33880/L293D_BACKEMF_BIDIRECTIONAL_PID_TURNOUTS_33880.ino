@@ -143,9 +143,9 @@ int accessory_on_port =  0;
 // so I'm using a static mapping array to remap the pins for both
 // turnouts and banks:
 // Turnout bank mapping: what pin matches what port
-//                     Port:    0    1    2    3    4   5   6   7 
+//                            Port:    0    1    2    3    4   5   6   7 
 
-const byte lowside_map[] = {  5,   0,   1,   7,   4,  2,  3,  6 };
+const byte lowside_map[]          = {  5,   0,   1,   7,   4,  2,  3,  6 };
 const byte lowside_inverse_map[] =  {  1,   2,   5,   6,   4,  0,  7,  3 };
 
 // Test: direct mapping
@@ -153,7 +153,7 @@ const byte lowside_inverse_map[] =  {  1,   2,   5,   6,   4,  0,  7,  3 };
 
 // Turnout pinout mapping
 //                  Port:    0    1    2    3
-const int highside_map[] = {  0,   1,   2,   3};
+const int highside_map[] = {  0,   1,   3,   2};
 // Test: direct mapping:
 //const byte highside_map[] = {  0,   1,   2,   3};
 
@@ -423,7 +423,7 @@ void accessoryCommand(int address, int port, int op)
    response = SPI.transfer(bankio); // Highside driver value (bank select)
    response = SPI.transfer(0);      // Lowside: all zeroes for now (all accessories off)
    digitalWrite(spi_ss,HIGH);       // Turn outputs on/off
-   delay(1); // Required to give the 33880 time to do open circuit fault detection (has to be > 300us)
+   delay(10); // Required to give the 33880 time to do open circuit fault detection (has to be > 300us)
    // Send pulse (lowside driver)
    digitalWrite(spi_ss,LOW); // Upon transistion to low, fault status is udpated in the
                               // 33880 register: the next two SPI commands will return those,
