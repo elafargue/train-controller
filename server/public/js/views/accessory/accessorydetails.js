@@ -74,7 +74,7 @@ window.AccessoryDetailsView = Backbone.View.extend({
             utils.removeValidationError(target.id);
         }
         
-        if (this.model.get('type') === 'Uncoupler') {
+        if (this.model.get('type') === 'Uncoupler' && this.linkManager.connected) {
             $('#portA',this.el).removeAttr('disabled');
             $('#portB',this.el).removeAttr('disabled');
             switch (this.model.get('controllerSubAddress')) {

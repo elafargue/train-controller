@@ -84,6 +84,7 @@ var AccessorySchema = new Schema({
 //                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
                 controllerAddress: Number,
                 controllerSubAddress: Number, // Only used for Uncouplers right now, to indicate the port (0 or 1) directly.
+                reverse: Boolean,   // Invert switch operation by software, rather than have user swap wires manually...
                 
 });
 

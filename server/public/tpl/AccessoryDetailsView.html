@@ -47,19 +47,26 @@
             </div>
             
             <div class="control-group">
-                <label class="control-label" for"pid">Symbol</label>
+                <label class="control-label">Symbol</label>
                  <div class="controls">
 
                 </div>
             </div>
 
             <div class="control-group">
-                <label class="control-label" for"pid">Uncoupler port:</label>
+                <label class="control-label">Uncoupler port:</label>
                  <div class="controls">
                      <div class="btn-group" data-toggle="buttons-radio">
                                 <button type="button" id="portA" disabled="true" class="btn btn-small portButton">Port A</button>
                                 <button type="button" id="portB" disabled="true" class="btn btn-small portButton">Port B</button>
                          </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Reverse ports:</label>
+                 <div class="controls">
+                     <input type="checkbox" name="reverse" <%=reverse ? "checked":'' %>>
                 </div>
             </div>
 

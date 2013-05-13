@@ -24,6 +24,7 @@ window.AccessoryItemView = Backbone.View.extend({
         console.log("Accessory: Take action on click");
         var address = this.model.get('controllerAddress');
         var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
+        if (this.model.get('reverse')) port = 1-port;
         this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
     },
         
