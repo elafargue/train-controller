@@ -3123,8 +3123,8 @@ design rules under a new name.</description>
 <element name="PWR" library="minimidi" package="LED3MM" value="" x="81.28" y="51.308" rot="R90"/>
 <element name="R5" library="resistor" package="M1206" value="100m" x="51.054" y="19.939"/>
 <element name="R6" library="resistor" package="R0603" value="5.1k" x="63.754" y="16.891" rot="R180"/>
-<element name="R7" library="resistor" package="R0603" value="10k" x="63.754" y="14.605" rot="R180"/>
-<element name="C13" library="resistor" package="C0805K" value="100n" x="67.818" y="16.129" rot="R90"/>
+<element name="R7" library="resistor" package="R0603" value="33k" x="63.754" y="14.605" rot="R180"/>
+<element name="C13" library="resistor" package="C0805K" value="10n" x="67.818" y="16.129" rot="R90"/>
 <element name="U$3" library="aerodynes" package="SOT23-1TOP" value="ZXCT1009-F" x="59.436" y="16.891" rot="R270"/>
 <element name="JP1" library="jumper" package="JP1" value="" x="46.99" y="16.256"/>
 </elements>

@@ -127,8 +127,11 @@ int current_direction = STOP;
 // on tiny locomotives.
 #define BUFFER_SIZE 48
 double ring_buffer [BUFFER_SIZE];
+double ring_buffer_current [BUFFER_SIZE];
 int idx = 0;
+int idx2 = 0;
 double measured_rpm = 0;
+double measured_current = 0;
 
 aJsonStream serial_stream(&Serial);
 unsigned long last_print; // time when we last output a status message or response
@@ -291,9 +294,9 @@ void setup() {
 ISR(TIMER1_COMPA_vect){
   if (current_direction != FWD)
     return;
+  delayMicroseconds(1300); // Wait for the filter curve to be past us.
   if (!bitRead(PINB,1))
-  { // Only trigger when output goes low
-      delayMicroseconds(1300); // Wait for the filter curve to be past us.
+  { // Only trigger when output goes low (measuring Back EMF)
 #ifdef DEBUG
       setpin(PORTD,7);  // Just a debug signal for my scope to check
                         // how long it takes for the loop below to complete
@@ -309,10 +312,17 @@ ISR(TIMER1_COMPA_vect){
       clearpin(PORTD,7);
 #endif
     } else {
+      // Measuring current, not voltage, since output is high
 #ifdef DEBUG
-      setpin(PORTD,7);  // Just a debug signal for my scope to check
-                        // how long it takes for the loop below to complete
-      delay(1);
+      setpin(PORTD,7);
+#endif
+      int curr = analogRead(currentpin);
+      for (int i=0; i<7;i++) {
+         curr += analogRead(currentpin);
+      }
+      ring_buffer_current[idx2] = curr; // No overflow to fear, analog read is 0-1023.
+      idx2 = (idx2+1)%BUFFER_SIZE;
+#ifdef DEBUG
       clearpin(PORTD,7);
 #endif
     }
@@ -324,9 +334,9 @@ ISR(TIMER1_COMPA_vect){
 ISR(TIMER1_COMPB_vect){
   if (current_direction != BCK)
     return;
+  delayMicroseconds(1300);
   if (!bitRead(PINB,2))
   { // Only trigger when output goes low
-      delayMicroseconds(1300);
 #ifdef DEBUG
       setpin(PORTD,7);
 #endif
@@ -343,7 +353,14 @@ ISR(TIMER1_COMPB_vect){
 #ifdef DEBUG
       setpin(PORTD,7);  // Just a debug signal for my scope to check
                         // how long it takes for the loop below to complete
-      delay(1);
+#endif
+      int curr = analogRead(currentpin);
+      for (int i=0; i<7;i++) {
+         curr += analogRead(currentpin);
+      }
+      ring_buffer_current[idx2] = curr; // No overflow to fear, analog read is 0-1023.
+      idx2 = (idx2+1)%BUFFER_SIZE;
+#ifdef DEBUG
       clearpin(PORTD,7);
 #endif
     }
@@ -354,12 +371,12 @@ ISR(TIMER1_COMPB_vect){
  * samples is a must. Length of the moving average should remain under the PID
  * loop sample time.
  */
-double moving_avg() {
+double moving_avg(double buffer[]) {
   double avg =0;
   for (int i=0; i< BUFFER_SIZE; i++) {
     // Note: we took 8 samples, but skipped the averaging
     // in the interrupt to save time, so we divide here:
-    avg += ring_buffer[i]/8;
+    avg += buffer[i]/8;
   }
   return avg/BUFFER_SIZE;  
 }
@@ -543,9 +560,11 @@ aJsonObject *createMessage()
       aJson.addStringToObject(msg,"error", "json");
       break;
     default:
-      aJson.addNumberToObject(msg, "bemf", measured_rpm);
-      aJson.addNumberToObject(msg, "target", target_rpm);
+      // Note: we convert current in mA and rpm in mV:
+      aJson.addNumberToObject(msg, "bemf", measured_rpm*15/1024*1000);
+      aJson.addNumberToObject(msg, "target", target_rpm*15/1024);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
+      aJson.addNumberToObject(msg, "current", measured_current*1000/1024);
       if (millis() - fr_print > 2000) {
         switch (current_direction) {
             case STOP:
@@ -640,7 +659,8 @@ void processMessage(aJsonObject *msg)
     // TODO: this should be long enough to make sure the
     // rolling average reflects the new speed
     delay(1000);
-    measured_rpm = moving_avg();
+    measured_rpm = moving_avg(ring_buffer);
+    measured_current = moving_avg(ring_buffer_current);
     target_rpm = measured_rpm;
     myPID.SetMode(AUTOMATIC); // Reset the PID to new RPM target
     ack_cmd = "speed";
@@ -889,9 +909,14 @@ void loop() {
   ///////
   // PID calculations
   ///////  
-   measured_rpm = moving_avg();
+   measured_rpm = moving_avg(ring_buffer);
    myPID.Compute(); // Most important part!
    pwm(pwm_rate);
+
+  ///////
+  // Measure current too
+  ///////
+  measured_current = moving_avg(ring_buffer_current);
 
   ///////
   // Process incoming commands

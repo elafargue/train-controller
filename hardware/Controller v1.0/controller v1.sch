@@ -32272,10 +32272,10 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
 <part name="R5" library="resistor" deviceset="R-EU_" device="M1206" value="100m"/>
 <part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
-<part name="R7" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
+<part name="R7" library="resistor" deviceset="R-EU_" device="R0603" value="33k"/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
-<part name="C13" library="resistor" deviceset="C-EU" device="C0805K" value="100n"/>
+<part name="C13" library="resistor" deviceset="C-EU" device="C0805K" value="10n"/>
 <part name="U$3" library="aerodynes" deviceset="ZXCT1009" device="-F"/>
 <part name="JP1" library="jumper" deviceset="JP1E" device=""/>
 </parts>
@@ -32296,6 +32296,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 at 5V for 1A input current.</text>
 <text x="256.54" y="-22.86" size="1.778" layer="91">Copyright (c) 2013 Edouard Lafargue
 License: CC-BY-SA 3.0</text>
+<text x="154.94" y="-7.62" size="1.778" layer="91">482Hz Lo-pass RC filter</text>
 </plain>
 <instances>
 <instance part="IC2" gate="G$1" x="40.64" y="-7.62"/>

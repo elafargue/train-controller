@@ -10,12 +10,14 @@ window.LocoRunView = Backbone.View.extend({
         this.bemf = []; // Table of all BEMF readings
         this.rate = [];
         this.targetbemf = [];
+        this.current = [];
         this.running = false;
         this.prevStamp = 0;
         this.logbookFetched = false;
         for (var i=0; i< this.totalPoints; i++) {
             this.bemf.push(0);
             this.rate.push(0);
+            this.current.push(0);
             this.targetbemf.push(0);
         }
         this.linkManager = this.options.lm;
@@ -85,8 +87,9 @@ window.LocoRunView = Backbone.View.extend({
         // Now initialize the plot area:
         var options = {
             series: { shadowSize: 0 }, // drawing is faster without shadows
-            yaxes: [ {  min:0, max:250 },
-                     {position: "right", alignTicksWithAxis: 1 , min:0, max:900}
+            yaxes: [ {  min:0, max:3300 },
+                     {position: "right", alignTicksWithAxis: 1 , min:0, max:900},
+                     { min:0, max: 1000}
                    ],
             xaxes: [ { show: false } ],
             legend: { position: "ne" }
@@ -94,6 +97,7 @@ window.LocoRunView = Backbone.View.extend({
         console.log('Loco chart size: ' + this.$('.locochart').width());
         this.plot = $.plot($(".locochart", this.el), [ { data:this.packData(this.bemf), label: "RPM" },
                                                       { data:this.packData(this.rate), label: "Power", yaxis: 2},
+                                                      { data:this.packData(this.current), label:"Current", yaxis: 3},
                                                       { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }], options);
     },
     
@@ -111,7 +115,8 @@ window.LocoRunView = Backbone.View.extend({
         var bemfVal = parseFloat(data.bemf);
         var targetVal = parseFloat(data.target);
         var rateVal = parseInt(data.rate);
-        if (!isNaN(data.rate))
+        var currentVal = parseFloat(data.current);
+        if (!isNaN(data.rate)) {
             if (rateVal > 10) {
                 if (!this.running) {
                     this.prevStamp = new Date().getTime()/1000;
@@ -124,17 +129,21 @@ window.LocoRunView = Backbone.View.extend({
                 $('#runtime',this.el).removeClass("text-success");
                 this.model.save();
             }
-        if (this.plot) {
-            this.bemf = this.bemf.slice(1);
-            this.bemf.push(bemfVal);
-            this.rate = this.rate.slice(1);
-            this.rate.push(rateVal);
-            this.targetbemf = this.targetbemf.slice(1);
-            this.targetbemf.push(targetVal);
-            this.plot.setData([ { data:this.packData(this.bemf), label: "RPM" },
-                                { data:this.packData(this.rate), label: "Power", yaxis: 2},
-                                { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
-            this.plot.draw();
+            if (this.plot) {
+                this.bemf = this.bemf.slice(1);
+                this.bemf.push(bemfVal);
+                this.rate = this.rate.slice(1);
+                this.rate.push(rateVal);
+                this.targetbemf = this.targetbemf.slice(1);
+                this.targetbemf.push(targetVal);
+                this.current = this.current.slice(1);
+                this.current.push(currentVal);
+                this.plot.setData([ { data:this.packData(this.bemf), label: "RPM" },
+                                    { data:this.packData(this.rate), label: "Power", yaxis: 2},
+                                    { data:this.packData(this.current), label:"Current", yaxis: 3},
+                                    { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
+                this.plot.draw();
+            }
         }
     },
     
