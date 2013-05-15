@@ -472,7 +472,7 @@ void accessoryCommand(int address, int port, int op)
      // a connected pin will be zero, an unconnected one will be 1 ("Open")
      remap_faults(bank,response);
 
- #ifdef DEBUG
+#if 0
     aJsonObject *msg = aJson.createObject();
     aJson.addNumberToObject(msg, "bank", bank);
     aJson.addNumberToObject(msg, "bankio", bankio);
@@ -562,7 +562,7 @@ aJsonObject *createMessage()
     default:
       // Note: we convert current in mA and rpm in mV:
       aJson.addNumberToObject(msg, "bemf", measured_rpm*15/1024*1000);
-      aJson.addNumberToObject(msg, "target", target_rpm*15/1024);
+      aJson.addNumberToObject(msg, "target", target_rpm*15/1024*1000);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
       aJson.addNumberToObject(msg, "current", measured_current*1000/1024);
       if (millis() - fr_print > 2000) {
@@ -720,6 +720,13 @@ void processMessage(aJsonObject *msg)
       Timer1.disablePwm(bckpwm);
       digitalWrite(fwdpwm, LOW);
       digitalWrite(bckpwm, LOW);
+      // Last thing: we reset all readings which don't make sense
+      // when we're in "off" mode:
+      for (int i=0; i < BUFFER_SIZE; i++) {
+        ring_buffer[i] =0;
+        ring_buffer_current[i]=0;
+      }
+      target_rpm=0; // Tell the PID we're stopped too :)
       return;
     }
 
