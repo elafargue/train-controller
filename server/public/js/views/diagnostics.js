@@ -74,8 +74,11 @@ window.DiagnosticsView = Backbone.View.extend({
             $('#freeram',this.el).html(data.freeram + " bytes");
         if (typeof data.bemf != 'undefined') {
             var b = parseFloat(data.bemf);
-            var bemf = b*5/1024;
-            $('#bemf',this.el).html(bemf.toFixed(3) + "&nbsp;V - raw: " + b.toFixed(1));
+            $('#bemf',this.el).html(b.toFixed(3) + "&nbsp;mV");
+        }
+        if (typeof data.current != 'undefined') {
+            var b = parseFloat(data.current);
+            $('#current',this.el).html(b.toFixed(3) + "&nbsp;mA");
         }
         if (typeof data.post != 'undefined') {
             $('#post',this.el).html(data.post);
