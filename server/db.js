@@ -76,7 +76,8 @@ var ControllerSchema = new Schema({
     pidki: Number,
     pidkd: Number,
     pidsample: Number,
-    updaterate: Number
+    updaterate: Number,
+    accessorypulse: Number,
 });
 
 mongoose.model('Controller', ControllerSchema);

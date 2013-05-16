@@ -279,6 +279,8 @@ window.ControllerRunView = Backbone.View.extend({
             this.linkManager.controllerCommand.getPID();
             $(':button', this.el).removeAttr('disabled');
             $(':input', this.el).removeAttr('disabled');
+            var accPulse = this.model.get('accessorypulse');
+            this.linkManager.controllerCommand.setAccPulse(accPulse);
             // Weird bug: if you disable the slider, then it becomes draggable across
             // the whole page! Probably bad interaction with the touch patch
             // $(".power", this.el).slider('option', 'disabled', false);

@@ -49,7 +49,8 @@ window.Controller = Backbone.Model.extend({
         pidki: 0.1,
         pidkd: 0.01,
         pidsample: 100,
-        updaterate: 300
+        updaterate: 300,
+        accessorypulse: 20,
     }
 });
 
