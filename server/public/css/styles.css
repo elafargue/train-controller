@@ -172,8 +172,25 @@ h5 {
 .chart {
     min-width: 100%;
     height: 200px;
+    cursor: crosshair;
 }
 
+/* From the sample on flocharts.org */
+.yaxisLabel {
+    top: 50%;
+    left: 2px;
+    position: relative;
+    transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+}
 
 
 
