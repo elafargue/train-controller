@@ -28,10 +28,8 @@ var Schema   = mongoose.Schema;
 
 /**
  * TO DO or possibilities:
- * - Loco runtime
  * - Loco response curves (bemf/power) over time.
  *     -> In a separate document?
- * - Historical notes and personal notes separated ?
  * - Controller settings for the loco ?
  * - PDF documentation (one PDF document)
  * - Portfolio for the loco: several pictures & PDFs
@@ -49,6 +47,22 @@ var LocoSchema = new Schema({
  
 // Compile the schema by issuing the below:
 mongoose.model('Loco', LocoSchema );
+
+/**
+ *
+ */
+var CarSchema = new Schema({
+        name: String,
+        year: String,           // Year the model was produced/bought
+        reference: String,      // Manufacturer reference
+        description: String,    // Up to the user
+        picture: String,        // Filename in public/pics/locos
+        documentation: String,  // PDF doc, filename in public/pics/locodocs/
+});
+ 
+// Compile the schema by issuing the below:
+mongoose.model('Car', CarSchema );
+
 
 /**
  * Train controllers. Unfortunate naming convention since

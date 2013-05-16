@@ -62,7 +62,7 @@ exports.generateBackup = function(req, res) {
           console.log('Touch train backup tag exit ' + code);
           var filename = 'backup-' + Date.now() + '.tar.bz2';
           console.log('Backup file name: ' + filename);
-          args = [ 'cvjf', 'tmp/' + filename, 'locos', 'layouts', 'dump', 'locodocs', 'valid_train_backup'];
+          args = [ 'cvjf', 'tmp/' + filename, 'locos', 'layouts', 'dump', 'locodocs', 'cars', 'valid_train_backup'];
           // Phase II: create a tarfile in 'tmp' with the whole backup:
           var maketar = spawn('tar', args, options);
           maketar.on('exit', function(code) {
@@ -103,6 +103,8 @@ exports.restoreBackup = function(req, res) {
                 dirpath = path.resolve(__dirname, '../public/pics/layouts/');
                 deleteDirectoryRecursive(dirpath);
                 dirpath = path.resolve(__dirname, '../public/pics/dump/');
+                deleteDirectoryRecursive(dirpath);
+                dirpath = path.resolve(__dirname, '../public/pics/cars/');
                 deleteDirectoryRecursive(dirpath);
                 // Phase III: Restore images files
                 args = ['xjf', filename];

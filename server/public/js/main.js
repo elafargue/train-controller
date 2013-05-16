@@ -14,6 +14,10 @@ var AppRouter = Backbone.Router.extend({
         "layouts/page/:page": "listLayouts",
         "layouts/add"       : "addLayout",
         "layouts/:id"       : "layoutDetails",
+        "cars"              : "listCars",
+        "cars/page/:page"	: "listCars",
+        "cars/add"          : "addCar",
+        "cars/:id"          : "carDetails",
         "diagnostics"       : "diagnostics",
         "settings"          : "settings",
         "about"             : "about"
@@ -77,6 +81,31 @@ var AppRouter = Backbone.Router.extend({
         $('#content').html(new LocoView({model: loco}).el);
         this.headerView.selectMenuItem('add-menu');
 	},
+
+	listCars: function(page) {
+        console.log("Switching to Cars list");
+        var self = this;
+        var p = page ? parseInt(page, 10) : 1;
+        var carList = new CarCollection();
+        carList.fetch({success: function(){
+            $("#content").html(new CarListView({model: carList, settings: self.settings, page: p}).el);
+        }});
+        this.headerView.selectMenuItem('menu-car');
+    },
+
+    carDetails: function (id) {
+        var car = new Car({_id: id});
+        car.fetch({success: function(){
+            $("#content").html(new CarView({model: car}).el);
+        }});
+        this.headerView.selectMenuItem();
+    },
+
+	addCar: function() {
+        var car = new Car();
+        $('#content').html(new CarView({model: car}).el);
+        this.headerView.selectMenuItem('add-menu');
+	},
     
 	listLayouts: function(page) {
         var self = this;
@@ -126,7 +155,7 @@ var AppRouter = Backbone.Router.extend({
 
 utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
                     'ControllerDetailsView', 'SettingsView', 'LayoutRunView', 'LocoRunView', 'ControllerRunView', 'AccessoryDetailsView',
-                    'AccessoryItemView', 'DiagnosticsView', 'AccessoryItemDiagView'
+                    'AccessoryItemView', 'DiagnosticsView', 'AccessoryItemDiagView', 'CarListItemView', 'CarView',
                    ], function() {
     app = new AppRouter();
     Backbone.history.start();

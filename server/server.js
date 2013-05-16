@@ -67,6 +67,7 @@ require('./db.js');
  */
 var express = require('express'),
     locos = require('./routes/locomotives.js'),
+    cars = require('./routes/cars.js'),
     logbook = require('./routes/logbooks.js'),
     controllers = require('./routes/controllers.js'),
     accessories = require('./routes/accessories.js'),
@@ -106,6 +107,17 @@ app.post('/logbooks', logbook.addEntry);
 app.get('/logbooks/', logbook.findAll);
 app.put('/logbooks/:id', logbook.updateEntry);
 app.delete('/logbooks/:id', logbook.deleteEntry);
+
+/**
+ * Interface for managing the locomotives
+ */
+app.get('/cars', cars.findAll);
+app.get('/cars/:id', cars.findById);
+app.post('/cars', cars.addCar);
+app.post('/cars/:id/picture', cars.uploadPic);
+app.put('/cars/:id', cars.updateCar);
+app.delete('/cars/:id', cars.deleteCar);
+
 
 /**
  * Interface for managing the layouts
