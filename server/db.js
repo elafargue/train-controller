@@ -118,6 +118,7 @@ var ApplicationSettingsSchema = new Schema({
     currentLayout: {type: Schema.Types.ObjectId, ref:'Layout', default:null},
     currentLoco: {type: Schema.Types.ObjectId, ref:'Loco', default:null},
     powersliderstyle: String,
+    itemsperpage: Number,
 });
 
 mongoose.model('Settings',ApplicationSettingsSchema);

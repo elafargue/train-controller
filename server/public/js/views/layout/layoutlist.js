@@ -7,8 +7,9 @@ window.LayoutListView = Backbone.View.extend({
     render: function () {
         var layouts = this.model.models;
         var len = layouts.length;
-        var startPos = (this.options.page - 1) * 8;
-        var endPos = Math.min(startPos + 8, len);
+        var items = parseInt(this.options.settings.get('itemsperpage'));
+        var startPos = (this.options.page - 1) * items;
+        var endPos = Math.min(startPos + items, len);
 
         $(this.el).html('<ul class="thumbnails"></ul>');
 
@@ -16,7 +17,7 @@ window.LayoutListView = Backbone.View.extend({
             $('.thumbnails', this.el).append(new LayoutListItemView({model: layouts[i], settings: this.options.settings}).render().el);
         }
 
-        $(this.el).append(new Paginator({model: this.model, page: this.options.page}).render().el);
+        $(this.el).append(new Paginator({model: this.model, page: this.options.page, items: items}).render().el);
 
         return this;
     }

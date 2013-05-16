@@ -15,5 +15,6 @@ window.Settings = Backbone.Model.extend({
         currentLayout: null,
         currentLoco: null,
         powersliderstyle: "slider", // Can be "slider" or "knob"
+        itemsperpage: 8,
     }
 });
