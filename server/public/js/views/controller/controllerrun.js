@@ -276,7 +276,8 @@ window.ControllerRunView = Backbone.View.extend({
         if (this.linkManager.connected) {
             // TODO: right now, we're retrieving from the
             // controller, when should we be setting ?
-            this.linkManager.controllerCommand.getPID();
+            //this.linkManager.controllerCommand.getPID();
+            this.sendPIDupdate();
             $(':button', this.el).removeAttr('disabled');
             $(':input', this.el).removeAttr('disabled');
             var accPulse = this.model.get('accessorypulse');
