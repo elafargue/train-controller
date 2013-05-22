@@ -206,6 +206,14 @@ window.LocoRunView = Backbone.View.extend({
                 this.targetbemf.push(targetVal);
                 this.current = this.current.slice(1);
                 this.current.push(currentVal);
+                // TODO: user feedback + make the threshold a setting.
+                // Failsafe: if current goes about 900mA, we just stop the
+                // loco so that we don't burn things down:
+                if (currentVal > 900) {
+                    this.linkManager.controllerCommand.stop();
+                    this.linkManager.controllerCommand.speed(0);
+                }
+
                 this.plot.setData([ { data:this.packData(this.bemf), label: "RPM=0" },
                                     { data:this.packData(this.rate), label: "Power=0", yaxis: 2},
                                     { data:this.packData(this.current), label:"Current=0", yaxis: 3},
