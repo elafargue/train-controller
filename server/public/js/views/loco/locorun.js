@@ -77,6 +77,10 @@ window.LocoRunView = Backbone.View.extend({
             var runtime = parseInt(this.model.get('runtime'))+stamp-this.prevStamp;
             this.model.set({"runtime": runtime});
             $('#runtime',this.el).html(utils.hms(runtime));
+            // Force save of runtime every 10 seconds so that we never lose more
+            // than 10s of runtime in the database, no matter what happens:
+            if (stamp - this.prevStamp > 10)
+                        this.model.save();
             this.prevStamp = stamp;
             if (!this.linkManager.connected) {
                 this.running = false;
