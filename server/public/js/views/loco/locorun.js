@@ -74,14 +74,15 @@ window.LocoRunView = Backbone.View.extend({
     updateRuntime: function() {
         if (this.running) {
             var stamp = new Date().getTime()/1000;
-            var runtime = parseInt(this.model.get('runtime'))+stamp-this.prevStamp;
+            var runtime = this.startTime+stamp-this.startStamp;
             this.model.set({"runtime": runtime});
             $('#runtime',this.el).html(utils.hms(runtime));
             // Force save of runtime every 10 seconds so that we never lose more
             // than 10s of runtime in the database, no matter what happens:
-            if (stamp - this.prevStamp > 10)
+            if (stamp - this.prevSave > 10) {
                         this.model.save();
-            this.prevStamp = stamp;
+                        this.prevSave = stamp;
+                        }
             if (!this.linkManager.connected) {
                 this.running = false;
                 this.model.save();
@@ -184,7 +185,9 @@ window.LocoRunView = Backbone.View.extend({
         if (!isNaN(data.rate)) {
             if (rateVal > 10) {
                 if (!this.running) {
-                    this.prevStamp = new Date().getTime()/1000;
+                    this.startTime = this.model.get('runtime');
+                    this.startStamp = new Date().getTime()/1000;
+                    this.prevSave = this.startStamp - 10;
                     this.running = true;
                     $('#runtime',this.el).addClass("text-success");
                 }
