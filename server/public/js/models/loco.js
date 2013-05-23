@@ -5,6 +5,7 @@ window.Loco = Backbone.Model.extend({
     idAttribute: "_id",
 
     initialize: function () {
+        var self=this;
         this.validators = {};
 
         this.validators.name = function (value) {
@@ -18,6 +19,7 @@ window.Loco = Backbone.Model.extend({
         // Initialise this loco's logbook:
         this.logbook = new Logbook;
         this.logbook.url = '/locos/' + this.id + '/logbook';
+        this.logbook.fetch({async:false}); // Sorry, I just want to be simple...
 
     },
 

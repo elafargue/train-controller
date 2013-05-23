@@ -2,7 +2,6 @@ window.LocoView = Backbone.View.extend({
 
     initialize: function () {
         this.render();
-        this.logbookFetched = false;
     },
 
     render: function () {
@@ -15,7 +14,7 @@ window.LocoView = Backbone.View.extend({
         var self = this;
         var logbook = this.model.logbook;
         $('#logbook', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th><th></th></tr>");
-        var fill = function() {
+        $('#logbook-list', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th></tr>");
             for (var i=0; i< logbook.length; i++) {
                 var entry = logbook.at(i);
                 var d = new Date(entry.get('date'));
@@ -23,15 +22,10 @@ window.LocoView = Backbone.View.extend({
                                               d.toLocaleString() + '</small></td><td>' +
                                               utils.hms(entry.get('runtime')) + '</td><td>' +
                                               '<input type="text" name="lb-'+i+'" value="' +entry.get('comment') + '"></td><td><a href="#" title="Delete" role="button" class="btn btn-mini deleteentry" name="'+ i +'"><i class="icon-remove-sign"></i></a></td></tr>');
-            }
-            self.logbookFetched = true;
-        };
-        if (this.logbookFetched) {
-            fill();
-            
-        } else {
-            logbook.fetch({success:function() {fill();}
-                          });
+                $('#logbook-list', this.el).append('<tr><td><small>' +
+                                              d.toLocaleString() + '</small></td><td>' +
+                                              utils.hms(entry.get('runtime')) + '</td><td>' +
+                                              entry.get('comment') + '</td></tr>');
         }
     },
 
@@ -58,7 +52,8 @@ window.LocoView = Backbone.View.extend({
         // an update to a logbook entry comment: save change immediately
         if (target.name.substr(0,3) == 'lb-') {
             var i = target.name.substr(3);
-            this.model.logbook.at(i).save ('comment',target.value);            
+            this.model.logbook.at(i).save('comment',target.value);
+            this.fillLogbook();
         } else {
         
             change[target.name] = target.value;
@@ -109,7 +104,6 @@ window.LocoView = Backbone.View.extend({
     saveLoco: function () {
         var self = this;
         console.log('Saving loco...');
-        this.model.logbook.update();
         this.model.save(null, {
             success: function (model) {
                 self.render();
@@ -117,7 +111,7 @@ window.LocoView = Backbone.View.extend({
                 utils.showAlert('Success!', 'Locomotive saved successfully', 'alert-success');
             },
             error: function () {
-                utils.showAlert('Error', 'An error occurred while trying to save (delete?) this item', 'alert-error');
+                utils.showAlert('Error', 'An error occurred while trying to save this item', 'alert-error');
             }
         });
     },
@@ -128,7 +122,8 @@ window.LocoView = Backbone.View.extend({
         // and makes our life easier:
         bootbox.confirm("Delete this locomotive, are you sure?", "Cancel",  "Delete", function(result) {
                          if (result) {
-                           self.model.destroy({
+                              self.model.logbook.set([]);
+                              self.model.destroy({
                                 success: function () {
                                 window.history.back();
                                 }});
