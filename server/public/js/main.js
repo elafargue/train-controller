@@ -61,17 +61,7 @@ var AppRouter = Backbone.Router.extend({
 
     home: function (id) {
         console.log("Switching to home view");
-        // Though other views are lightweight and can - and should
-        // be disposable, we have more in the home views, including
-        // connection to our controller, so we want to preserve it,
-        // which is why we don't re-create it...
-        if (!this.homeView) {
-            this.homeView = new HomeView({model: this.settings, lm: this.linkManager});
-            $('#content').html(this.homeView.el);
-        } else {
-            $('#content').html(this.homeView.el);
-            this.homeView.render(); // We need this to rebind our events...
-        }
+        this.switchView(new HomeView({model: this.settings, lm: this.linkManager}));
         this.headerView.selectMenuItem('home-menu');
     },
 

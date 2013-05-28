@@ -2,17 +2,12 @@ window.DiagnosticsView = Backbone.View.extend({
 
     initialize:function () {
         this.linkManager = this.options.lm;
-        
-        // Check the controller is connected
-        
         // Query the controller for:
         // - POST result
         // - Memory
         // Request an accessory port test
         // Query accessory port test results
         this.linkManager.on('input', this.showInput, this);
-
-        this.render();
     },
     
     onClose: function() {

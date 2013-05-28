@@ -2,7 +2,6 @@ window.LayoutView = Backbone.View.extend({
 
     initialize: function () {
         this.linkManager = this.options.lm;
-        this.render();
     },
 
     render: function () {

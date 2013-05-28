@@ -4,7 +4,7 @@ window.Paginator = Backbone.View.extend({
 
     initialize:function () {
         this.model.bind("reset", this.render, this);
-        this.render();
+        
     },
 
     render:function () {

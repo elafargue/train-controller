@@ -1,8 +1,11 @@
 window.SettingsView = Backbone.View.extend({
 
     initialize:function () {
-        this.render();
         this.model.on('change', this.change, this);
+    },
+    
+    onClose: function() {
+        this.model.off('change', this.change, this);
 
     },
 

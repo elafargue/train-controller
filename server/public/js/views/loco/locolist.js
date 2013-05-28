@@ -1,7 +1,7 @@
 window.LocoListView = Backbone.View.extend({
 
     initialize: function (options) {
-        this.render();
+        
     },
     
     render: function () {

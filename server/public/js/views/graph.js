@@ -17,14 +17,12 @@ window.GraphView = Backbone.View.extend({
         this.linkManager.on('input', this.showInput, this);
 
         // My own nice color palette:
-        this.palette = ["#e27c48", "#acbe80",  "#f1ca4f",  "#77b1a7", "#858485", "#d9c7ad", "#5a3037", ],
-
-        this.render();
+        this.palette = ["#e27c48", "#acbe80",  "#f1ca4f",  "#77b1a7", "#858485", "#d9c7ad", "#5a3037", ];
     },
                         
     onClose: function() {
-    console.log("Graph view closing...");
-    
+        console.log("Graph view closing...");
+        this.linkManager.off('input', this.showInput, this);
     },
 
     render:function () {

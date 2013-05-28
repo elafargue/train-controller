@@ -9,9 +9,14 @@ window.HomeView = Backbone.View.extend({
 
     initialize:function (options) {
         this.linkManager = this.options.lm;
-        this.model.on('change:currentLoco', this.change, this);
-        this.model.on('change:currentLayout', this.change, this);
-        this.render();
+        // this.model.on('change:currentLoco', this.change, this);
+        // this.model.on('change:currentLayout', this.change, this);
+    },
+    
+    onClose: function() {
+        console.log("Closing home view");
+        // this.model.off('change:currentLoco', this.change, this);
+        // this.model.off('change:currentLayout', this.change, this);
     },
 
     render:function () {
