@@ -214,9 +214,9 @@ window.LocoRunView = Backbone.View.extend({
                     this.linkManager.controllerCommand.speed(0);
                 }
 
-                this.plot.setData([ { data:this.packData(this.bemf), label: "RPM=0" },
-                                    { data:this.packData(this.rate), label: "Power=0", yaxis: 2},
-                                    { data:this.packData(this.current), label:"Current=0", yaxis: 3},
+                this.plot.setData([ { data:this.packData(this.bemf), label: "RPM (mV)" },
+                                    { data:this.packData(this.rate), label: "Power (%)", yaxis: 2},
+                                    { data:this.packData(this.current), label:"Current (mA)", yaxis: 3},
                                     { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
                 this.plot.draw();
             }
