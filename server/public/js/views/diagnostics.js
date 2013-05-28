@@ -10,10 +10,13 @@ window.DiagnosticsView = Backbone.View.extend({
         // - Memory
         // Request an accessory port test
         // Query accessory port test results
-        this.linkManager.off('input', this.showInput);
         this.linkManager.on('input', this.showInput, this);
 
         this.render();
+    },
+    
+    onClose: function() {
+        this.linkManager.off('input', this.showInput);
     },
     
     events: {

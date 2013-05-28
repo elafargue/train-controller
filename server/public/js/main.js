@@ -19,9 +19,27 @@ var AppRouter = Backbone.Router.extend({
         "cars/add"          : "addCar",
         "cars/:id"          : "carDetails",
         "diagnostics"       : "diagnostics",
+        "graph"             : "graph",
         "settings"          : "settings",
         "about"             : "about"
     },
+    
+    // A simple view switcher, to make clean transitions.
+    // AFAIK Backbone does not provide anything like this out of the box...
+    currentView: null,
+    
+    switchView: function(view) {
+        if (this.currentView) {
+            this.currentView.remove();
+            if (this.currentView.onClose){
+                    this.currentView.onClose();
+            }
+        }
+        $('#content').html(view.el);
+        view.render();
+        this.currentView = view;
+    },
+
 
     initialize: function () {
         console.log("Initializing application");
@@ -63,22 +81,23 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var locoList = new LocoCollection();
         locoList.fetch({success: function(){
-            $("#content").html(new LocoListView({model: locoList, settings: self.settings, page: p}).el);
+            self.switchView(new LocoListView({model: locoList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-loco');
     },
 
     locoDetails: function (id) {
+        var self = this;
         var loco = new Loco({_id: id});
         loco.fetch({success: function(){
-            $("#content").html(new LocoView({model: loco}).el);
+            self.switchView(new LocoView({model: loco}));
         }});
         this.headerView.selectMenuItem();
     },
 
 	addLoco: function() {
         var loco = new Loco();
-        $('#content').html(new LocoView({model: loco}).el);
+        this.switchView(new LocoView({model: loco}));
         this.headerView.selectMenuItem('add-menu');
 	},
 
@@ -88,22 +107,23 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var carList = new CarCollection();
         carList.fetch({success: function(){
-            $("#content").html(new CarListView({model: carList, settings: self.settings, page: p}).el);
+            self.switchView(new CarListView({model: carList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-car');
     },
 
     carDetails: function (id) {
+        var self = this;
         var car = new Car({_id: id});
         car.fetch({success: function(){
-            $("#content").html(new CarView({model: car}).el);
+            self.switchView(new CarView({model: car}));
         }});
         this.headerView.selectMenuItem();
     },
 
 	addCar: function() {
         var car = new Car();
-        $('#content').html(new CarView({model: car}).el);
+        this.switchView(new CarView({model: car}));
         this.headerView.selectMenuItem('add-menu');
 	},
     
@@ -112,7 +132,7 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var layoutList = new LayoutCollection();
         layoutList.fetch({success: function(){
-            $("#content").html(new LayoutListView({model: layoutList, settings: self.settings, page: p}).el);
+            self.switchView(new LayoutListView({model: layoutList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-layout');
     },
@@ -121,41 +141,44 @@ var AppRouter = Backbone.Router.extend({
         var self = this;
         var layout = new Layout({_id: id});
         layout.fetch({success: function(){
-            $("#content").html(new LayoutView({model: layout, lm:self.linkManager}).el);
+            self.switchView(new LayoutView({model: layout, lm:self.linkManager}));
         }});
         this.headerView.selectMenuItem();
     },
 
 	addLayout: function() {
         var layout = new Layout();
-        $('#content').html(new LayoutView({model: layout, lm:self.linkManager}).el);
+        this.switchView(new LayoutView({model: layout, lm:self.linkManager}));
         this.headerView.selectMenuItem('add-menu');
 	},
 
 
     diagnostics: function () {
-        $("#content").html(new DiagnosticsView({model: this.settings, lm: this.linkManager}).el);
+        this.switchView(new DiagnosticsView({model: this.settings, lm: this.linkManager}));
         this.headerView.selectMenuItem('home-menu');
     },
     
     about: function () {
-        if (!this.aboutView) {
-            this.aboutView = new AboutView();
-        }
-        $('#content').html(this.aboutView.el);
+        this.switchView(new AboutView());
         this.headerView.selectMenuItem('about-menu');
     },
 
     settings: function () {
-        $("#content").html(new SettingsView({model: this.settings}).el);
+        this.switchView(new SettingsView({model: this.settings}));
         this.headerView.selectMenuItem('settings-menu');
-    }
+    },
+    
+    graph: function() {
+        var view = new GraphView({model:this.settings, lm:this.linkManager});
+        this.switchView(view);
+        view.addPlot();
+    },
 
 });
 
 utils.loadTemplate(['HomeView', 'HeaderView', 'AboutView', 'LocoView', 'LocoListItemView', 'LayoutListItemView', 'LayoutView',
                     'ControllerDetailsView', 'SettingsView', 'LayoutRunView', 'LocoRunView', 'ControllerRunView', 'AccessoryDetailsView',
-                    'AccessoryItemView', 'DiagnosticsView', 'AccessoryItemDiagView', 'CarListItemView', 'CarView',
+                    'AccessoryItemView', 'DiagnosticsView', 'AccessoryItemDiagView', 'CarListItemView', 'CarView', 'GraphView'
                    ], function() {
     app = new AppRouter();
     Backbone.history.start();

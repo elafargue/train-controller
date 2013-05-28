@@ -1,96 +1,38 @@
-/**
- * This is a view of a layout in running/operations mode.
- *
- */
+window.GraphView = Backbone.View.extend({
 
-window.LocoRunView = Backbone.View.extend({
-
-    initialize: function () {
-        this.totalPoints = 150;
+    initialize:function () {
+        this.totalPoints = 300;
         this.bemf = []; // Table of all BEMF readings
         this.rate = [];
         this.targetbemf = [];
         this.current = [];
         this.running = false;
-        this.prevStamp = 0;
-        this.logbookFetched = false;
         for (var i=0; i< this.totalPoints; i++) {
             this.bemf.push(0);
             this.rate.push(0);
             this.current.push(0);
             this.targetbemf.push(0);
-        }
+        };
         this.linkManager = this.options.lm;
-        this.linkManager.off('input', this.showInput);
         this.linkManager.on('input', this.showInput, this);
-        // Create a timer that updates the running time while power is above zero
-        // (cleared when view is removed)
-        this.timer = setInterval(this.updateRuntime.bind(this), 1000);
-        
+
         // My own nice color palette:
         this.palette = ["#e27c48", "#acbe80",  "#f1ca4f",  "#77b1a7", "#858485", "#d9c7ad", "#5a3037", ],
 
         this.render();
     },
+                        
+    onClose: function() {
+    console.log("Graph view closing...");
     
-    events: {
-        "remove": "onRemove",
-    },
-    
-    onRemove: function() {
-        console.log("Loco run view remove");
-        this.model.save(); // save runtime in particular.
-        clearInterval(this.timer);
     },
 
-    render: function () {
-        $(this.el).html(this.template(this.model.toJSON()));
-        // Update last maintenance entry here:
-        this.fillMaintenance();
-        
+    render:function () {
+        $(this.el).html(this.template());
         return this;
     },
-    
-    fillMaintenance: function() {
-        var self = this;
-        var logbook = this.model.logbook;
-        $('#maintenance', this.el).empty();
-        var fill = function() {
-            var entry = logbook.at(logbook.length-1);
-            var d = new Date(entry.get('date'));
-            $('#maintenance', this.el).html(utils.hms(entry.get('runtime')));
-            self.logbookFetched = true;
-        };
-        if (this.logbookFetched) {
-            fill();
-            
-        } else {
-            logbook.fetch({success:function() {fill();}
-                          });
-        }
-    },
-
-    
-    updateRuntime: function() {
-        if (this.running) {
-            var stamp = new Date().getTime()/1000;
-            var runtime = this.startTime+stamp-this.startStamp;
-            this.model.set({"runtime": runtime});
-            $('#runtime',this.el).html(utils.hms(runtime));
-            // Force save of runtime every 10 seconds so that we never lose more
-            // than 10s of runtime in the database, no matter what happens:
-            if (stamp - this.prevSave > 10) {
-                        this.model.save();
-                        this.prevSave = stamp;
-                        }
-            if (!this.linkManager.connected) {
-                this.running = false;
-                this.model.save();
-            }
-        }
-    },
-    
-    // We can only add the plot once the view has finished rendering and its el is
+                        
+       // We can only add the plot once the view has finished rendering and its el is
     // attached to the DOM, so this function has to be called from the home view.
     addPlot: function() {
         var self = this;
@@ -175,28 +117,13 @@ window.LocoRunView = Backbone.View.extend({
         }
         return ret;
     },
-    
-    showInput: function(data) {
         
+    showInput: function(data) {
         var bemfVal = parseFloat(data.bemf);
         var targetVal = parseFloat(data.target);
         var rateVal = parseInt(data.rate);
         var currentVal = parseFloat(data.current);
         if (!isNaN(data.rate)) {
-            if (rateVal > 10) {
-                if (!this.running) {
-                    this.startTime = this.model.get('runtime');
-                    this.startStamp = new Date().getTime()/1000;
-                    this.prevSave = this.startStamp - 10;
-                    this.running = true;
-                    $('#runtime',this.el).addClass("text-success");
-                }
-            } else if (this.running) {
-                this.updateRuntime();
-                this.running = false;
-                $('#runtime',this.el).removeClass("text-success");
-                this.model.save();
-            }
             if (this.plot) {
                 this.bemf = this.bemf.slice(1);
                 this.bemf.push(bemfVal);
@@ -206,14 +133,12 @@ window.LocoRunView = Backbone.View.extend({
                 this.targetbemf.push(targetVal);
                 this.current = this.current.slice(1);
                 this.current.push(currentVal);
-                // TODO: user feedback + make the threshold a setting.
                 // Failsafe: if current goes about 900mA, we just stop the
                 // loco so that we don't burn things down:
                 if (currentVal > 900) {
                     this.linkManager.controllerCommand.stop();
                     this.linkManager.controllerCommand.speed(0);
                 }
-
                 this.plot.setData([ { data:this.packData(this.bemf), label: "RPM (mV)" },
                                     { data:this.packData(this.rate), label: "Power (%)", yaxis: 2},
                                     { data:this.packData(this.current), label:"Current (mA)", yaxis: 3},
@@ -222,5 +147,8 @@ window.LocoRunView = Backbone.View.extend({
             }
         }
     },
-    
+
+
+                        
+
 });
