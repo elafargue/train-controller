@@ -12,7 +12,7 @@
                 <div class="hidden-desktop">
                 <button class="btn btn-success buttonB" type="button">X</button></div>
                     <% } %>
-        <% } else { %>
+        <% } else if (type == 'Turnout') { %>
             <div class="visible-desktop">
                 <button class="btn btn-mini btn-danger buttonA" type="button">A</button>
                 <button class="btn btn-mini btn-success buttonB" type="button">B</button>
@@ -21,5 +21,14 @@
                 <button class="btn btn-danger buttonA" type="button">A</button>
                 <button class="btn btn-success buttonB" type="button">B</button>
             </div>
-                <% } %>
+                <% } else { %>
+            <div class="visible-desktop">
+                <button class="btn btn-mini btn-danger buttonA" type="button">Off</button>
+                <button class="btn btn-mini btn-success buttonB" type="button">On</button>
+            </div>
+            <div class="hidden-desktop">
+                <button class="btn btn-danger buttonA" type="button">Off</button>
+                <button class="btn btn-success buttonB" type="button">On</button>
+            </div>                      
+                    <% } %>
 </div>

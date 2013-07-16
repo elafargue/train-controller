@@ -106,6 +106,10 @@ var linkManager = function() {
                                                    + ', "cmd":"'+op+'"}}');
         
         },
+        relayCmd: function(address, op) {
+            self.socket.emit('controllerCommand', '{"rel":{"id":' + address + ', "cmd":"'+op+'"}}');
+        
+        },
         getPOST: function() {
             self.socket.emit('controllerCommand','{"get":"post"}');
         },

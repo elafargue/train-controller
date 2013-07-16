@@ -23,9 +23,14 @@ window.AccessoryItemView = Backbone.View.extend({
     command: function(event) {
         console.log("Accessory: Take action on click");
         var address = this.model.get('controllerAddress');
-        var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
-        if (this.model.get('reverse')) port = 1-port;
-        this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+        if (this.model.get('type') == 'Isolating') {
+            var op = ($(event.target).hasClass('buttonA')) ? 'off' : 'on';
+            this.linkManager.controllerCommand.relayCmd(address, op );
+        } else {
+            var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
+            if (this.model.get('reverse')) port = 1-port;
+            this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+        }
     },
         
 });

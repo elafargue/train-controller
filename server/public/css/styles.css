@@ -91,8 +91,8 @@ h5 {
 .accessoryitem {
     padding: 1px;
     position: absolute;
-    max-width: 50px;
-    max-height: 50px;
+    max-width: 65px;
+    max-height: 55px;
     top:10px;
     left: 10px;
     text-align: center;
