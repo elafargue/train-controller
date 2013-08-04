@@ -12,6 +12,7 @@
  * 2013.05.12: Add current measurement support
  * 2013.06.23: Add support for MC33879 rather than MC33880
  * 2013.06.25: Add command to trigger a software reset
+ * 2013.06.27: Add commands to control relays that are present on v3.0 controller
  *
  * (c) 2013 Edouard Lafargue, edouard@lafargue.name
  *
@@ -88,6 +89,7 @@ const int debugpin = 7; // This is connected to a scope to check the speed
 #define MSG_TURNOUTS_VALUE 5
 #define MSG_POST_VALUE 6
 #define MSG_FAULT_VALUES 7
+#define MSG_RELAYS_VALUE 8
 #define MSG_ACK 98          // Sent to acknowlege a command
 #define MSG_ERROR 99        // Sent to tell command error
 #define MSG_JSON_SYNTAX 100 // JSON Syntax error
@@ -107,6 +109,13 @@ const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 #define OP_ON    1
 #define OP_OFF   2
 
+// Relays: the v3.0 controller supports 4 relays, we
+// set those and related operations as defines here:
+#define RELAYS 4
+#define RELAY_ON 1
+#define RELAY_OFF 0
+
+
 // SPI Connection to the shift register/relay driver
 const int spi_mosi  = 11;
 const int spi_miso  = 12;
@@ -123,6 +132,8 @@ const int turnout_banks =  4; // We have 4 banks of 4 turnouts
 double pwm_rate = 0;
 double target_rpm = 0;
 int current_direction = STOP;
+
+byte relay_mask = 0; // A mask to keep the state of relay outputs when we manipulate turnouts
 
 // Back EMF Measurement: we do a rolling average over BUFFER_SIZE samples which
 // we keep in a ring buffer because BEMF measurement is extremely noisy
@@ -155,20 +166,19 @@ int accessory_on_port =  0;
 const byte lowside_map[]          = {  6,   3,   2,   4,   7,  1,  0,  5 };
 const byte lowside_inverse_map[] =  {  6,   5,   2,   1,   3,  7,  0,  4 };
 
-// Test: direct mapping
-//const byte lowside_map[] = {  0,   1,   2,   3,   4,  5,  6,  7};
-
 // Turnout pinout mapping
 //                  Port:    0    1    2    3
-const int highside_map[] = {  1,   0,   2,   3};
-// Test: direct mapping:
-//const byte highside_map[] = {  0,   1,   2,   3};
+const byte highside_map[] = {  1,   0,   2,   3};
+
+// Relay output mapping
+const byte relay_map[] = { 2, 3, 0, 1};
 
 // Connection map: for port 1 to 32
 // false: accessory not connected
 // true: accessory connected
 #define ACCESSORY_PORTS 32
 int accessory_map[ACCESSORY_PORTS];
+
 
 // Auto-test of the board at startup:
 byte post_result = 0;
@@ -219,13 +229,6 @@ PID myPID(&measured_rpm, &pwm_rate, &target_rpm,Kp,Ki,Kd, DIRECT);
  * Trigger a software reset on the Arduino by jumping to zero
  */
 void(* triggerReset) (void) = 0; //declare reset function @ address 0
-
-
-
-void relay_cmd(byte highside, byte lowside) {
-    
-}
-
 
 //////////////////////////////////////////////////////////////////
 // Start of the program
@@ -462,11 +465,40 @@ void remap_faults(byte bank, byte faults) {
 }
 
 /**
+ * Switch a relay on-off.
+ */
+void relayCommand(int address, int op)
+{
+  byte response, io;
+  if (address < 0|| address > RELAYS)
+    return;
+  address--; // Commands are 1 to 4, we translate from 0 to 3
+  // Remap the relay outputs (PCB is not wired in order):
+  address = relay_map[address];
+  // Relay outputs are in port 5 to 8
+  byte bankio = 1 << (address+4);
+  if (op == RELAY_OFF) {
+    relay_mask &= ~bankio;
+  } else {
+    relay_mask |= bankio;
+  }
+  
+  // Enable the accessory bank (highside driver)
+  digitalWrite(spi_ss,LOW);
+  response = SPI.transfer(0);       // Disable open load detect for relays
+  response = SPI.transfer(relay_mask); // Highside driver value
+  response = SPI.transfer(0);      // Disable open load detect on low side.
+  response = SPI.transfer(0);      // Lowside: all zeroes for now (all accessories off)
+  digitalWrite(spi_ss,HIGH);       // Turn outputs on/off
+
+}
+
+/**
  * Set a turnout
  * Arguments: 
  * address: turnout number (starts at ONE)
  * dir: true or false (straight or not)
- * op : one of OP_PULSE, OP_ON, OP_OFF
+ * op : one of OP_PULSE, OP_LONGPULSE (for decouplers)
  */
 void accessoryCommand(int address, int port, int op)
 {
@@ -474,7 +506,8 @@ void accessoryCommand(int address, int port, int op)
   address--; // we start at one in the command, this is more human friendly.
   // Compute the turnout bank we should enable
   byte bank = address / turnout_banks;
-  byte bankio = 1 << highside_map[bank];
+  byte bankio = (1 << highside_map[bank]) | relay_mask; // Preserve relay state too
+  
   
   // Compute the actual I/O we should pulse
   if (bank%2) { // Ports are wired in a symetrical way on the board
@@ -536,7 +569,7 @@ void accessoryCommand(int address, int port, int op)
    }
    if (op != OP_ON) {
      response = SPI.transfer(0);
-     response = SPI.transfer(0);      // Switch off Highside
+     response = SPI.transfer(relay_mask);      // Switch off Highside (preserve relays)
      //response is now Highside fault status after lowside select
      response = SPI.transfer(0);
      response = SPI.transfer(0);      // Switch off Lowside
@@ -608,8 +641,8 @@ aJsonObject *createMessage()
       break;
     default:
       // Note: we convert current in mA and rpm in mV:
-      aJson.addNumberToObject(msg, "bemf", measured_rpm*15/1024*1000);
-      aJson.addNumberToObject(msg, "target", target_rpm*15/1024*1000);
+      aJson.addNumberToObject(msg, "bemf", measured_rpm*3.3*3/1024*1000);
+      aJson.addNumberToObject(msg, "target", target_rpm*3.3*3/1024*1000);
       aJson.addNumberToObject(msg, "rate", pwm_rate);
       aJson.addNumberToObject(msg, "current", measured_current*1000/1024);
       if (millis() - fr_print > 2000) {
@@ -646,6 +679,7 @@ aJsonObject *createMessage()
  *             "accp"    : Accessory pulse length (ms)
  *             "accm"    : Accessory max on time (ms)
  *             "turnouts": Max number of turnouts supported
+ *             "relays"  : Max number of relays supported
  *              "ports"  : do an accessory connected/disconnected diag.
  *                         Will return a list of all accessory port statuses.
  *              "post"   : return result of Power-on self test.
@@ -662,17 +696,19 @@ aJsonObject *createMessage()
  *              "updt" : update rate of output in ms
  *              "accp" : update accessory pulse length (ms)
  *              "accm" : update accessory max 'on' time (ms)
+ *     rel    : Relay command. All args below must be present:
+ *              "id": Relay address (1 to 4)
+ *              "cmd": "on" or "off"
  *     acc    : Accessory command. All args below must be present:
- *              "id" : Accessory address (1 to 16)
+ *              "id" : Accessory address (1 to 16) 
  *              "port" : Accessory port (0 or 1)
- *              "cmd"  : can be "p" (pulse), "on" or "off"
+ *              "cmd"  : can be "p" (pulse),  "on" or "off"
  *                       Note: accessory will go back to off after "accm"
  *                       milliseconds in every case, or the next command
  *                       (design only allows one accessory at a time)
- *     reset  : Trigger a controller reset - used to get back on our feet
- *              or upload a new firmware on the BeagleBone card. For syntax reasons,
- *              we need an argument: { "reset":1 }
- *
+ *     reset  : Trigger a controller reset - used to get back on our feet. For syntax reasons,
+ *              we need an argument: { "reset":1 }. Note that with the default
+ *              Arduino bootloader, we cannot use this to enable firmware uploads.
  *
  *  Examples:
  *    { "pid": {"kp":0.015, "ki":0.45, "kd":0.001, "sample":80}}
@@ -825,6 +861,34 @@ void processMessage(aJsonObject *msg)
       }
       return;
   }
+
+  jsptr = aJson.getObjectItem(msg, "rel");
+  if (jsptr) {
+      ack_cmd = "rel";
+      aJsonObject *arg = aJson.getObjectItem(jsptr, "id");
+      if (!arg) return;
+      if (arg->type != aJson_Int) return;
+      int id = arg->valueint;
+      if (id > RELAYS) return;
+      if (id < 1) return;
+      arg = aJson.getObjectItem(jsptr, "cmd");
+      if (!arg) return;
+      if (arg->type != aJson_String) return;
+      if (strcmp(arg->valuestring,"on")==0) {
+        // Switch on
+        relayCommand(id, RELAY_ON);
+        next_message = MSG_ACK;
+        return;
+      }
+      if (strcmp(arg->valuestring,"off")==0) {
+        // Switch off
+        relayCommand(id, RELAY_OFF);
+        next_message = MSG_ACK;
+        return;
+      }
+      return;
+  }
+
   
   jsptr = aJson.getObjectItem(msg, "pid");
   if (jsptr) {
@@ -882,6 +946,10 @@ void processMessage(aJsonObject *msg)
     if (strcmp(jsptr->valuestring,"turnouts")==0) {
       next_message = MSG_TURNOUTS_VALUE;
       return;
+    }
+    if (strcmp(jsptr->valuestring,"relays")==0) {
+       next_message = MSG_RELAYS_VALUE;
+       return;
     }
     if (strcmp(jsptr->valuestring,"post")==0) {
       next_message = MSG_POST_VALUE;

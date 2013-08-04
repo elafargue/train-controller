@@ -53,57 +53,57 @@ window.GraphView = Backbone.View.extend({
             colors: this.palette,
         };
         console.log('Loco chart size: ' + $('.locochart').width());
-        this.plot = $.plot($('.locochart', this.el), [ { data:this.packData(this.bemf), label: "RPM (mV)" },
-                                                      { data:this.packData(this.rate), label: "Power (%)", yaxis: 2},
-                                                      { data:this.packData(this.current), label:"Current (mA)", yaxis: 3},
+        this.plot = $.plot($('.locochart', this.el), [ { data:this.packData(this.bemf), label: "RPM=0 (mV)" },
+                                                      { data:this.packData(this.rate), label: "Power=0 (%)", yaxis: 2},
+                                                      { data:this.packData(this.current), label:"Current=0 (mA)", yaxis: 3},
                                                       { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }], options);
         
-//        var legends = $(".locochart .legendLabel", this.el);
-//        var updateLegendTimeout = null;
-//        var latestPosition = null;
-//	    function updateLegend() {
-//           updateLegendTimeout = null;
-//           var pos = latestPosition;
-//
-//			var axes = self.plot.getAxes();
-//			if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
-//				pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
-//				return;
-//			}
-//
-//			var i, j, dataset = self.plot.getData();
-//			for (i = 0; i < dataset.length; ++i) {
-//				var series = dataset[i];
-//				// Find the nearest points, x-wise
-//				for (j = 0; j < series.data.length; ++j) {
-//					if (series.data[j][0] > pos.x) {
-//						break;
-//					}
-//				}
-//				// Now Interpolate
-//				var y,
-//					p1 = series.data[j - 1],
-//					p2 = series.data[j];
-//
-//				if (p1 == null) {
-//					y = p2[1];
-//				} else if (p2 == null) {
-//					y = p1[1];
-//				} else {
-//					y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-//				}
-//                if (typeof(series.label) != 'undefined')
-//                    legends.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
-//			}
-//
-//		}
-//
-//		$('.locochart', this.el).bind("plothover",  function (event, pos, item) {
-//			latestPosition = pos;
-//			if (!updateLegendTimeout) {
-//				updateLegendTimeout = setTimeout(updateLegend, 50);
-//			}
-//		});
+        var legends = $(".locochart .legendLabel", this.el);
+        var updateLegendTimeout = null;
+        var latestPosition = null;
+	    function updateLegend() {
+           updateLegendTimeout = null;
+           var pos = latestPosition;
+
+			var axes = self.plot.getAxes();
+			if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+				pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
+				return;
+			}
+
+			var i, j, dataset = self.plot.getData();
+			for (i = 0; i < dataset.length; ++i) {
+				var series = dataset[i];
+				// Find the nearest points, x-wise
+				for (j = 0; j < series.data.length; ++j) {
+					if (series.data[j][0] > pos.x) {
+						break;
+					}
+				}
+				// Now Interpolate
+				var y,
+					p1 = series.data[j - 1],
+					p2 = series.data[j];
+
+				if (p1 == null) {
+					y = p2[1];
+				} else if (p2 == null) {
+					y = p1[1];
+				} else {
+					y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+				}
+                if (typeof(series.label) != 'undefined')
+                    legends.eq(i).text(series.label.replace(/=.*\s\(/, "= " + y.toFixed(2)));
+			}
+
+		}
+
+		$('.locochart', this.el).bind("plothover",  function (event, pos, item) {
+			latestPosition = pos;
+			if (!updateLegendTimeout) {
+				updateLegendTimeout = setTimeout(updateLegend, 50);
+			}
+		});
 
     },
     
@@ -137,9 +137,9 @@ window.GraphView = Backbone.View.extend({
                     this.linkManager.controllerCommand.stop();
                     this.linkManager.controllerCommand.speed(0);
                 }
-                this.plot.setData([ { data:this.packData(this.bemf), label: "RPM (mV)" },
-                                    { data:this.packData(this.rate), label: "Power (%)", yaxis: 2},
-                                    { data:this.packData(this.current), label:"Current (mA)", yaxis: 3},
+                this.plot.setData([ { data:this.packData(this.bemf), label: "RPM=0 (mV)" },
+                                    { data:this.packData(this.rate), label: "Power=0 (%)", yaxis: 2},
+                                    { data:this.packData(this.current), label:"Current=0 (mA)", yaxis: 3},
                                     { data:this.packData(this.targetbemf), color: "rgba(127,127,127,0.3)" }]);
                 this.plot.draw();
             }

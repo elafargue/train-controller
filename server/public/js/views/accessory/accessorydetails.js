@@ -83,6 +83,22 @@ window.AccessoryDetailsView = Backbone.View.extend({
             change[target.name] = target.value;
         }
         this.model.set(change);
+        
+        // If we change the accessory type to "Isolating", we have to
+        // repopulate the list of ports:
+        if (this.model.get('type') === 'Isolating' && this.linkManager.connected) {
+        this.linkManager.once('relays',function(tn) {
+                // fill in
+                console.log("Relays: " + tn);
+                $('#tn_ids', self.el).empty().removeAttr('disabled');
+                for (var i=1; i <= tn; i++) {
+                    $('#tn_ids', self.el).append('<option' +
+                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
+                }
+            });
+            this.linkManager.controllerCommand.getRelays();
+        }
+        
 
         // Run validation rule (if any) on changed item
         var check = this.model.validateItem(target.id);

@@ -45,7 +45,7 @@ window.Accessory = Backbone.Model.extend({
                 locY: 0,
                 symbol: "turnout-right",
                 type: "Turnout",
-                controllerAddress: 0,
+                controllerAddress: 1,
                 controllerSubAddress: -1,
                 reverse: false,            // Software switch inversion
     }

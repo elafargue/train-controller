@@ -16,6 +16,7 @@ var linkManager = function() {
     this.lastInput = 0;
     this.turnouts = 0; // Max number of turnouts supported on the controller.
                        // (never changes, so we cache it)
+    this.relays = 0;
     
     // Careful: in those functions, "this" is the socket.io context,
     // hence the use of self.
@@ -28,6 +29,11 @@ var linkManager = function() {
             self.turnouts = data.turnouts;
             self.trigger('turnouts', data.turnouts);
         }
+        if (typeof data.relays != 'undefined' ) {
+            self.relays = data.relays;
+            self.trigger('relays', data.relays);
+        }
+
         self.lastInput = new Date().getTime();
     };
     
@@ -101,6 +107,16 @@ var linkManager = function() {
             } else
                 self.socket.emit('controllerCommand','{"get": "turnouts"}');
         },
+        getRelays: function() {
+            // Note: with rapid successive getTurnouts calls, we will end up
+            // calling the controller several times still, but this is better
+            // than no caching at all.
+            if (self.relays>0) {
+                self.trigger('relays',self.relays);
+            } else
+                self.socket.emit('controllerCommand','{"get": "relays"}');
+        },
+
         accessoryCmd: function(address, port, op) {
             self.socket.emit('controllerCommand', '{"acc":{"id":' + address + ', "port":'+ port
                                                    + ', "cmd":"'+op+'"}}');
