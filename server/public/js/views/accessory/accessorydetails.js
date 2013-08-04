@@ -13,28 +13,7 @@ window.AccessoryDetailsView = Backbone.View.extend({
         if (this.linkManager.connected) {
             $('.buttonA', this.el).removeAttr('disabled');
             $('.buttonB', this.el).removeAttr('disabled');
-            this.linkManager.once('turnouts',function(tn) {
-                // fill in
-                console.log("Turnouts: " + tn);
-                $('#tn_ids', self.el).empty().removeAttr('disabled');
-                for (var i=1; i <= tn; i++) {
-                    $('#tn_ids', self.el).append('<option' +
-                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
-                }
-                if (self.model.get('type') === 'Uncoupler') {
-                    $('#portA',self.el).removeAttr('disabled');
-                    $('#portB',self.el).removeAttr('disabled');
-                    switch (self.model.get('controllerSubAddress')) {
-                            case 0:
-                                $('#portA', self.el).button('toggle');
-                                break;
-                            case 1:
-                                $('#portB', self.el).button('toggle');
-                                break;
-                    }
-                }
-            });
-            this.linkManager.controllerCommand.getTurnouts();
+            this.populateAddresses();
         }
         return this;
     },
@@ -68,11 +47,52 @@ window.AccessoryDetailsView = Backbone.View.extend({
                     break;
         }
     },
+    
+    populateAddresses: function() {
+        var self = this;
+        if (this.model.get('type') === 'Isolating' ) {
+            this.linkManager.once('relays',function(tn) {
+                // fill in
+                console.log("Relays: " + tn);
+                $('#tn_ids', self.el).empty().removeAttr('disabled');
+                for (var i=1; i <= tn; i++) {
+                    $('#tn_ids', self.el).append('<option' +
+                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
+                }
+            });
+            this.linkManager.controllerCommand.getRelays();
+        } else {
+            this.linkManager.once('turnouts',function(tn) {
+                // fill in
+                console.log("Turnouts: " + tn);
+                $('#tn_ids', self.el).empty().removeAttr('disabled');
+                for (var i=1; i <= tn; i++) {
+                    $('#tn_ids', self.el).append('<option' +
+                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
+                }
+                if (self.model.get('type') === 'Uncoupler') {
+                    $('#portA',self.el).removeAttr('disabled');
+                    $('#portB',self.el).removeAttr('disabled');
+                    switch (self.model.get('controllerSubAddress')) {
+                            case 0:
+                                $('#portA', self.el).button('toggle');
+                                break;
+                            case 1:
+                                $('#portB', self.el).button('toggle');
+                                break;
+                    }
+                }
+            });
+            this.linkManager.controllerCommand.getTurnouts();
+        }
+
+    },
 
     change: function (event) {
         // Remove any existing alert message
         utils.hideAlert();
         console.log("Model Changed");
+        var self = this;
 
         // Apply the change to the model
         var target = event.target;
@@ -84,21 +104,9 @@ window.AccessoryDetailsView = Backbone.View.extend({
         }
         this.model.set(change);
         
-        // If we change the accessory type to "Isolating", we have to
+        // If we change the accessory type, we have to
         // repopulate the list of ports:
-        if (this.model.get('type') === 'Isolating' && this.linkManager.connected) {
-        this.linkManager.once('relays',function(tn) {
-                // fill in
-                console.log("Relays: " + tn);
-                $('#tn_ids', self.el).empty().removeAttr('disabled');
-                for (var i=1; i <= tn; i++) {
-                    $('#tn_ids', self.el).append('<option' +
-                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
-                }
-            });
-            this.linkManager.controllerCommand.getRelays();
-        }
-        
+        this.populateAddresses();
 
         // Run validation rule (if any) on changed item
         var check = this.model.validateItem(target.id);
