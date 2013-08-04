@@ -609,6 +609,9 @@ aJsonObject *createMessage()
     case MSG_TURNOUTS_VALUE:
       aJson.addNumberToObject(msg,"turnouts", turnout_max);
       break;
+    case MSG_RELAYS_VALUE:
+      aJson.addNumberToObject(msg,"relays", RELAYS);
+      break;
     case MSG_ACK:
       aJson.addTrueToObject(msg, "ack");
       aJson.addStringToObject(msg, "cmd", ack_cmd);
