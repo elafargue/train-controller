@@ -151,5 +151,19 @@ var LogbookSchema = new Schema({
 
 mongoose.model('Logbook', LogbookSchema);
 
+var uri = 'mongodb://localhost/traindb';
+var connectDB = function() {
+    mongoose.connect(uri, function (err) {
+        // if we failed to connect, retry
+        if (err) {
+            console.log("Database not ready");
+            setTimeout(connectDB, 500);
+        } else {
+            ready = true;
+        }
+    })
+};
 
-mongoose.connect( 'mongodb://localhost/traindb' );
+connectDB();
+
+

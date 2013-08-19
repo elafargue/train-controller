@@ -10,11 +10,9 @@ window.AccessoryDetailsView = Backbone.View.extend({
         $(this.el).html(this.template(this.model.toJSON()));
         
         // Populate address dropdown based on controller properties
-        if (this.linkManager.connected) {
-            $('.buttonA', this.el).removeAttr('disabled');
-            $('.buttonB', this.el).removeAttr('disabled');
-            this.populateAddresses();
-        }
+        $('.buttonA', this.el).removeAttr('disabled');
+        $('.buttonB', this.el).removeAttr('disabled');
+        this.populateAddresses();
         return this;
     },
 
@@ -31,9 +29,15 @@ window.AccessoryDetailsView = Backbone.View.extend({
     command: function(event) {
         console.log("Accessory: Take action on click");
         var address = this.model.get('controllerAddress');
-        var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
-        if (this.model.get('reverse')) port = 1-port;
-        this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+        if (this.model.get('type') == 'Isolating') {
+            var op = ($(event.target).hasClass('buttonA')) ? 'off' : 'on';
+            this.linkManager.controllerCommand.relayCmd(address, op );
+        } else {
+            var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
+            if (this.model.get('reverse')) port = 1-port;
+            this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+        }
+
     },
 
     
@@ -51,39 +55,47 @@ window.AccessoryDetailsView = Backbone.View.extend({
     populateAddresses: function() {
         var self = this;
         if (this.model.get('type') === 'Isolating' ) {
-            this.linkManager.once('relays',function(tn) {
-                // fill in
-                console.log("Relays: " + tn);
-                $('#tn_ids', self.el).empty().removeAttr('disabled');
-                for (var i=1; i <= tn; i++) {
-                    $('#tn_ids', self.el).append('<option' +
-                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
-                }
-            });
-            this.linkManager.controllerCommand.getRelays();
-        } else {
-            this.linkManager.once('turnouts',function(tn) {
-                // fill in
-                console.log("Turnouts: " + tn);
-                $('#tn_ids', self.el).empty().removeAttr('disabled');
-                for (var i=1; i <= tn; i++) {
-                    $('#tn_ids', self.el).append('<option' +
-                                                 ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
-                }
-                if (self.model.get('type') === 'Uncoupler') {
-                    $('#portA',self.el).removeAttr('disabled');
-                    $('#portB',self.el).removeAttr('disabled');
-                    switch (self.model.get('controllerSubAddress')) {
-                            case 0:
-                                $('#portA', self.el).button('toggle');
-                                break;
-                            case 1:
-                                $('#portB', self.el).button('toggle');
-                                break;
+            $('.buttonA', this.el).html('Off');
+            $('.buttonB', this.el).html('On');
+            if (this.linkManager.connected) {
+                this.linkManager.once('relays',function(tn) {
+                    // fill in
+                    console.log("Relays: " + tn);
+                    $('#tn_ids', self.el).empty().removeAttr('disabled');
+                    for (var i=1; i <= tn; i++) {
+                        $('#tn_ids', self.el).append('<option' +
+                                                     ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
                     }
-                }
-            });
-            this.linkManager.controllerCommand.getTurnouts();
+                });
+                this.linkManager.controllerCommand.getRelays();
+            }
+        } else {
+            $('.buttonA', this.el).html('A');
+            $('.buttonB', this.el).html('B');
+            if (this.linkManager.connected) {
+                this.linkManager.once('turnouts',function(tn) {
+                    // fill in
+                    console.log("Turnouts: " + tn);
+                    $('#tn_ids', self.el).empty().removeAttr('disabled');
+                    for (var i=1; i <= tn; i++) {
+                        $('#tn_ids', self.el).append('<option' +
+                                                     ((i == self.model.get('controllerAddress')) ? ' selected': '') + '>'+i+'</option>');
+                    }
+                    if (self.model.get('type') === 'Uncoupler') {
+                        $('#portA',self.el).removeAttr('disabled');
+                        $('#portB',self.el).removeAttr('disabled');
+                        switch (self.model.get('controllerSubAddress')) {
+                                case 0:
+                                    $('#portA', self.el).button('toggle');
+                                    break;
+                                case 1:
+                                    $('#portB', self.el).button('toggle');
+                                    break;
+                        }
+                    }
+                });
+                this.linkManager.controllerCommand.getTurnouts();
+            }
         }
 
     },
