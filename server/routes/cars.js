@@ -24,71 +24,94 @@
  */
 
 
-var mongoose = require('mongoose');
-var Car = mongoose.model('Car');
-var fs = require('fs');
+var dbs = require('../db'),
+    debug = require('debug')('tc:cars'),
+    fs = require('fs');
 
 
-exports.findById = function(req, res) {
+exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving car: ' + id);
-    Car.findById(id, function(err,item) {
+    dbs.cars.get(id, function (err, item) {
         res.send(item);
     });
 };
 
-exports.findAll = function(req, res) {
-    Car.find({}, function(err, items) {
-        res.send(items);
+exports.findAll = function (req, res) {
+    dbs.cars.allDocs({
+        include_docs: true
+    }, function (err, items) {
+        var resp = [];
+        for (item in items.rows) {
+            resp.push(items.rows[item].doc);
+        }
+        res.send(resp);
     });
 };
 
-exports.addCar = function(req, res) {
+exports.addCar = function (req, res) {
     var car = req.body;
     console.log('Adding car: ' + JSON.stringify(car));
-    new Car(car).save( function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('Success: ' + JSON.stringify(result));
-                res.send(result);
-            }
+    dbs.cars.post(req.body, function (err, result) {
+        if (err) {
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
     });
-    
+
 };
 
-exports.updateCar = function(req, res) {
+exports.updateCar = function (req, res) {
     var id = req.params.id;
     var car = req.body;
-    delete car._id;
     console.log('Updating car: ' + id);
     console.log(JSON.stringify(car));
-    Car.findByIdAndUpdate(id, car, {safe:true}, function(err, result) {
-            if (err) {
-                console.log('Error updating car: ' + err);
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('' + result + ' document(s) updated');
-                res.send(car);
-            }
-    });    
+    dbs.cars.put(req.body, function (err, result) {
+        if (err) {
+            debug('Error updating instrument: ' + err);
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
+    });
 }
 
-exports.deleteCar = function(req, res) {
+exports.deleteCar = function (req, res) {
     var id = req.params.id;
     console.log('Deleting car: ' + id);
-    Car.findByIdAndRemove(id, {safe:true}, function(err,result) {
-            if (err) {
-                res.send({'error':'An error has occurred - ' + err});
-            } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
-            }
-    });    
+    dbs.cars.get(id, function (err, ins) {
+        if (err) {
+            debug('Error - ' + err);
+            res.send({
+                'error': 'An error has occurred - ' + err
+            });
+        } else {
+            dbs.cars.remove(ins, function (err, result) {
+                if (err) {
+                    res.send({
+                        'error': 'An error has occurred - ' + err
+                    });
+                } else {
+                    res.send(req.body);
+                }
+            });
+        }
+    });
 }
-    
-exports.uploadPic = function(req,res) {
-    var id= req.params.id;
+
+exports.uploadPic = function (req, res) {
+    var id = req.params.id;
     if (req.files) {
         console.log('Will save picture ' + JSON.stringify(req.files) + ' for Car ID: ' + id);
         // We use an 'upload' dir on our server to ensure we're on the same FS
@@ -97,13 +120,13 @@ exports.uploadPic = function(req,res) {
         // Note: we reference the target filename relative to the path where the server
         // was started:
         fs.rename(req.files.file.path, './public/pics/cars/' + id + '.' + filenameExt,
-                 function(err) {
-                    if (err) {
-                        fs.unlinkSync(req.files.file.path);
-                        console.log('Error saving file, deleted temporary upload');                        
-                    } else
-                        res.send(true);
-                 }
+            function (err) {
+                if (err) {
+                    fs.unlinkSync(req.files.file.path);
+                    console.log('Error saving file, deleted temporary upload');
+                } else
+                    res.send(true);
+            }
         );
     } else {
         res.send(false);

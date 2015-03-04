@@ -18,152 +18,180 @@
  */
 
 
-var mongoose = require( 'mongoose' );
-var Schema   = mongoose.Schema;
+var PouchDB = require('pouchdb'),
+    debug = require('debug')('tc:db');
 
 
-/**
- * Our data schema for the application is defined here
- */
 
-/**
- * TO DO or possibilities:
- * - Loco response curves (bemf/power) over time.
- *     -> In a separate document?
- * - Controller settings for the loco ?
- * - PDF documentation (one PDF document)
- * - Portfolio for the loco: several pictures & PDFs
- *
- */
-var LocoSchema = new Schema({
-        name: String,
-        year: String,           // Year the model was produced/bought
-        reference: String,      // Manufacturer reference
-        description: String,    // Up to the user
-        picture: String,        // Filename in public/pics/locos
-        documentation: String,  // PDF doc, filename in public/pics/locodocs/
-        runtime: Number,        // Runtime of the loco in seconds
+// Instrument
+// Output
+// Settings
+// Log Entry
+// Log
+// User
+
+// auto_compaction is important because if we update the documents,
+// and P/CouchDB keeps previous revisions otherwise. This option is only
+// effective for local DBs, not remote (CouchDB manages that on its own).
+
+var locomotives = new PouchDB('./ldb/locomotives', {
+    auto_compaction: true
 });
- 
-// Compile the schema by issuing the below:
-mongoose.model('Loco', LocoSchema );
-
-/**
- *
- */
-var CarSchema = new Schema({
-        name: String,
-        year: String,           // Year the model was produced/bought
-        reference: String,      // Manufacturer reference
-        description: String,    // Up to the user
-        picture: String,        // Filename in public/pics/locos
-        documentation: String,  // PDF doc, filename in public/pics/locodocs/
+var cars = new PouchDB('./ldb/cars', {
+    auto_compaction: true
 });
- 
-// Compile the schema by issuing the below:
-mongoose.model('Car', CarSchema );
-
-
-/**
- * Train controllers. Unfortunate naming convention since
- * it has nothing to do with MVC Controllers, but here you go
- */
-var ControllerSchema = new Schema({
-    name: String,
-    type: String,
-    port: String,
-    pidkp: Number,
-    pidki: Number,
-    pidkd: Number,
-    pidsample: Number,
-    updaterate: Number,
-    accessorypulse: Number,
+var controllers = new PouchDB('./ldb/controllers', {
+    auto_compaction: true
+});
+var settings = new PouchDB('./ldb/settings', {
+    auto_compaction: true
+});
+var accessories = new PouchDB('./ldb/accessories', {
+    auto_compaction: true
+});
+var layouts = new PouchDB('./ldb/layouts', {
+    auto_compaction: true
+});
+var logbookentries = new PouchDB('./ldb/logbookentries', {
+    auto_compaction: true
 });
 
-mongoose.model('Controller', ControllerSchema);
+// Create the design docs we need for our various databases in order to get
+// decent performance on large datasets:
 
 /**
- * Accessories. Can be a point, or something else.
- * accessories have an adress on a controller, and are located
- * on layouts.
- *
- * In this first revision, we only support one controller, so we don't
- * need to store the controllerId
+ * View of logs by loco ID
  */
-var AccessorySchema = new Schema({
-                name: String,
-                locX: Number, // Location (in %) on the layout drawing
-                locY: Number,
-                symbol: String,
-                type: String, // Can be "Turnout", "Uncoupler", "Isolating"
-//                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
-                controllerAddress: Number,
-                controllerSubAddress: Number, // Only used for Uncouplers right now, to indicate the port (0 or 1) directly.
-                reverse: Boolean,   // Invert switch operation by software, rather than have user swap wires manually...
-                
-});
-
-mongoose.model('Accessory', AccessorySchema);
-
-/**
- * We never manage controllers and accessories outside of
- * layouts, so no need to define separate schemas for those.
- *
- * This schema supports multiple controllers, but the app only supports
- * one max for now.
- */
-var LayoutSchema = new Schema({
-        name: String,
-        controllers: [{type: Schema.Types.ObjectId, ref:'Controller', default:null}],
-        accessories: [{type: Schema.Types.ObjectId, ref:'Accessory', default:null}],
-        description: String,
-        picture: String
-});
-
-
-mongoose.model('Layout', LayoutSchema);
-
-
-/**
- * Settings: global application settings.
- *
- * For now: ID of the current layout, and current loco
- */
-var ApplicationSettingsSchema = new Schema({
-    currentLayout: {type: Schema.Types.ObjectId, ref:'Layout', default:null},
-    currentLoco: {type: Schema.Types.ObjectId, ref:'Loco', default:null},
-    powersliderstyle: String,
-    itemsperpage: Number,
-});
-
-mongoose.model('Settings',ApplicationSettingsSchema);
-
-
-/**
- * Logbook entries
- */
-var LogbookSchema = new Schema({
-    locoid: {type: Schema.Types.ObjectId, ref:'Loco', default:null},
-    date: Date,
-    runtime: Number,
-    comment: String
-});
-
-mongoose.model('Logbook', LogbookSchema);
-
-var uri = 'mongodb://localhost/traindb';
-var connectDB = function() {
-    mongoose.connect(uri, function (err) {
-        // if we failed to connect, retry
-        if (err) {
-            console.log("Database not ready");
-            setTimeout(connectDB, 500);
-        } else {
-            ready = true;
-        }
-    })
+var logByLoco = {
+  _id: '_design/by_loco',
+  views: {
+    'by_loco': {
+      map: function (doc) { emit(doc.locoid); }.toString()
+    }
+  }
 };
 
-connectDB();
+// save it
+logbookentries.put(logByLoco).then(function () {
+  // success!
+    debug("Created Locomotives DB 'by loco' view");
+}).catch(function (err) {
+    debug("Error creating design doc: " + err);
+    if (err.status == 409)
+        debug("... but that's OK, it was there already");
+});
 
 
+
+/**
+ * Defaults: we use this to initialize new documents in our Pouch
+ * databases.
+ */
+var defaults = {
+    /**
+     * Settings: global application settings.
+     *
+     * For now: ID of the current layout, and current loco
+     */
+    settings: {
+        currentLayout: null,
+        currentLoco: null,
+        powersliderstyle: '',
+        itemsperpage: 8
+    },
+
+    locomotive: {
+        name: '',
+        year: 1980, // Year the model was produced/bought
+        reference: '', // Manufacturer reference
+        description: '', // Up to the user
+        picture: '', // Filename in public/pics/locos
+        documentation: '', // PDF doc, filename in public/pics/locodocs/
+        runtime: 0 // Runtime of the loco in seconds
+    },
+
+    car: {
+        name: '',
+        year: 1980, // Year the model was produced/bought
+        reference: '', // Manufacturer reference
+        description: '', // Up to the user
+        picture: '', // Filename in public/pics/locos
+        documentation: '', // PDF doc, filename in public/pics/locodocs/
+    },
+
+    /**
+     * Train controllers. Unfortunate naming convention since
+     * it has nothing to do with MVC Controllers, but here you go
+     */
+    controller: {
+        name: '',
+        type: '',
+        port: '',
+        pidkp: 0,
+        pidki: 0,
+        pidkd: 0,
+        pidsample: 0,
+        updaterate: 0,
+        accessorypulse: 0,
+    },
+
+    /**
+     * Accessories. Can be a point, or something else.
+     * accessories have an adress on a controller, and are located
+     * on layouts.
+     *
+     * In this first revision, we only support one controller, so we don't
+     * need to store the controllerId
+     */
+    accessory: {
+        name: '',
+        locX: 0, // Location (in %) on the layout drawing
+        locY: 0,
+        symbol: '',
+        type: 'Turnout', // Can be "Turnout", "Uncoupler", "Isolating"
+        //                controllerId: {type: Schema.Types.ObjectId, ref:'Controller', default:null},
+        controllerAddress: 0,
+        controllerSubAddress: 0, // Only used for Uncouplers right now, to indicate the port (0 or 1) directly.
+        reverse: false, // Invert switch operation by software, rather than have user swap wires manually...
+    },
+
+    /**
+     * We never manage controllers and accessories outside of
+     * layouts, so no need to define separate schemas for those.
+     *
+     * This schema supports multiple controllers, but the app only supports
+     * one max for now.
+     */
+    layout: {
+        name: '',
+        controllers: [],
+        accessories: [],
+        description: '',
+        picture: ''
+    },
+
+
+    /**
+     * Logbook entries
+     */
+    logbookentry: {
+        locoid: 0,
+        date: 0,
+        runtime: 0,
+        comment: ''
+    }
+
+};
+
+
+module.exports = {
+    locomotives: locomotives,
+    cars: cars,
+    controllers: controllers,
+    settings: settings,
+    accessories: accessories,
+    layouts: layouts,
+    logbookentries: logbookentries,
+    
+    defaults: defaults,
+}

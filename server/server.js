@@ -35,7 +35,9 @@
  *   Setup access to serial ports
  */
 var serialport = require('serialport'),
-    SerialPort  = serialport.SerialPort;
+    SerialPort = serialport.SerialPort,
+    debug = require('debug')('tc:server'),
+    PouchDB = require('pouchdb');
 
 // Utility function to get a Hex dump
 var Hexdump = require('./hexdump.js');
@@ -48,18 +50,24 @@ var Debug = true;
  * to populate options on controller settings
  * on the application
  */
+/*
 serialport.list(function (err, ports) {
-    ports.forEach(function(port) {
-      console.log(port.comName);
-      console.log(port.pnpId);
-      console.log(port.manufacturer);
+    ports.forEach(function (port) {
+        console.log(port.comName);
+        console.log(port.pnpId);
+        console.log(port.manufacturer);
     });
-  });
+});
+*/
 
 /**
  * Setup Db connection before anything else
  */
-require('./db.js');
+/**
+ * Setup Db connection before anything else
+ */
+// Returns an object containing all databases we use
+var dbs = require('./db.js');
 
 
 /**
@@ -77,13 +85,43 @@ var express = require('express'),
 
 var app = express(),
     server = require('http').createServer(app),
-    io = require('socket.io').listen(server);
+    io = require('socket.io').listen(server, {
+        log: false
+    });
 
 app.configure(function () {
-    app.use(express.logger('dev'));     /* 'default', 'short', 'tiny', 'dev' */
+    app.use(express.logger('dev')); /* 'default', 'short', 'tiny', 'dev' */
     app.use(express.favicon()); // Test please
-    app.use(express.bodyParser({ keepExtensions: true, uploadDir: __dirname + "/public/pics/tmp" }));
+    app.use(express.bodyParser({
+        keepExtensions: true,
+        uploadDir: __dirname + "/public/pics/tmp"
+    }));
 });
+
+
+// Before starting our server, make sure we reset any stale authentication token:
+dbs.settings.get('coresettings', function (err, item) {
+    debug("Getting settings: " + item);
+    if (err) {
+        debug('Issue finding my own settings ' + err);
+    }
+    if (item == null) {
+        item = dbs.defaults.settings;
+    }
+
+    item.token = "_invalid_";
+    dbs.settings.put(item, 'coresettings', function (err, response) {
+        if (err) {
+            console.log('***** WARNING ****** Could not reset socket.io session token at server startup');
+            console.log(err);
+            return;
+        }
+        debug(response);
+        server.listen(8090);
+    });
+
+});
+
 
 server.listen(8000);
 console.log("Listening for new clients on port 8000");
@@ -101,7 +139,7 @@ app.delete('/locos/:id', locos.deleteLoco);
 
 /**
  * Interface for managing loco logbooks
-*/
+ */
 app.get('/locos/:id/logbook', logbook.findByLocoId);
 app.post('/logbooks', logbook.addEntry);
 app.get('/logbooks/', logbook.findAll);
@@ -179,10 +217,10 @@ var portOpen = false;
 
 // listen for new socket.io connections:
 io.sockets.on('connection', function (socket) {
-	// if the client connects:
-	if (!connected) {
-            console.log('User connected');
-            connected = true;
+    // if the client connects:
+    if (!connected) {
+        console.log('User connected');
+        connected = true;
     }
 
     // if the client disconnects, we close the 
@@ -192,11 +230,11 @@ io.sockets.on('connection', function (socket) {
         console.log('Closing port');
         if (myPort)
             myPort.close();
-         connected = false;
+        connected = false;
         portOpen = false;
     });
-    
-    socket.on('openport', function(data) {
+
+    socket.on('openport', function (data) {
         console.log('Port open request for port name ' + data);
         // data contains connection type: IP or Serial
         // and the port name or IP address.
@@ -214,42 +252,46 @@ io.sockets.on('connection', function (socket) {
         });
         myPort.flush();
         console.log('Result of port open attempt: ' + myPort);
-        
+
         // Callback once the port is actually open: 
-       myPort.on("open", function () {
-           console.log('Port open');
-           var successCtr = 0;
-           // listen for new serial data:
-           myPort.on('data', function (data) {
-           try {
-             if (Debug) console.log('Raw input:\n' + Hexdump.dump(data));
-             // Clean our input data to improve chances of JSON parser not complaining
-             // remove all non-ascii:
-             data = data.replace(/[^A-Za-z 0-9\.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
-             // Convert the string into a JSON object:
-             var serialData = JSON.parse(data);
-             // send a serial event to the web client with the data:
-             socket.emit('serialEvent', serialData);
-             if (!portOpen && successCtr > 4) { // Only declare open once we undersand what the
-                                                // controller is sending
-                portOpen = true;
-                socket.emit('status', {portopen: portOpen});
-              } else if (successCtr < 5) { // avoid a wrap after a few hours...
-                  successCtr++;
-              }
-            } catch (err) {
-                console.log('Serial input - json format error');
-            }                   
-           });
-       });
-        
-        myPort.on("close", function() {
+        myPort.on("open", function () {
+            console.log('Port open');
+            var successCtr = 0;
+            // listen for new serial data:
+            myPort.on('data', function (data) {
+                try {
+                    if (Debug) console.log('Raw input:\n' + Hexdump.dump(data));
+                    // Clean our input data to improve chances of JSON parser not complaining
+                    // remove all non-ascii:
+                    data = data.replace(/[^A-Za-z 0-9\.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
+                    // Convert the string into a JSON object:
+                    var serialData = JSON.parse(data);
+                    // send a serial event to the web client with the data:
+                    socket.emit('serialEvent', serialData);
+                    if (!portOpen && successCtr > 4) { // Only declare open once we undersand what the
+                        // controller is sending
+                        portOpen = true;
+                        socket.emit('status', {
+                            portopen: portOpen
+                        });
+                    } else if (successCtr < 5) { // avoid a wrap after a few hours...
+                        successCtr++;
+                    }
+                } catch (err) {
+                    console.log('Serial input - json format error');
+                }
+            });
+        });
+
+        myPort.on("close", function () {
             portOpen = false;
-            socket.emit('status', {portopen: portOpen});
+            socket.emit('status', {
+                portopen: portOpen
+            });
         });
     });
-        
-    socket.on('closeport', function(data) {
+
+    socket.on('closeport', function (data) {
         // TODO: support multiple ports, right now we
         // discard 'data' completely.
         // I assume closing the port will remove
@@ -258,16 +300,18 @@ io.sockets.on('connection', function (socket) {
         if (myPort)
             myPort.close();
     });
-    
-    socket.on('portstatus', function() {
-        socket.emit('status', {portopen: portOpen});
+
+    socket.on('portstatus', function () {
+        socket.emit('status', {
+            portopen: portOpen
+        });
     });
-        
-    socket.on('controllerCommand', function(data) {
+
+    socket.on('controllerCommand', function (data) {
         // TODO: do a bit of sanity checking here
         console.log('Controller command: ' + data);
         if (myPort)
             myPort.write(data + '\n');
     });
-    
+
 });

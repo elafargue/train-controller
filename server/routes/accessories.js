@@ -20,66 +20,82 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var mongoose = require('mongoose');
-var Accessory = mongoose.model('Accessory');
+var dbs = require('../db'),
+        debug = require('debug')('tc:accessories');
 
-exports.findById = function(req, res) {
+exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving accessory: ' + id);
-    Accessory.findById(id, function(err,item) {
+    dbs.accessories.get(id, function (err, item) {
         res.send(item);
     });
 };
 
-exports.findAll = function(req, res) {
-    Accessory.find({}, function(err, items) {
-        res.send(items);
+exports.findAll = function (req, res) {
+    dbs.accessories.allDocs({
+        include_docs: true
+    }, function (err, items) {
+        var resp = [];
+        for (item in items.rows) {
+            resp.push(items.rows[item].doc);
+        }
+        res.send(resp);
     });
 };
 
-exports.addAccessory = function(req, res) {
+exports.addAccessory = function (req, res) {
     var accessory = req.body;
-    delete accessory._id;  // _id is sent from Backbone and is null, we
-                            // don't want that
+    // don't want that
     console.log('Adding accessory: ' + JSON.stringify(accessory));
-    new Accessory(accessory).save( function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('Success - result: ' + JSON.stringify(result));
-                res.send(result);
-            }
+    dbs.accessories.post(req.body, function (err, result) {
+        if (err) {
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
     });
-    
 };
 
-exports.updateAccessory = function(req, res) {
+exports.updateAccessory = function (req, res) {
     var id = req.params.id;
     var accessory = req.body;
-    delete accessory._id;
     console.log('Updating accessory: ' + id);
     console.log(JSON.stringify(accessory));
-    Accessory.findByIdAndUpdate(id, accessory, {safe:true}, function(err, result) {
-            if (err) {
-                console.log('Error updating accessory: ' + err);
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('' + result + ' document(s) updated');
-                res.send(accessory);
-            }
-    });    
+    dbs.accessories.put(req.body, function (err, result) {
+        if (err) {
+            debug('Error updating accessory: ' + err);
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
+    });
 }
 
 
-exports.deleteAccessory = function(req, res) {
+exports.deleteAccessory = function (req, res) {
     var id = req.params.id;
     console.log('Deleting accessory: ' + id);
-    Accessory.findByIdAndRemove(id, {safe:true}, function(err,result) {
-            if (err) {
-                res.send({'error':'An error has occurred - ' + err});
-            } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
-            }
-    });    
-}
+    dbs.accessories.get(id, function(err,ins) {
+        if (err) {
+            debug('Error - ' + err);
+            res.send({'error':'An error has occurred - ' + err});
+        } else {
+            dbs.accessories.remove(ins, function(err,result) {
+                if (err) {
+                    res.send({'error':'An error has occurred - ' + err});
+                } else {
+                    res.send(req.body);
+                }
+            });
+        }
+    });}

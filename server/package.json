@@ -5,8 +5,11 @@
     "private": true,
     "dependencies": {
         "express": "3.x",
-        "mongoose" : "3.x",
-        "socket.io": "0.9.x",
+        "pouchdb": "latest",
+        "socket.io": "~1.2.*",
+        "debug": "^2.1.0",
+        "underscore": "latest",
+        "underscore.string": "^2.4.0",
         "serialport": "https://github.com/voodootikigod/node-serialport/tarball/master"
     },
     "engines": {

@@ -20,67 +20,88 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var mongoose = require('mongoose');
-var Controller = mongoose.model('Controller');
+var dbs = require('../db'),
+        debug = require('debug')('tc:controllers');
 
-exports.findById = function(req, res) {
+
+
+exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving controller: ' + id);
-    Controller.findById(id, function(err,item) {
+    dbs.controllers.get(id, function (err, item) {
         res.send(item);
     });
 };
 
-exports.findAll = function(req, res) {
-    Controller.find({}, function(err, items) {
-        res.send(items);
+exports.findAll = function (req, res) {
+    dbs.controllers.allDocs({
+        include_docs: true
+    }, function (err, items) {
+        var resp = [];
+        for (item in items.rows) {
+            resp.push(items.rows[item].doc);
+        }
+        res.send(resp);
     });
 };
 
-exports.addController = function(req, res) {
+exports.addController = function (req, res) {
     var controller = req.body;
-    delete controller._id;  // _id is sent from Backbone and is null, we
-                            // don't want that
     console.log('Adding controller: ' + JSON.stringify(controller));
-    new Controller(controller).save( function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('Success - result: ' + JSON.stringify(result));
-                res.send(result);
-            }
+    dbs.controllers.post(req.body, function (err, result) {
+        if (err) {
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
     });
-    
 };
 
-exports.updateController = function(req, res) {
+exports.updateController = function (req, res) {
     var id = req.params.id;
     var controller = req.body;
-    delete controller._id;
     console.log('Updating controller: ' + id);
     console.log(JSON.stringify(controller));
-    Controller.findByIdAndUpdate(id, controller, {safe:true}, function(err, result) {
-            if (err) {
-                console.log('Error updating controller: ' + err);
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('' + result + ' document(s) updated');
-                res.send(controller);
-            }
-    });    
+    dbs.controllers.put(req.body, function (err, result) {
+        if (err) {
+            debug('Error updating controller: ' + err);
+            res.send({
+                'error': 'An error has occurred'
+            });
+        } else {
+            res.send({
+                _id: result.id,
+                _rev: result.rev
+            });
+        }
+    });
 }
 
 
-exports.deleteController = function(req, res) {
+exports.deleteController = function (req, res) {
     var id = req.params.id;
     console.log('Deleting controller: ' + id);
-    Controller.findByIdAndRemove(id, {safe:true}, function(err,result) {
-            if (err) {
-                res.send({'error':'An error has occurred - ' + err});
-            } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
-            }
-    });    
+    dbs.controllers.get(id, function (err, ins) {
+        if (err) {
+            debug('Error - ' + err);
+            res.send({
+                'error': 'An error has occurred - ' + err
+            });
+        } else {
+            dbs.controllers.remove(ins, function (err, result) {
+                if (err) {
+                    res.send({
+                        'error': 'An error has occurred - ' + err
+                    });
+                } else {
+                    res.send(req.body);
+                }
+            });
+        }
+    });
 }
-
