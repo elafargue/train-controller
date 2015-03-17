@@ -55,6 +55,10 @@ h5 {
     min-height: 260px;
 }
 
+.thumbnail img {
+    max-height: 200px;
+    width: auto;
+}
 
 .thumbnails li {
     margin-left: 0px !important;
