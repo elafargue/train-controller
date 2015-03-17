@@ -10,10 +10,10 @@
         "debug": "^2.1.0",
         "underscore": "latest",
         "underscore.string": "^2.4.0",
-        "serialport": "https://github.com/voodootikigod/node-serialport/tarball/master"
+        "serialport": "1.6.2"
     },
     "engines": {
-        "node": "0.8.4",
-        "npm": "1.1.49"
+        "node": "^0.12",
+        "npm": "^2.5.0"
     }
 }

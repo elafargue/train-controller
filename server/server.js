@@ -35,7 +35,6 @@
  *   Setup access to serial ports
  */
 var serialport = require('serialport'),
-    SerialPort = serialport.SerialPort,
     debug = require('debug')('tc:server'),
     PouchDB = require('pouchdb');
 
@@ -241,7 +240,7 @@ io.sockets.on('connection', function (socket) {
         //  This opens the serial port:
         if (myPort)
             myPort.close();
-        myPort = new SerialPort(data, {
+        myPort = new serialport.SerialPort(data, {
             baudRate: 9600,
             dataBits: 8,
             parity: 'none',
@@ -250,12 +249,16 @@ io.sockets.on('connection', function (socket) {
             // look for return and newline at the end of each data packet:
             parser: serialport.parsers.readline("\r\n")
         });
-        myPort.flush();
-        console.log('Result of port open attempt: ' + myPort);
+        console.log('Result of port open attempt: ', myPort);
+
+        myPort.on("error", function (err) {
+            console.log('Port error', err);
+        });
 
         // Callback once the port is actually open: 
         myPort.on("open", function () {
             console.log('Port open');
+            myPort.flush();
             var successCtr = 0;
             // listen for new serial data:
             myPort.on('data', function (data) {
