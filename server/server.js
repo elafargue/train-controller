@@ -227,7 +227,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('User disconnected');
         console.log('Closing port');
-        if (myPort)
+        if (myPort && myPort.isOpen())
             myPort.close();
         connected = false;
         portOpen = false;
@@ -238,7 +238,7 @@ io.sockets.on('connection', function (socket) {
         // data contains connection type: IP or Serial
         // and the port name or IP address.
         //  This opens the serial port:
-        if (myPort)
+        if (myPort && myPort.isOpen())
             myPort.close();
         myPort = new serialport.SerialPort(data, {
             baudRate: 9600,
@@ -300,7 +300,7 @@ io.sockets.on('connection', function (socket) {
         // I assume closing the port will remove
         // the listeners ?? NOPE!
         console.log('Closing port');
-        if (myPort)
+        if (myPort && myPort.isOpen())
             myPort.close();
     });
 
@@ -313,7 +313,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('controllerCommand', function (data) {
         // TODO: do a bit of sanity checking here
         console.log('Controller command: ' + data);
-        if (myPort)
+        if (myPort && myPort.isOpen())
             myPort.write(data + '\n');
     });
 
