@@ -28,9 +28,9 @@ window.AccessoryItemView = Backbone.View.extend({
             this.linkManager.controllerCommand.relayCmd(address, op );
         } else {
             var port = ($(event.target).hasClass('buttonA')) ? 0 : 1;
-            var cmd = ($(event.target).hasClass('buttonX')) ? 'on' : 'p';
+            var op = ($(event.target).hasClass('buttonX')) ? 'on' : 'p';
             if (this.model.get('reverse')) port = 1-port;
-            this.linkManager.controllerCommand.accessoryCmd(address,port,'p');
+            this.linkManager.controllerCommand.accessoryCmd(address,port,op);
         }
     },
         
