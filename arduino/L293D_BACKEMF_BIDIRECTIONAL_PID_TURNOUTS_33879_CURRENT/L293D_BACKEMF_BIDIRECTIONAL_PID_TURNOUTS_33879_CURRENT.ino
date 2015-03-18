@@ -13,6 +13,7 @@
  * 2013.06.23: Add support for MC33879 rather than MC33880
  * 2013.06.25: Add command to trigger a software reset
  * 2013.06.27: Add commands to control relays that are present on v3.0 controller
+ * 2015.03.18: Accessory Auto off: tests and bugfix (works fine now)
  *
  * (c) 2013 Edouard Lafargue, edouard@lafargue.name
  *
@@ -1033,9 +1034,10 @@ void loop() {
   // on for too long
   ///////
   if (accessory_on_id > -1) {
-    if (millis() - accessory_on_timestamp > turnoutMaxOn)
+    if (millis() - accessory_on_timestamp > turnoutMaxOn) {
         accessoryCommand(accessory_on_id,accessory_on_port, OP_OFF);
         accessory_on_id = -1;
+    }
   }
  
   ///////
