@@ -185,7 +185,7 @@ window.LocoRunView = Backbone.View.extend({
         if (!isNaN(data.rate)) {
             if (rateVal > 10) {
                 if (!this.running) {
-                    this.startTime = this.model.get('runtime');
+                    this.startTime = parseFloat(this.model.get('runtime'));
                     this.startStamp = new Date().getTime()/1000;
                     this.prevSave = this.startStamp - 10;
                     this.running = true;
