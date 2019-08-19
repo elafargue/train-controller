@@ -37,7 +37,7 @@ window.GraphView = Backbone.View.extend({
         // Now initialize the plot area:
         var options = {
             series: { shadowSize: 0 }, // drawing is faster without shadows
-            yaxes: [ {  min:0, max:3300, font: {color: this.palette[0]} },
+            yaxes: [ {  min:0, max:6000, font: {color: this.palette[0]} },
                      {position: "right", alignTicksWithAxis: 1 , min:0, max:900, font: {color: this.palette[1]}},
                      { min:0, max: 1000, font: {color: this.palette[2]}}
                    ],
