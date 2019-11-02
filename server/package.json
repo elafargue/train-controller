@@ -9,7 +9,7 @@
         "socket.io": "~1.2.*",
         "debug": "^2.1.0",
         "underscore": "latest",
-        "underscore.string": "^2.4.0",
+        "underscore.string": "^3.3.5",
         "serialport": "1.6.2"
     },
     "engines": {
