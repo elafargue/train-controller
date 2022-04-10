@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "pwr_BeagleBone")(type "KiCad")(uri "${KIPRJMOD}/pwr_BeagleBone.kicad_sym")(options "")(descr ""))
+  (lib (name "wizkers")(type "Legacy")(uri "/Users/lafargue/Documents/Electronics/KiCAD/libraries/wizkers.lib")(options "")(descr ""))
+  (lib (name "aerodynes")(type "Legacy")(uri "/Users/lafargue/Documents/Electronics/KiCAD/aerodynes.lib")(options "")(descr ""))
+)
