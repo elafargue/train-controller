@@ -38,6 +38,8 @@ var serialport = require('serialport'),
     debug = require('debug')('tc:server'),
     PouchDB = require('pouchdb');
 
+const { ReadlineParser } = require('@serialport/parser-readline')
+
 // Utility function to get a Hex dump
 var Hexdump = require('./hexdump.js');
 var Debug = true;
@@ -73,6 +75,7 @@ var dbs = require('./db.js');
  * Setup the HTTP server and routes
  */
 var express = require('express'),
+    bodyParser = require('body-parser'),
     locos = require('./routes/locomotives.js'),
     cars = require('./routes/cars.js'),
     logbook = require('./routes/logbooks.js'),
@@ -83,19 +86,16 @@ var express = require('express'),
     backup = require('./routes/backup.js');
 
 var app = express(),
-    server = require('http').createServer(app),
-    io = require('socket.io').listen(server, {
+    server = require('http').Server(app),
+    io = require('socket.io')(server, {
         log: false
     });
 
-app.configure(function () {
-    app.use(express.logger('dev')); /* 'default', 'short', 'tiny', 'dev' */
-    app.use(express.favicon()); // Test please
-    app.use(express.bodyParser({
+app.use(bodyParser({
         keepExtensions: true,
         uploadDir: __dirname + "/public/pics/tmp"
     }));
-});
+
 
 
 // Before starting our server, make sure we reset any stale authentication token:
@@ -227,7 +227,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('User disconnected');
         console.log('Closing port');
-        if (myPort && myPort.isOpen())
+        if (myPort && myPort.isOpen)
             myPort.close();
         connected = false;
         portOpen = false;
@@ -238,16 +238,15 @@ io.sockets.on('connection', function (socket) {
         // data contains connection type: IP or Serial
         // and the port name or IP address.
         //  This opens the serial port:
-        if (myPort && myPort.isOpen())
+        if (myPort && myPort.isOpen)
             myPort.close();
-        myPort = new serialport.SerialPort(data, {
+        myPort = new serialport(data, {
             baudRate: 9600,
             dataBits: 8,
             parity: 'none',
             stopBits: 1,
             flowControl: false,
             // look for return and newline at the end of each data packet:
-            parser: serialport.parsers.readline("\r\n")
         });
         console.log('Result of port open attempt: ', myPort);
 
@@ -255,14 +254,17 @@ io.sockets.on('connection', function (socket) {
             console.log('Port error', err);
         });
 
+        const parser = myPort.pipe(new ReadlineParser({ delimiter: '\r\n' }))
+
         // Callback once the port is actually open: 
         myPort.on("open", function () {
             console.log('Port open');
             myPort.flush();
             var successCtr = 0;
             // listen for new serial data:
-            myPort.on('data', function (data) {
+            parser.on('data', function (data) {
                 try {
+                    data = data.toString();
                     if (Debug) console.log('Raw input:\n' + Hexdump.dump(data));
                     // Clean our input data to improve chances of JSON parser not complaining
                     // remove all non-ascii:
@@ -281,7 +283,7 @@ io.sockets.on('connection', function (socket) {
                         successCtr++;
                     }
                 } catch (err) {
-                    console.log('Serial input - json format error');
+                    console.log('Serial input - json format error',err);
                 }
             });
         });
@@ -300,7 +302,7 @@ io.sockets.on('connection', function (socket) {
         // I assume closing the port will remove
         // the listeners ?? NOPE!
         console.log('Closing port');
-        if (myPort && myPort.isOpen())
+        if (myPort && myPort.isOpen)
             myPort.close();
     });
 
@@ -313,7 +315,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('controllerCommand', function (data) {
         // TODO: do a bit of sanity checking here
         console.log('Controller command: ' + data);
-        if (myPort && myPort.isOpen())
+        if (myPort && myPort.isOpen)
             myPort.write(data + '\n');
     });
 
