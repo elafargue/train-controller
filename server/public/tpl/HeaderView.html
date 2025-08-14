@@ -1,28 +1,39 @@
-      <!-- Le Navbar of Le Application -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="#">Train Controller</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="menu-layout"><a href="#layouts">Select layout</a></li>
-              <li class="menu-loco"><a href="#locos">Select locomotive</a></li>
-               <li class="add-option menu-loco-add" hidden=true><a href="#locos/add"><i class="icon-plus-sign icon-white"></i> Add Locomotive</a></li>
-               <li class="add-option menu-layout-add" hidden=true><a href="#layouts/add"><i class="icon-plus-sign icon-white"></i> Add Layout</a></li>
-               <li class="add-option menu-car-add" hidden=true><a href="#cars/add"><i class="icon-plus-sign icon-white"></i> Add Car</a></li>
-            </ul>
-              <ul class="nav pull-right">
-              <li class="menu-cars"><a href="#cars">Manage cars</a></li>
-              <li class="settings-menu"><a href="#settings">Settings</a></li>
-              <li class="about-menu"><a href="#about">About</a></li>
-                  
-              </ul>
-          </div><!--/.nav-collapse -->
+      <!-- Modern Material Design Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Train Controller</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item menu-layout">
+              <a class="nav-link" href="#layouts"><i class="bi bi-grid"></i> Select layout</a>
+            </li>
+            <li class="nav-item menu-loco">
+              <a class="nav-link" href="#locos"><i class="bi bi-train-front"></i> Select locomotive</a>
+            </li>
+            <li class="nav-item add-option menu-loco-add" hidden>
+              <a class="nav-link" href="#locos/add"><i class="bi bi-plus-circle"></i> Add Locomotive</a>
+            </li>
+            <li class="nav-item add-option menu-layout-add" hidden>
+              <a class="nav-link" href="#layouts/add"><i class="bi bi-plus-circle"></i> Add Layout</a>
+            </li>
+            <li class="nav-item add-option menu-car-add" hidden>
+              <a class="nav-link" href="#cars/add"><i class="bi bi-plus-circle"></i> Add Car</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item menu-cars">
+              <a class="nav-link" href="#cars"><i class="bi bi-truck"></i> Manage cars</a>
+            </li>
+            <li class="nav-item settings-menu">
+              <a class="nav-link" href="#settings"><i class="bi bi-gear"></i> Settings</a>
+            </li>
+            <li class="nav-item about-menu">
+              <a class="nav-link" href="#about"><i class="bi bi-info-circle"></i> About</a>
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
+    </nav>

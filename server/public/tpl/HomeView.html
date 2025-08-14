@@ -1,32 +1,38 @@
-<div class="row-fluid">
-<div class="span9">
-  <div class="well" id="layout-area">
-    <h1>Welcome!</h1>
-    <p>
-        Please select a layout and a locomotive, and off you go! 
-    </p>
-  </div>
-  <div class="row-fluid">
-    <div class="span12" id="loco-area">
-        <h3>
-            This is the info area, where you will see a real-time update of train parameters.
-        </h3>
-    </div><!--/span-->
-  </div><!--/row-->
-</div><!--/span-->
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4" id="layout-area">
+                <div class="card-body">
+                    <h1 class="card-title display-4 mb-3">Welcome!</h1>
+                    <p class="card-text lead">
+                        Please select a layout and a locomotive, and off you go!
+                    </p>
+                </div>
+            </div>
 
-  <div class="span3">
-  <div class="well" id="controller-area">
-      
-      <p>
-          This is where the interactive controller will live. It provides:
-          </p>
-          <ul>
-              <li>Direction: F/B/Stop.</li>
-              <li>Speed.</li>
-              <li>Parameters adjustment.</li>
-      </ul>
-      
-  </div><!--/.well -->
-</div><!--/span-->
-</div><!--/row-->
+            <div class="card shadow-sm" id="loco-area">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        This is the info area, where you will see a real-time update of train parameters.
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100" id="controller-area">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Controller</h4>
+                    <p class="card-text">
+                        This is where the interactive controller will live. It provides:
+                    </p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Direction: F/B/Stop</li>
+                        <li class="list-group-item">Speed</li>
+                        <li class="list-group-item">Parameters adjustment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

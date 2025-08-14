@@ -1,53 +1,92 @@
-<div class="row-fluid">
-    <div class="span8 ">
-        <div class="row-fluid">
-            <div class="span6 well">
-                <h4>Application settings</h4>
-                <p>
-                    <a href="#" role="button" id="reset" class="btn pull-left">Reset all settings.</a>
-                </p>
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title mb-3">Application settings</h4>
+                            <button type="button" id="reset" class="btn btn-outline-danger">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset all settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title mb-3">Power slider style</h4>
+                            <select class="form-select" name="powersliderstyle">
+                                <option value="Slider" <%= powersliderstyle == "Slider" ? 'selected="selected"' : '' %>>Slider</option>
+                                <option value="Knob" <%= powersliderstyle == "Knob" ? 'selected="selected"' : '' %>>Round</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="span6 well">
-                <h4>Power slider style</h4>
-                <select name="powersliderstyle" >
-                    <option value="Slider" <%= powersliderstyle == "Slider" ? 'selected="selected"'  : '' %>>Slider</option>
-                    <option value="Knob" <%= powersliderstyle == "Knob" ? 'selected="selected"'  : '' %>>Round</option>
-                </select>
+
+            <h4 class="mb-4">Backup and restore</h4>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text mb-3">Backup all settings in a backup file (.tbz):</p>
+                            <a href="/backup" class="btn btn-primary do-backup">
+                                <i class="bi bi-download"></i> Backup
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center">
+                            <p class="card-text mb-3">Drop a backup file on the box below to restore your settings:</p>
+                            <div class="position-relative mx-auto" style="width: 120px; height: 107px;">
+                                <img id="restore-area" class="img-fluid position-absolute bottom-0" src="img/package-open.png" alt="Drop zone" width="120">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="span12"><h4>Backup and restore</h4></div>
-        </div>
-        <div class="row-fluid">
-            <div class="span6 well">
-                <p>Backup all settings in a backup file (.tbz): <a href="/backup" role="button" class="do-backup btn">Backup</a>
-            </div>
-            <div class="span6 well">                
-            <p>Drop a backup file on the box below to restore your settings:</p>
-                <div style="width:120px; height:107px; position:relative;margin: 0px auto;">
-                        <div style="position:absolute; bottom:0;"><img id="restore-area" width="120" src="img/package-open.png"/></div>
+
+            <h4 class="mb-4">User interface</h4>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <label class="form-label">Number of items per page:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="itemsperpage" value="<%=itemsperpage%>" maxlength="4">
+                                <button type="button" class="btn btn-outline-success">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            &nbsp;
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row-fluid">
-            <div class="span12"><h4>User interface</h4></div>
-        </div>        
-        <div class="row-fluid">
-            <div class="span3 well">
-                Number of items per page on loco/layout list:
-                <div class="input-append"><input class="span6" name="itemsperpage" value="<%=itemsperpage%>" type="text" maxlength="4"><button type="button" class="btn" ><i class="icon-check"></i></button></div>
-            </div>
-            <div class="span3 well">
-                &nbsp;
-            </div>
-            <div class="span3 well">
-                &nbsp;
-            </div>
-            <div class="span3 well">
-                &nbsp;
-            </div>
-        </div>
-    </div>
     
     <div class="span4">
         <p>

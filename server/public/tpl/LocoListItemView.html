@@ -1,8 +1,13 @@
-<div class="thumbnail glowthumbnail thumbnail-larger select" style="text-align: center;">
-<a href="#" class="plain">
-    <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" width="250" alt="">
-    <h5><%= name %></h5>
-    <%= reference %><br/>
-</a>
-    <a class="btn btn-mini edit" href="#locos/<%= _id %>"><i class="icon-edit"></i> Edit</a>
+<div class="card shadow-sm h-100">
+    <a href="#" class="text-decoration-none text-reset">
+        <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" 
+             class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-2"><%= name %></h5>
+            <p class="card-text text-muted mb-3"><%= reference %></p>
+            <a class="btn btn-outline-primary btn-sm edit" href="#locos/<%= _id %>">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+        </div>
+    </a>
 </div>

@@ -1,26 +1,54 @@
-  <div class="row-fluid">
-    <div class="span3" id="loco-pic">
-        <div class="thumbnail glowthumbnail select" style="text-align: center;">
-            <a data-toggle="lightbox" href="#locoLightbox"><img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" width="250" alt=""></a>
-            <h5><%= name %></h5>
-            <%= reference %><br/>
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-md-3" id="loco-pic">
+            <div class="card shadow-sm">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#locoLightbox">
+                    <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" 
+                         class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
+                </a>
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2"><%= name %></h5>
+                    <p class="card-text text-muted"><%= reference %></p>
+                </div>
+            </div>
+            
+            <!-- Modal -->
+            <div class="modal fade" id="locoLightbox" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" 
+                                 class="img-fluid" alt="<%= name %>">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    
-    <div id="locoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
-	   <div class='lightbox-header'>
-		  <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+
+        <div class="col-md-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="card-text mb-2">
+                        <strong>Runtime:</strong><br>
+                        <span id="runtime" class="text-muted"><%=utils.hms(runtime)%></span>
+                    </p>
+                    <p class="card-text mb-0">
+                        <strong>Last maintenance:</strong><br>
+                        <span id="maintenance" class="text-muted">TbD.</span>
+                    </p>
+                </div>
+            </div>
         </div>
-	   <div class='lightbox-content'>
-		 <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>">
-	   </div>
+
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="locochart chart" style="position: relative; min-height: 200px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
-                
-    </div>
-    <div class="span2 thumbnail">
-        <p>Runtime: <span id="runtime"><%=utils.hms(runtime)%></%></span></p>
-        <p>Last maintenance: <span id="maintenance">TbD.</span></p>
-    </div>
-    <div class="span7 thumbnail" >
-        <div class="locochart chart" style="position: relative;"></div>
-    </div>
-  </div>
+</div>

@@ -1,53 +1,43 @@
 <!-- Details view of a layout -->
-<div class="row-fluid">
-
-    <form class="form-horizontal span12">
-
-        <fieldset>
-
-            <legend>Layout Details</legend>
-            <br/>
-
-            <div class="row">
-                <div class="span8">
-
-                    <div class="control-group">
-                        <label for="name" class="control-label">Name:</label>
-
-                        <div class="controls">
-                            <input type="text" name="name" value="<%= name %>"/>
-                            <span class="help-inline"></span>
+<div class="container-fluid">
+    <form class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Layout Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" value="<%= name %>" />
+                            <div class="form-text"></div>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label for="description" class="control-label">Notes:</label>
-
-                        <div class="controls">
-                            <textarea id="description" name="description" style="width: 90%;" rows="6"><%= description
-                                %></textarea>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Notes</label>
+                            <textarea class="form-control" id="description" name="description" rows="6"><%= description %></textarea>
                         </div>
-                    </div>
-                        
-                    <div class="control-group">
-                            <label class="control-label">Controllers:</label>
-                        <div class="controls">
-                            <div class="row-fluid">
-                                <ul class="thumbnails" id="controllers">
-                                    <li><div class="thumbnail">
-                                            <h5  style="text-align: center;">Add new...</h5>
-                                             <a href="#" class="btn addctrl btn-small"><i class="icon-plus-sign"></i></a>
-                                            </div>
-                                    </li>
-                                </ul>
+
+                        <div class="mb-4">
+                            <label class="form-label">Controllers</label>
+                            <div class="row g-3" id="controllers">
+                                <div class="col-md-4">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Add new...</h5>
+                                            <button class="btn btn-outline-primary btn-sm addctrl">
+                                                <i class="bi bi-plus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label class="control-label">Accessories:</label>
-                        <div class="controls" >
-                              <div class="row-fluid">
+                        <div class="mb-4">
+                            <label class="form-label">Accessories</label>
+                            <div class="row g-3">
                                 <div class="span12"><span class="label label-warning" id="connection-label">WARNING</span>
                                     <span id="connection-note">Some accessory properties can only be edited if you go back to the <a href="/#">home screen</a> and connect to the controller.</span>
                                   </div>

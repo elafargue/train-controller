@@ -1,52 +1,37 @@
-<!-- Details about a locomotive -->
-<div class="row-fluid">
-
-    <form class="form-horizontal span12">
-
-        <fieldset>
-
-            <legend>Car Details</legend>
-            <br/>
-
-            <div class="row">
-                <div class="span8">
-
-                    <div class="control-group">
-                        <label for="name" class="control-label">Name:</label>
-
-                        <div class="controls">
-                            <input type="text" id="name" name="name" value="<%= name %>"/>
-                            <span class="help-inline"></span>
+<!-- Details about a car -->
+<div class="container-fluid">
+    <form class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Car Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="<%= name %>" />
+                            <div class="form-text"></div>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label for="reference" class="control-label">Reference:</label>
-
-                        <div class="controls">
-                            <input type="text" id="reference" name="reference" value="<%= reference %>"/>
-                            <span class="help-inline"></span>
+                        <div class="mb-3">
+                            <label for="reference" class="form-label">Reference</label>
+                            <input type="text" class="form-control" id="reference" name="reference" value="<%= reference %>" />
+                            <div class="form-text"></div>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label for="year" class="control-label">Year:</label>
-
-                        <div class="controls">
-                            <select class="input-small" id="year" name="year" value="<%= year %>">
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <select class="form-select" id="year" name="year" value="<%= year %>">
                                 <% for(var i= new Date().getFullYear(); i > 1971; i--) { %>
-                                <option
-                                <%= year == i ?'selected':'' %>><%= i %></option>
+                                <option <%= year == i ?'selected':'' %>><%= i %></option>
                                 <% } %>
                             </select>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label for="description" class="control-label">Notes:</label>
-                        <div class="controls">
-                            <textarea id="description" name="description" style="width: 90%;" rows="6"><%= description
-                                %></textarea>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Notes</label>
+                            <textarea class="form-control" id="description" name="description" rows="6"><%= description %></textarea>
                         </div>
                     </div>
                         
