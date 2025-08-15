@@ -52,13 +52,18 @@
                             </div>
                         </div>
                     
-                        <div id="carLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class='lightbox-header'>
-                              <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                        <div id="carLightbox" class="modal fade" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header border-0">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-0">
+                                        <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>" 
+                                             class="img-fluid" alt="<%= name %>">
+                                    </div>
+                                </div>
                             </div>
-                           <div class='lightbox-content'>
-                             <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>">
-                           </div>
                         </div>                    
                     </div>
 
