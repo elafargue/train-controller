@@ -109,14 +109,14 @@ dbs.settings.get('coresettings', function (err, item) {
     }
 
     item.token = "_invalid_";
-    dbs.settings.put(item, 'coresettings', function (err, response) {
+
+    dbs.settings.put(item, function (err, response) {
         if (err) {
             console.log('***** WARNING ****** Could not reset socket.io session token at server startup');
             console.log(err);
             return;
         }
         debug(response);
-        server.listen(8090);
     });
 
 });

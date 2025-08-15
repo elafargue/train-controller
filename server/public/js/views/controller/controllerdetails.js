@@ -8,26 +8,11 @@ window.ControllerDetailsView = Backbone.View.extend({
     render: function () {
         console.log("Render controller details");
         $(this.el).html(this.template(this.model.toJSON()));
-        var options = {
-                minimum: 0,
-                maximum: 10,
-                step: 0.1,
-                numberOfDecimals: 2,
-                value: this.model.get('pidkp')
-        };
-        
-        $('#kp', this.el).spinedit(options);
-        options.value = this.model.get('pidki');
-        $('#ki', this.el).spinedit(options);
-        options.value = this.model.get('pidkd');
-        $('#kd', this.el).spinedit(options);
-        options = { step: 10,
-            minimum: 60,
-            maximum: 600,
-            numberOfDecimals: 0,
-            value: this.model.get('pidsample'),
-          };
-        $('#sample', this.el).spinedit(options);
+        // Set initial values
+        $('#kp', this.el).val(this.model.get('pidkp'));
+        $('#ki', this.el).val(this.model.get('pidki'));
+        $('#kd', this.el).val(this.model.get('pidkd'));
+        $('#sample', this.el).val(this.model.get('pidsample'));
 
         return this;
     },

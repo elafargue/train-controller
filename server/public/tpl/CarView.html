@@ -34,14 +34,17 @@
                             <textarea class="form-control" id="description" name="description" rows="6"><%= description %></textarea>
                         </div>
                     </div>
-                        
-                </div>
 
-                <div class="span4">
-                    <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
-                        <p><a data-toggle="lightbox" href="#carLightbox"><img id="picture" width="180" src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>"/></a>  </p>
-                        <p style="color:#999;">To change the picture, drag a new picture from your computer onto the box above. Click on the picture to zoom in.</p>
-                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a data-bs-toggle="modal" data-bs-target="#carLightbox" href="#carLightbox">
+                                    <img id="picture" class="img-fluid mb-3" style="max-width: 180px;" 
+                                         src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>"/>
+                                </a>
+                                <p class="text-muted small">To change the picture, drag a new picture from your computer onto the box above. Click on the picture to zoom in.</p>
+                            </div>
+                        </div>
                     
                         <div id="carLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
                             <div class='lightbox-header'>
@@ -51,7 +54,7 @@
                              <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>">
                            </div>
                         </div>                    
-                </div>
+                    </div>
 
             </div>
 

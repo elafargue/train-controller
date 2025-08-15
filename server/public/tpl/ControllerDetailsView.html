@@ -47,19 +47,24 @@
                         <label class="form-label" for="port">Port</label>
                         <input type="text" class="form-control" name="port" value="<%= port %>">
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="pid">PID</label>
-                        <div class="input-group">
-                            <span class="input-group-text">P:</span>
-                            <input id="kp" type="text" class="form-control" name="pidkp">
-                        <span>&nbsp;&nbsp;I:&nbsp;</span><input id="ki" type="text" name="pidki" />
-                        <span>&nbsp;&nbsp;D:&nbsp;</span><input id="kd" type="text" name="pidkd" />
-                     </div><br>
-                    <div class="horizontal">
-                         <span>&nbsp;&nbsp;Sample time:&nbsp;</span><input id="sample" name="pidsample" type="text"/>
+                                        
+                    <div class="control-group">
+                        <label class="control-label" for="pid">PID</label>
+                        <div class="controls">
+                            <div class="horizontal">
+                                <span>P:&nbsp;</span>
+                                <input id="kp" type="number" name="pidkp" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                                <span>&nbsp;&nbsp;I:&nbsp;</span>
+                                <input id="ki" type="number" name="pidki" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                                <span>&nbsp;&nbsp;D:&nbsp;</span>
+                                <input id="kd" type="number" name="pidkd" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                            </div><br>
+                            <div class="horizontal">
+                                <span>&nbsp;&nbsp;Sample time:&nbsp;</span>
+                                <input id="sample" name="pidsample" type="number" min="60" max="600" step="10" class="form-control form-control-sm" style="width: 80px;" />
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </div>
             
