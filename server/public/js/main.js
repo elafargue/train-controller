@@ -43,8 +43,6 @@ var AppRouter = Backbone.Router.extend({
 
     initialize: function () {
         console.log("Initializing application");
-        this.headerView = new HeaderView();
-        $('.header').html(this.headerView.el);
         // Get our settings here, and
         // share them afterwards, rather than requesting it
         // everytime...
@@ -52,6 +50,13 @@ var AppRouter = Backbone.Router.extend({
         // We need to be sure the settings are fetched before moving
         // further, so we add the Ajax option "async" below.
         this.settings.fetch({async:false});
+        
+        // Initialize theme manager
+        ThemeManager.init(this.settings);
+        
+        // Initialize header view with settings
+        this.headerView = new HeaderView({ settings: this.settings });
+        $('.header').html(this.headerView.el);
         
         // Create our link manager: it is in charge of talking
         // to the server-side controller interface through a socket.io

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
   <head>
     <meta charset="utf-8">
     <title>Train Controller</title>
@@ -7,17 +7,30 @@
     <meta name="description" content="">
     <meta name="author" content="E. Lafargue">
 
-    <!-- Bootstrap 5 with Material Design theme -->
+    <!-- Bootstrap 5 -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
-    <!-- Material Design theme -->
-    <link href="css/mdb.min.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 72px; /* Navbar height (56px) + some extra padding */
         padding-bottom: 40px;
         min-height: 100vh;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
+      
+      /* Theme transition effects */
+      .card,
+      .btn,
+      .modal-content,
+      .form-control,
+      .list-group-item,
+      .dropdown-menu,
+      .page-link {
+        transition: background-color 0.3s ease,
+                    color 0.3s ease,
+                    border-color 0.3s ease;
+      }
+
       .sidebar-nav {
         padding: 9px 0;
       }
@@ -61,23 +74,24 @@
 <!-- Header contents loaded by the application (menubar) -->
 <div class="header"></div>
 
-<div class="container-fluid">
-    <div class="row-fluid">
+<div class="container-fluid main-container">
+    <div class="row">
         <!-- The div below is where the application runs -->
-        <div id="content" class="span12>">
+        <div id="content" class="col-12">
             
-            <p style="text-align:center;">Train Controller v1.0</p>
-            <p style="text-align:center;">System is loading, please wait...</p>
-            <div class="spinner circles">
-                 <div></div>
-                 <div></div>
-                 <div></div>
-                 <div></div>
-                 <div></div>
-                 <div></div>
-                 <div></div>
-                 <div></div>
-            </div>
+            <div class="text-center">
+                <h4 class="mb-3">Train Controller v1.0</h4>
+                <p class="mb-4">System is loading, please wait...</p>
+                <div class="spinner circles">
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                     <div></div>
+                </div>
         
             <p style="text-align:center;"><img src="pics/locos/generic.jpg"></p>
             
@@ -117,6 +131,7 @@
     <script src="js/models/controller.js"></script>
     <script src="js/models/accessory.js"></script>
     <script src="js/models/settings.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/views/paginator.js"></script>
     <script src="js/views/header.js"></script>
     <script src="js/views/home.js"></script>

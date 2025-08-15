@@ -16,5 +16,6 @@ window.Settings = Backbone.Model.extend({
         currentLoco: null,
         powersliderstyle: "slider", // Can be "slider" or "knob"
         itemsperpage: 8,
+        theme: "light", // Can be "light" or "dark"
     }
 });
