@@ -1,10 +1,10 @@
-<div class="card shadow-sm h-100">
-    <a href="#cars/<%= _id %>" class="text-decoration-none text-reset">
-        <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>" 
+<div class="card shadow-sm h-100 select" style="cursor: pointer;">
+    <div class="card-body text-center">
+        <a href="#cars/<%= _id %>" class="text-decoration-none text-reset">
+            <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>" 
              class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
-        <div class="card-body text-center">
             <h5 class="card-title mb-2"><%= name %></h5>
             <p class="card-text text-muted"><%= reference %></p>
-        </div>
-    </a>
+        </a>
+    </div>
 </div>
