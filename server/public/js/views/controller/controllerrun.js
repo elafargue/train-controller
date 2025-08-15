@@ -163,6 +163,7 @@ window.ControllerRunView = Backbone.View.extend({
     power: function(event) {
         if (!this.linkManager.connected)
             return;
+        
         // Detect if we're on a tablet and behave accordingly:
         if (event.type === "touchmove") {
             event.preventDefault(); // block finger scrolling of the page
@@ -170,15 +171,21 @@ window.ControllerRunView = Backbone.View.extend({
             var touch = event.originalEvent.touches[0];
             event.pageY = touch.pageY; // Yeah, hack the jQuery event!
         }
+        
         var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
+        
+        // Throttle updates
         var stamp = new Date().getTime();
         if ((stamp - this.speedstamp) < 400)
             return;
         this.speedstamp = stamp;
+        
         console.log("Power click at " + percentage + "%");
-        $('.progress .bar', this.el).attr('data-percentage',
-                                          percentage
-                                         ).progressbar();
+        
+        // Update the UI
+        this.updatePowerBar(percentage);
+        
+        // Send command to controller
         this.linkManager.controllerCommand.speed(percentage);
     },
 
@@ -236,8 +243,20 @@ window.ControllerRunView = Backbone.View.extend({
 
         var rateVal = parseInt(data.rate);
         if (!isNaN(rateVal)) {
-            $('.progress .bar', self.el).attr('data-percentage',rateVal/800*100).progressbar();
-            $('.dial', this.el).val(rateVal/800*100).trigger('change');
+            const percentage = rateVal/800*100;
+            
+            // Update progress bar if we're using slider style
+            if (this.powersliderstyle === "Slider") {
+                this.updatePowerBar(percentage);
+            }
+            
+            // Update dial if we're using knob style
+            const dial = $('.dial', this.el);
+            if (dial.length) {
+                dial.val(percentage).trigger('change');
+            }
+            
+            // Update stop button state
             if (rateVal < 10) { // We consider the train stopped under a PWM rate of 10.
                 $('.btn-group > .dir-stop',this.el).addClass("btn-danger");
             } else {
@@ -250,15 +269,20 @@ window.ControllerRunView = Backbone.View.extend({
             var ki = parseFloat(data.ki);
             var kd = parseFloat(data.kd);
             var sample = parseInt(data.sample);
-            this.model.set('pidkp', kp);
-            this.model.set('pidki', ki);
-            this.model.set('pidkd', kd);
-            this.model.set('pidsample', sample);
-            $('#kp', this.el).spinedit('setValueSilent', kp);
-            $('#ki', this.el).spinedit('setValueSilent', ki);
-            $('#kd', this.el).spinedit('setValueSilent', kd);
-            $('#sample', this.el).spinedit('setValueSilent', sample);
-
+            
+            // Update model silently to prevent unnecessary events
+            this.model.set({
+                'pidkp': kp,
+                'pidki': ki,
+                'pidkd': kd,
+                'pidsample': sample
+            }, {silent: true});
+            
+            // Update inputs directly without triggering change events
+            $('#kp', this.el).val(kp);
+            $('#ki', this.el).val(ki);
+            $('#kd', this.el).val(kd);
+            $('#sample', this.el).val(sample);
         }
     },
 
