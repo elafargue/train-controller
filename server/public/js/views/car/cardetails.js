@@ -91,13 +91,28 @@ window.CarView = Backbone.View.extend({
         var self = this;
         // The Bootbox library manages modal dialogs in bootstrap
         // and makes our life easier:
-        bootbox.confirm("Delete this car, are you sure?", "Cancel",  "Delete", function(result) {
-                         if (result) {
-                           self.model.destroy({
-                                success: function () {
-                                window.history.back();
-                                }});
-                       }});
+        bootbox.confirm({
+            message: "Delete this car, are you sure?",
+            buttons: {
+                confirm: {
+                    label: 'Delete',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    self.model.destroy({
+                        success: function () {
+                            window.history.back();
+                        }
+                    });
+                }
+            }
+        });
         return false;
     },
     
