@@ -76,6 +76,7 @@ var dbs = require('./db.js');
  */
 var express = require('express'),
     bodyParser = require('body-parser'),
+    fileUpload = require('express-fileupload'),
     locos = require('./routes/locomotives.js'),
     cars = require('./routes/cars.js'),
     logbook = require('./routes/logbooks.js'),
@@ -91,10 +92,16 @@ var app = express(),
         log: false
     });
 
-app.use(bodyParser({
-        keepExtensions: true,
-        uploadDir: __dirname + "/public/pics/tmp"
-    }));
+// Parse application/json and application/x-www-form-urlencoded
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Enable file upload
+app.use(fileUpload({
+    createParentPath: true,
+    useTempFiles: true,
+    tempFileDir: __dirname + "/public/pics/tmp"
+}));
 
 
 
