@@ -43,12 +43,12 @@ window.LayoutView = Backbone.View.extend({
         if (this.linkManager && this.linkManager.connected) {
             $('#connection-status', this.el).removeClass('alert-warning').addClass('alert-success');
             $('#connection-icon', this.el).removeClass('bi-exclamation-triangle').addClass('bi-check-circle');
-            $('#connection-label', this.el).html('CONNECTED').removeClass('badge-secondary').addClass('badge-success');
+            $('#connection-label', this.el).html('CONNECTED').removeClass('bg-secondary').addClass('bg-success');
             $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
         } else {
             $('#connection-status', this.el).removeClass('alert-success').addClass('alert-warning');
             $('#connection-icon', this.el).removeClass('bi-check-circle').addClass('bi-exclamation-triangle');
-            $('#connection-label', this.el).html('DISCONNECTED').removeClass('badge-success').addClass('badge-secondary');
+            $('#connection-label', this.el).html('DISCONNECTED').removeClass('bg-success').addClass('bg-secondary');
             $('#connection-note', this.el).html('Some accessory properties can only be edited if you go back to the <a href="/#" class="alert-link">home screen</a> and connect to the controller.');
         }
     },

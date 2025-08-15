@@ -95,7 +95,7 @@ h5 {
 .accessoryitem {
     padding: 1px;
     position: absolute;
-    max-width: 65px;
+    width: 110px;
     max-height: 55px;
     top:10px;
     left: 10px;
@@ -105,19 +105,52 @@ h5 {
     z-index:10;
 }
 
+/* Automatically adjust text size to fit within the accessory item */
+.accessoryitem .card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    padding: 0 2px; /* Small padding to prevent text from touching edges */
+}
+
 /* On smaller screens, just display the accessories
     as a grid under the layout and discard location */
 @media only screen and ( max-width : 1250px ) {
+    /* Layout area becomes a CSS grid container */
+    #layoutarea {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 10px;
+        padding: 10px;
+        align-content: start;
+    }
+    
+    /* Layout image takes full width at the top */
+    #layoutarea .card-img-top {
+        grid-column: 1 / -1;
+        order: -1;
+        max-height: 300px;
+        object-fit: contain;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* Accessory items become grid items */
     .accessoryitem {
         -webkit-user-drag: none;
-        position: relative;
-        left: 10px !important;
-        top: 20px !important;
-        float: left;
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        display: block;
         max-height: 80px;
-        max-width: 80px;
-        margin-bottom: 20px;
+        width: 110px;
+        margin: 0;
         opacity: 1.0;
+        justify-self: start;
     }
 }
 

@@ -40,7 +40,7 @@ window.DiagnosticsView = Backbone.View.extend({
     
     refresh: function() {
         $('#accessorydetect',this.el).empty();
-        $('#post',this.el).removeClass('badge-success').removeClass('badge-important');
+        $('#post',this.el).removeClass('bg-success').removeClass('bg-danger');
         $('#post',this.el).html("Waiting...");
         $('#post2',this.el).html('');
         // Query controller for POST result and memory:
@@ -82,12 +82,12 @@ window.DiagnosticsView = Backbone.View.extend({
         if (typeof data.post != 'undefined') {
             $('#post',this.el).html(data.post);
             if (data.post === "PASS") {
-                $('#post',this.el).addClass('badge-success').removeClass('badge-important');
+                $('#post',this.el).addClass('bg-success').removeClass('bg-danger');
                 $('#post2',this.el).html('');
                 $('#port-diags',this.el).css({opacity: 1.0});
             }
             if (data.post === "FAIL") {
-                $('#post',this.el).removeClass('badge-success').addClass('badge-important');
+                $('#post',this.el).removeClass('bg-success').addClass('bg-danger');
                 $('#post2',this.el).html(" - " + data.err);
                 if (data.err === "SPI") $('#port-diags',this.el).css({opacity: 0.3});
             }
