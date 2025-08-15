@@ -58,36 +58,33 @@
                 </div>
             </div>
             -->
-            <div class="control-group">
-                <label class="control-label">Uncoupler port:</label>
-                 <div class="controls">
-                     <div class="btn-group" data-toggle="buttons-radio">
-                                <button type="button" id="portA" disabled="true" class="btn btn-small portButton">Port A</button>
-                                <button type="button" id="portB" disabled="true" class="btn btn-small portButton">Port B</button>
-                         </div>
-                </div>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Uncoupler port</label>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="portA" disabled="true" class="btn btn-sm btn-outline-secondary portButton">Port A</button>
+                            <button type="button" id="portB" disabled="true" class="btn btn-sm btn-outline-secondary portButton">Port B</button>
+                        </div>
+                    </div>
 
-            <div class="control-group">
-                <label class="control-label">Reverse ports:</label>
-                 <div class="controls">
-                     <input type="checkbox" name="reverse" <%=reverse ? "checked":'' %>>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="reverse-<%=_id%>" name="reverse" <%=reverse ? "checked":'' %>>
+                            <label class="form-check-label" for="reverse-<%=_id%>">Reverse ports</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Test ports</label>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-danger btn-sm buttonA" disabled="true" type="button">A</button>
+                            <button class="btn btn-success btn-sm buttonB" disabled="true" type="button">B</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label">Test:</label>
-                <div>&nbsp;
-                    <button class="btn btn-danger buttonA" disabled="true"  type="button">A</button>
-                    <button class="btn btn-success buttonB" disabled="true" type="button">B</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> 
+                    <button class="btn btn-primary accessory-save">Save</button>
                 </div>
-            </div>
-            
-        </div><!-- modal-body -->
-  <div class="modal-footer">
-    <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button> 
-    <button class="btn btn-primary accessory-save">Save</button>
-  </div>
     </form>
 </div>
 
