@@ -88,14 +88,25 @@
                 <div class="col-md-3">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            &nbsp;
+                            <label class="form-label">Navigation Bar Color</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="color" class="form-control form-control-color w-100" id="navbarColor" name="navbarColor" value="<%= navbarColor %>" title="Choose navbar color">
+                            </div>
+                            <div class="form-text">Pick a color for the navigation bar.</div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            &nbsp;
+                            <label class="form-label">Button Color</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="color" class="form-control form-control-color w-100" id="accentColor" name="accentColor" value="<%= accentColor %>" title="Choose accent color">
+                            </div>
+                            <div class="form-text">Pick a color for buttons and accents.</div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-primary preview-button">Preview Button</button>
+                            </div>
                         </div>
                     </div>
                 </div>
