@@ -43,7 +43,12 @@
                     
                     <div class="mb-3">
                         <label class="form-label" for="port">Port</label>
-                        <input type="text" class="form-control" name="port" value="<%= port %>">
+                        <select class="form-select" name="port" id="port-select">
+                            <option value="">Loading ports...</option>
+                        </select>
+                        <div class="form-text">
+                            <small class="text-muted">Select a serial port or TEST for testing mode</small>
+                        </div>
                     </div>
                                         
                     <div class="mb-3">

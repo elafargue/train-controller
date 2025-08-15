@@ -40,14 +40,24 @@ window.utils = {
     },
 
     showAlert: function(title, text, klass) {
-        $('.alert').removeClass("alert-error alert-warning alert-success alert-info");
-        $('.alert').addClass(klass);
-        $('.alert').html('<strong>' + title + '</strong> ' + text);
-        $('.alert').show();
+        // Map old alert classes to Bootstrap 5 classes
+        var classMap = {
+            'alert-error': 'alert-danger',
+            'alert-warning': 'alert-warning', 
+            'alert-success': 'alert-success',
+            'alert-info': 'alert-info'
+        };
+        
+        var bootstrapClass = classMap[klass] || klass;
+        
+        $('.alert').removeClass("alert-danger alert-warning alert-success alert-info d-none");
+        $('.alert').addClass(bootstrapClass);
+        $('.alert').html('<strong>' + title + '</strong> ' + text.replace(/\n/g, '<br>'));
+        $('.alert').removeClass('d-none').show();
     },
 
     hideAlert: function() {
-        $('.alert').hide();
+        $('.alert').addClass('d-none').hide();
     },
     
     uploadFile: function(path, file, callbackSuccess) {

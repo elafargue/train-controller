@@ -183,6 +183,52 @@ app.put('/controllers/:id', controllers.updateController);
 app.delete('/controllers/:id', controllers.deleteController);
 
 /**
+ * API endpoint to get available serial ports
+ */
+app.get('/api/serialports', function(req, res) {
+    serialport.list().then(
+        ports => {
+            // Add TEST controller as an option
+            const portList = ports.map(port => ({
+                path: port.path,
+                manufacturer: port.manufacturer || 'Unknown',
+                serialNumber: port.serialNumber || '',
+                pnpId: port.pnpId || '',
+                locationId: port.locationId || '',
+                productId: port.productId || '',
+                vendorId: port.vendorId || ''
+            }));
+            
+            // Add TEST controller as first option
+            portList.unshift({
+                path: 'TEST',
+                manufacturer: 'Virtual',
+                serialNumber: 'TEST001',
+                pnpId: 'TEST',
+                locationId: '',
+                productId: '',
+                vendorId: ''
+            });
+            
+            res.json(portList);
+        },
+        err => {
+            console.error('Error listing serial ports:', err);
+            // Fallback to just TEST controller if serial port enumeration fails
+            res.json([{
+                path: 'TEST',
+                manufacturer: 'Virtual',
+                serialNumber: 'TEST001',
+                pnpId: 'TEST',
+                locationId: '',
+                productId: '',
+                vendorId: ''
+            }]);
+        }
+    );
+});
+
+/**
  * Interface for managing accessories
  */
 app.get('/accessories', accessories.findAll);
@@ -283,6 +329,14 @@ io.sockets.on('connection', function (socket) {
 
         controller.on("error", function (err) {
             console.log('Port error', err);
+            portOpen = false;
+            // Send error details to client
+            socket.emit('status', { 
+                portopen: false, 
+                error: true,
+                errorMessage: err.message || 'Unknown serial port error',
+                errorType: 'connection'
+            });
         });
 
         const parser = controller.pipe(new ReadlineParser({ delimiter: '\r\n' }))

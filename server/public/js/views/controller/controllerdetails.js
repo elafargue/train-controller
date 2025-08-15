@@ -1,18 +1,87 @@
 window.ControllerDetailsView = Backbone.View.extend({
 
     initialize: function () {
-        // No need to force rendering...
-        //this.render();
+        // Load available serial ports when initializing
+        this.loadSerialPorts();
+    },
+
+    loadSerialPorts: function() {
+        var self = this;
+        $.ajax({
+            url: '/api/serialports',
+            type: 'GET',
+            success: function(ports) {
+                self.availablePorts = ports;
+                if (self.rendered) {
+                    self.populatePortDropdown();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to load serial ports:', error);
+                // Fallback to TEST only
+                self.availablePorts = [{
+                    path: 'TEST',
+                    manufacturer: 'Virtual',
+                    serialNumber: 'TEST001'
+                }];
+                if (self.rendered) {
+                    self.populatePortDropdown();
+                }
+            }
+        });
+    },
+
+    populatePortDropdown: function() {
+        var self = this;
+        var select = $('#port-select', this.el);
+        var currentPort = this.model.get('port');
+        
+        // Clear existing options
+        select.empty();
+        
+        // Add port options
+        this.availablePorts.forEach(function(port) {
+            var displayName = port.path;
+            if (port.path !== 'TEST' && port.manufacturer && port.manufacturer !== 'Unknown') {
+                displayName += ' (' + port.manufacturer + ')';
+            }
+            
+            var option = $('<option></option>')
+                .attr('value', port.path)
+                .text(displayName);
+            
+            if (port.path === currentPort) {
+                option.attr('selected', 'selected');
+            }
+            
+            select.append(option);
+        });
+        
+        // If current port is not in the list, add it as a custom option
+        if (currentPort && !this.availablePorts.find(p => p.path === currentPort)) {
+            var customOption = $('<option></option>')
+                .attr('value', currentPort)
+                .attr('selected', 'selected')
+                .text(currentPort + ' (Custom)');
+            select.append(customOption);
+        }
     },
 
     render: function () {
         console.log("Render controller details");
         $(this.el).html(this.template(this.model.toJSON()));
+        this.rendered = true;
+        
         // Set initial values
         $('#kp', this.el).val(this.model.get('pidkp'));
         $('#ki', this.el).val(this.model.get('pidki'));
         $('#kd', this.el).val(this.model.get('pidkd'));
         $('#sample', this.el).val(this.model.get('pidsample'));
+
+        // Populate port dropdown if ports are already loaded
+        if (this.availablePorts) {
+            this.populatePortDropdown();
+        }
 
         return this;
     },

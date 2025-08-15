@@ -163,11 +163,26 @@ window.LayoutRunView = Backbone.View.extend({
             $('.ctrl-connect', this.el).html("Disconnect controller.")
                 .removeClass('btn-danger').addClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
             $('.ctrl-diag', this.el).removeClass('disabled');
+            // Clear any previous error messages
+            utils.hideAlert();
         } else {
             $('.ctrl-connect', this.el).html("Connect to controller.")
                 .addClass('btn-danger').removeClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
             $('.ctrl-diag', this.el).addClass('disabled');
-
+            
+            // Show error message if there was a connection error
+            if (data && data.error && data.errorMessage) {
+                var errorMsg = 'Controller connection failed: ' + data.errorMessage;
+                if (data.errorMessage.includes('ENOENT') || data.errorMessage.includes('File not found')) {
+                    errorMsg += '\n\nThe selected serial port may not exist or is not accessible.';
+                } else if (data.errorMessage.includes('EACCES') || data.errorMessage.includes('Permission denied')) {
+                    errorMsg += '\n\nPermission denied. The serial port may be in use by another application.';
+                } else if (data.errorMessage.includes('EBUSY') || data.errorMessage.includes('Resource busy')) {
+                    errorMsg += '\n\nThe serial port is already in use by another application.';
+                }
+                
+                utils.showAlert('Connection Error', errorMsg, 'alert-danger');
+            }
         }
     },
     
