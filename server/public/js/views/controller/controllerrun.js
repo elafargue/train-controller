@@ -19,9 +19,14 @@ window.ControllerRunView = Backbone.View.extend({
         // Add method to update power bar
         this.updatePowerBar = function(value) {
             const progressBar = $('#powerbar', this.el);
+            const progressContainer = $('.progress.vertical', this.el);
             if (progressBar.length) {
+                // Update the progress bar height
                 progressBar.css('height', value + '%');
-                progressBar.attr('aria-valuenow', value);
+                // Update ARIA attributes for accessibility
+                progressContainer.attr('aria-valuenow', value);
+                // Update the text content if needed (could be added later)
+                progressBar.attr('data-value', value);
             }
         };
         
@@ -172,7 +177,13 @@ window.ControllerRunView = Backbone.View.extend({
             event.pageY = touch.pageY; // Yeah, hack the jQuery event!
         }
         
-        var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
+        // Calculate percentage based on click position for vertical progress bar
+        var rect = event.currentTarget.getBoundingClientRect();
+        var clickY = event.clientY || event.pageY;
+        
+        // For vertical progress bar, calculate from bottom (0%) to top (100%)
+        var percentage = Math.floor(((rect.bottom - clickY) / rect.height) * 100);
+        percentage = Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
         
         // Throttle updates
         var stamp = new Date().getTime();
