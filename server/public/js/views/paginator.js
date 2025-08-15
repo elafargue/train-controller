@@ -2,8 +2,9 @@ window.Paginator = Backbone.View.extend({
 
     className: "pagination pagination-centered",
 
-    initialize:function () {
-        this.model.bind("reset", this.render, this);
+    initialize:function (options) {
+        this.options = options || {};
+        this.model.on("reset", this.render, this);
         
     },
 

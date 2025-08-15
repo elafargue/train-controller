@@ -1,6 +1,7 @@
 window.DiagnosticsView = Backbone.View.extend({
 
-    initialize:function () {
+    initialize:function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
         // Query the controller for:
         // - POST result
@@ -97,9 +98,20 @@ window.DiagnosticsView = Backbone.View.extend({
         if (typeof data.ports != 'undefined') {
             // Create a report of open-closed accessories
             for (var i= 0; i < data.ports.length; i++) {
-                $('#accessorydetect',this.el).append('<div class="thumbnail glowthumbnail accessorydiagitem" ><h6>'+Math.ceil((i+1)/2)+
-                                                     ((Math.ceil((i+1)/2) != (i+1)/2) ? 'a': 'b') + '</h6><div>' +
-                '<span class="badge ' + ((data.ports[i]) ? 'badge-success' : 'badge-important') + '">&nbsp</span></div></div>');
+                var portNumber = Math.ceil((i+1)/2);
+                var portSuffix = ((Math.ceil((i+1)/2) != (i+1)/2) ? 'a': 'b');
+                var badgeClass = ((data.ports[i]) ? 'bg-success' : 'bg-danger');
+                
+                $('#accessorydetect',this.el).append(
+                    '<div class="col-3 mb-2">' +
+                        '<div class="card text-center accessorydiagitem">' +
+                            '<div class="card-body p-2">' +
+                                '<h6 class="card-title mb-1">' + portNumber + portSuffix + '</h6>' +
+                                '<span class="badge ' + badgeClass + '">&nbsp;</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>'
+                );
             }
            if (!this.queriesDone) {
                 this.linkManager.controllerCommand.getAccPulse();

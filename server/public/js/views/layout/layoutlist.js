@@ -1,7 +1,7 @@
 window.LayoutListView = Backbone.View.extend({
 
-    initialize: function () {
-        
+    initialize: function (options) {
+        this.options = options || {};
     },
 
     render: function () {
@@ -27,9 +27,10 @@ window.LayoutListItemView = Backbone.View.extend({
 
     tagName: "div",
 
-    initialize: function () {
-        this.model.bind("change", this.render, this);
-        this.model.bind("destroy", this.close, this);
+    initialize: function (options) {
+        this.options = options || {};
+        this.model.on("change", this.render, this);
+        this.model.on("destroy", this.close, this);
     },
 
     render: function () {

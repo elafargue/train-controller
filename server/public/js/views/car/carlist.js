@@ -1,6 +1,7 @@
 window.CarListView = Backbone.View.extend({
 
     initialize: function (options) {
+        this.options = options || {};
         this.render();
     },
     
@@ -27,9 +28,10 @@ window.CarListItemView = Backbone.View.extend({
 
     tagName: "div",
 
-    initialize: function () {
-        this.model.bind("change", this.render, this);
-        this.model.bind("destroy", this.close, this);
+    initialize: function (options) {
+        this.options = options || {};
+        this.model.on("change", this.render, this);
+        this.model.on("destroy", this.close, this);
     },
 
     render: function () {

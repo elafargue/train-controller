@@ -391,6 +391,12 @@ io.sockets.on('connection', function (socket) {
             } else if (controller.close) {
                 controller.close();
             }
+            // Update status immediately for reliable UI feedback
+            // The controller's 'close' event should also trigger this, but this ensures it happens
+            portOpen = false;
+            socket.emit('status', {
+                portopen: portOpen
+            });
         }
     });
 

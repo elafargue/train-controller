@@ -8,6 +8,7 @@
 window.HomeView = Backbone.View.extend({
 
     initialize:function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
         this.model.on('change:currentLoco', this.modelChanged, this);
         this.model.on('change:currentLayout', this.modelChanged, this);

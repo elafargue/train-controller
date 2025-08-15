@@ -6,8 +6,11 @@
  * - Uses proper protocol with JSON messages matching the Arduino implementation
  */
 
-class TestController {
+const EventEmitter = require('events');
+
+class TestController extends EventEmitter {
     constructor() {
+        super();
         // Controller state matching Arduino defines
         this.currentSpeed = 0;      // Current speed PWM value (0-800, MAX_PWM = 800)
         this.currentDir = 's';      // Current direction (f/b/s for STOP/FWD/BCK)
@@ -458,6 +461,8 @@ class TestController {
             this.updateInterval = null;
         }
         console.log('Test controller closed');
+        // Emit close event to match real serial port behavior
+        this.emit('close');
     }
 }
 

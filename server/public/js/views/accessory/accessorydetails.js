@@ -1,6 +1,7 @@
 window.AccessoryDetailsView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
     },
 

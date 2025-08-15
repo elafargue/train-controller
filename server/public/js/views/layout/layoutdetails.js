@@ -1,7 +1,16 @@
 window.LayoutView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
+        
+        // Listen for connection status changes
+        var self = this;
+        if (this.linkManager) {
+            this.linkManager.on('status', function(data) {
+                self.updateConnectionStatus();
+            });
+        }
     },
 
     render: function () {
@@ -24,12 +33,24 @@ window.LayoutView = Backbone.View.extend({
             this.renderNextAccessory(accessories.pop(), accessories);
         }
         
-        // Update the warning/OK label depending on whether the controller is connected
-        if (this.linkManager.connected) {
-            $('#connection-label', this.el).html('OK').removeClass('label-warning').addClass('label-success');
-            $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
-        }
+        // Update connection status display
+        this.updateConnectionStatus();
         return this;
+    },
+    
+    updateConnectionStatus: function() {
+        // Update the warning/OK label depending on whether the controller is connected
+        if (this.linkManager && this.linkManager.connected) {
+            $('#connection-status', this.el).removeClass('alert-warning').addClass('alert-success');
+            $('#connection-icon', this.el).removeClass('bi-exclamation-triangle').addClass('bi-check-circle');
+            $('#connection-label', this.el).html('CONNECTED').removeClass('badge-secondary').addClass('badge-success');
+            $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
+        } else {
+            $('#connection-status', this.el).removeClass('alert-success').addClass('alert-warning');
+            $('#connection-icon', this.el).removeClass('bi-check-circle').addClass('bi-exclamation-triangle');
+            $('#connection-label', this.el).html('DISCONNECTED').removeClass('badge-success').addClass('badge-secondary');
+            $('#connection-note', this.el).html('Some accessory properties can only be edited if you go back to the <a href="/#" class="alert-link">home screen</a> and connect to the controller.');
+        }
     },
     
     renderNextController: function(nextId, controllerIdList) {

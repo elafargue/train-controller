@@ -5,9 +5,10 @@
 
 window.LayoutRunView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
         console.log('Layout Run View Initialize');
         
+        this.options = options || {};
         this.linkManager = this.options.lm;
         // Unbind before rebinding, to avoid double subscriptions
         this.linkManager.off('status', this.updatestatus);
@@ -64,9 +65,11 @@ window.LayoutRunView = Backbone.View.extend({
     },
     
     ctrlDiag: function(event) {
-        if ($('.ctrl-diag', this.el).hasClass('disabled'))
+        if ($('.ctrl-diag', this.el).attr('disabled'))
             return false;
-        return true;
+        // Navigate to diagnostics page
+        app.navigate('#diagnostics', {trigger: true});
+        return false; // Prevent default button behavior
     },
 
     
@@ -162,13 +165,13 @@ window.LayoutRunView = Backbone.View.extend({
         if (this.linkManager.connected) {
             $('.ctrl-connect', this.el).html("Disconnect controller.")
                 .removeClass('btn-danger').addClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
-            $('.ctrl-diag', this.el).removeClass('disabled');
+            $('.ctrl-diag', this.el).removeAttr('disabled');
             // Clear any previous error messages
             utils.hideAlert();
         } else {
             $('.ctrl-connect', this.el).html("Connect to controller.")
                 .addClass('btn-danger').removeClass('btn-success').removeClass('btn-warning').removeAttr('disabled');
-            $('.ctrl-diag', this.el).addClass('disabled');
+            $('.ctrl-diag', this.el).attr('disabled', true);
             
             // Show error message if there was a connection error
             if (data && data.error && data.errorMessage) {
@@ -201,6 +204,10 @@ window.LayoutRunView = Backbone.View.extend({
                     self.linkManager.openPort(controller.get('port'));
                 } else {
                     self.linkManager.closePort(controller.get('port'));
+                    // Request status update after a short delay to ensure disconnect is processed
+                    setTimeout(function() {
+                        self.linkManager.requestStatus();
+                    }, 500);
                 }
              }});
         }

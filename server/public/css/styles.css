@@ -129,11 +129,11 @@ h5 {
     padding: 5px;
     margin: 5px;
     display: inline-block;
-    max-width: 80px;
-    max-height: 80px;
+    /* max-width: 80px;
+    max-height: 80px; */
     top:10px;
     left: 10px;
-    float: left;
+    /* float: left; */
     text-align: center;
     background:#ffffff;
     z-index:10;

@@ -69,7 +69,7 @@ window.LogbookEntry = Backbone.Model.extend({
     urlRoot: "/logbooks",
 
     initialize: function() {
-        this.bind("remove", function() {
+        this.on("remove", function() {
                                         this.destroy();
                                         });    
     },

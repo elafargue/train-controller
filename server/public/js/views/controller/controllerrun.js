@@ -4,8 +4,9 @@
  */
 window.ControllerRunView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
         console.log("Initialize controller run view");
+        this.options = options || {};
         this.linkManager = this.options.lm;
         this.settings = this.options.settings;
         this.powersliderstyle = this.settings.get('powersliderstyle');
