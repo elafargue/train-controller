@@ -9,14 +9,14 @@ window.HomeView = Backbone.View.extend({
 
     initialize:function (options) {
         this.linkManager = this.options.lm;
-        // this.model.on('change:currentLoco', this.change, this);
-        // this.model.on('change:currentLayout', this.change, this);
+        this.model.on('change:currentLoco', this.modelChanged, this);
+        this.model.on('change:currentLayout', this.modelChanged, this);
     },
     
     onClose: function() {
         console.log("Closing home view");
-        // this.model.off('change:currentLoco', this.change, this);
-        // this.model.off('change:currentLayout', this.change, this);
+        this.model.off('change:currentLoco', this.modelChanged, this);
+        this.model.off('change:currentLayout', this.modelChanged, this);
     },
 
     render:function () {
@@ -67,13 +67,15 @@ window.HomeView = Backbone.View.extend({
         }});
     },
     
-    // Now we do get a "change" event whenever our settings change,
-    // because we share the same settings object amongst every view (passed
-    // from the main.js app router). The model (settings in our case) is passed
-    // as an argument.
-    change: function(model) {
+    // Handler for when the settings model changes (new layout or locomotive selected)
+    modelChanged: function(model) {
         console.log('Home view: settings changed');
-        // Now: find out what changed (loco or layout) and just
+        if (model.changed.hasOwnProperty('currentLayout')) {
+            this.renderlayout();
+        }
+        if (model.changed.hasOwnProperty('currentLoco')) {
+            this.renderloco();
+        }
         // render what's relevant rather than recreate everything:
         var changed = model.changedAttributes();
         for (var attr in changed) {

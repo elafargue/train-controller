@@ -1,12 +1,10 @@
-<div class="card shadow-sm h-100">
-    <a href="#" class="text-decoration-none text-reset">
+<div class="card shadow-sm h-100 select" style="cursor: pointer;">
+    <div class="card-body text-center">
         <img src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>" 
-             class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
-        <div class="card-body text-center">
-            <h5 class="card-title mb-3"><%= name %></h5>
-            <a class="btn btn-outline-primary btn-sm edit" href="#layouts/<%= _id %>">
-                <i class="bi bi-pencil"></i> Edit
-            </a>
-        </div>
-    </a>
+             class="img-fluid mb-3" alt="<%= name %>" style="max-height: 200px; object-fit: contain;">
+        <h5 class="card-title mb-3"><%= name %></h5>
+        <a class="btn btn-outline-primary btn-sm edit" href="#layouts/<%= _id %>" onclick="event.stopPropagation();">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+    </div>
 </div>
