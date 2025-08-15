@@ -165,17 +165,19 @@ window.AccessoryDetailsView = Backbone.View.extend({
         // Upon save, we need to save the data into the layout
         this.model.save(null, {
             success: function (model) {
-                // Dismiss the modal (containts ID since we can have
-                // several controller views on the same page for different
-                // controllers:
-                $('#accModal-' + self.model.id).modal('hide');
-                // Wait until modal finishes hiding...
-                $('#accModal-' + self.model.id).on('hidden', function () {
+                // Get the modal instance
+                var modalEl = document.getElementById('accModal-' + self.model.id);
+                var modal = bootstrap.Modal.getInstance(modalEl);
+                
+                // Listen for the hidden event
+                modalEl.addEventListener('hidden.bs.modal', function () {
                     console.log('Hidden modal');
-                    // ... and trigger a render since the name might have changed
-                    // (there should be a better way of doing this?)
-                    self.render();                
-                });
+                    // Trigger a render since the name might have changed
+                    self.render();
+                }, { once: true }); // Remove listener after first trigger
+                
+                // Hide the modal
+                modal.hide();
             },
             error: function () {
                 console.log('Controller: error saving');
