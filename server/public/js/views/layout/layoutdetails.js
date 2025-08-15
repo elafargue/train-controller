@@ -39,29 +39,29 @@ window.LayoutView = Backbone.View.extend({
         newController.fetch({success: function(){
                 console.log('Controller fetched. Remaining: ' + controllerIdList.length);        
                 var newControllerDetailsView = new ControllerDetailsView({model: newController});
-                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newControllerDetailsView.render().el);
+                $('#controllers', self.el).append($wrapper);
                 if (controllerIdList.length) {
                     self.renderNextController(controllerIdList.pop(), controllerIdList);
                 } else {
                     // Ensure consistency
                     self.model.save();
-                }
-        },
-                            error: function() {
-                                // Somehow the controller Id we got in the array was not
-                                // valid: remove it from our model, and move on to the next
-                                // one
-                                console.log('Deleting ghost controller');
-                                var controllers = self.model.get('controllers');
-                                controllers.splice(controllers.indexOf(nextId),1);
-                                // No need to set again, right ? Or does Backbone expect it to
-                                // know that there the controllers were changed?
-                                if(controllerIdList.length) {
-                                    self.renderNextController(controllerIdList.pop(), controllerIdList);
-                                } else {
-                                    self.model.save();
-                                }
-                            }});
+                }},
+                        error: function() {
+                            // Somehow the controller Id we got in the array was not
+                            // valid: remove it from our model, and move on to the next
+                            // one
+                            console.log('Deleting ghost controller');
+                            var controllers = self.model.get('controllers');
+                            controllers.splice(controllers.indexOf(nextId),1);
+                            // No need to set again, right ? Or does Backbone expect it to
+                            // know that there the controllers were changed?
+                            if(controllerIdList.length) {
+                                self.renderNextController(controllerIdList.pop(), controllerIdList);
+                            } else {
+                                self.model.save();
+                            }
+                        }});
     },
     
     renderNextAccessory: function(nextId, accessoryIdList) {
@@ -71,14 +71,14 @@ window.LayoutView = Backbone.View.extend({
     newAccessory.fetch({success: function(){
             console.log('Accessory fetched. Remaining: ' + accessoryIdList.length);        
             var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
-            $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+            var $wrapper = $('<div class="col-md-3"></div>').append(newAccessoryDetailsView.render().el);
+            $('#accessories', self.el).append($wrapper);
             if (accessoryIdList.length) {
                 self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);
             } else {
                 // Ensure consistency
                 self.model.save();
-            }
-    },
+            }},
                         error: function() {
                             // Somehow the accessory Id we got in the array was not
                             // valid: remove it from our model, and move on to the next
@@ -202,7 +202,8 @@ window.LayoutView = Backbone.View.extend({
                 // the reference to the controller does not get lost, but then what if
                 // the layout model does not validate ?
                 var newControllerDetailsView = new ControllerDetailsView({model: newController});
-                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newControllerDetailsView.render().el);
+                $('#controllers', self.el).append($wrapper);
                 // Ensure consistency
                 self.model.save();
                 $('.addacc',self.el).removeAttr('disabled'); // We have a controller, we can now add accessories
@@ -236,7 +237,8 @@ window.LayoutView = Backbone.View.extend({
                 // the reference to the accessory does not get lost, but then what if
                 // the layout model does not validate ?
                 var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
-                $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newAccessoryDetailsView.render().el);
+                $('#accessories', self.el).append($wrapper);
                 // Ensure consistency
                 self.model.save();
             },

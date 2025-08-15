@@ -1,18 +1,16 @@
 <!-- Details about a controller, used inside a layout detailed view -->
 <!-- There can be several of those inside layout detailed views, so we
       add the controller's Id to any element that needs to have a unique id -->
-<div class="col-md-3 mb-4">
-    <div class="card shadow-sm h-100">
-        <div class="card-body text-center">
-            <h5 class="card-title mb-3"><%=name%></h5>
-            <div class="btn-group">
-                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModal-<%=_id%>">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button type="button" class="btn btn-outline-danger btn-sm controller-delete">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
+<div class="card shadow-sm h-100">
+    <div class="card-body text-center">
+        <h5 class="card-title mb-3"><%=name%></h5>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModal-<%=_id%>">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm controller-delete">
+                <i class="bi bi-trash"></i>
+            </button>
         </div>
     </div>
 </div>
