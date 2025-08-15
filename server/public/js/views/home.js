@@ -70,33 +70,28 @@ window.HomeView = Backbone.View.extend({
     // Handler for when the settings model changes (new layout or locomotive selected)
     modelChanged: function(model) {
         console.log('Home view: settings changed');
-        if (model.changed.hasOwnProperty('currentLayout')) {
-            this.renderlayout();
-        }
-        if (model.changed.hasOwnProperty('currentLoco')) {
-            this.renderloco();
-        }
-        // render what's relevant rather than recreate everything:
         var changed = model.changedAttributes();
+        
         for (var attr in changed) {
             switch(attr) {
-                    case 'currentLayout':
-                        console.log('Home view: we need to update the current layout view');
-                        if (this.model.get('currentLayout'))
-                            this.renderlayout();
-                        else
-                            this.render(); // Layout is null, we render the default welcome screen.
-                        break;
-                    case 'currentLoco':
-                        console.log('Home view: we need to update the current loco view');
-                        if (this.model.get('currentLoco'))
-                            this.renderloco();
-                        else
-                            this.render(); // see above
-                        break;
+                case 'currentLayout':
+                    console.log('Home view: updating current layout view');
+                    if (this.model.get('currentLayout')) {
+                        this.renderlayout();
+                    } else {
+                        this.render(); // Layout is null, render the default welcome screen
+                    }
+                    break;
+                case 'currentLoco':
+                    console.log('Home view: updating current loco view');
+                    if (this.model.get('currentLoco')) {
+                        this.renderloco();
+                    } else {
+                        $("#loco-area", this.el).html('<h3>Select a locomotive to see its details here.</h3>');
+                    }
+                    break;
             }
         }
-    //    this.render();
     }
 
 });
