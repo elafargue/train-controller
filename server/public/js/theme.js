@@ -54,18 +54,25 @@ window.ThemeManager = {
         
         // Update the CSS
         style.textContent = `
-            .navbar {
+            .custom-navbar {
                 background-color: ${navbarColor} !important;
                 color: ${isLight(navbarColor) ? '#000' : '#fff'} !important;
             }
-            .navbar.navbar-dark .navbar-nav .nav-link {
-                color: ${isLight(navbarColor) ? 'rgba(0,0,0,.7)' : 'rgba(255,255,255,.7)'} !important;
-            }
-            .navbar.navbar-dark .navbar-nav .nav-link:hover {
+            .custom-navbar .navbar-brand,
+            .custom-navbar .nav-link {
                 color: ${isLight(navbarColor) ? '#000' : '#fff'} !important;
+                opacity: 0.9;
             }
-            .navbar.navbar-dark .navbar-brand {
+            .custom-navbar .nav-link:hover,
+            .custom-navbar .navbar-brand:hover {
                 color: ${isLight(navbarColor) ? '#000' : '#fff'} !important;
+                opacity: 1;
+            }
+            .custom-navbar .navbar-toggler {
+                border-color: ${isLight(navbarColor) ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.1)'} !important;
+            }
+            .custom-navbar .navbar-toggler-icon {
+                background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='${isLight(navbarColor) ? '%23000000' : '%23ffffff'}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>") !important;
             }
             .btn-primary {
                 background-color: ${accentColor} !important;
@@ -125,10 +132,13 @@ window.ThemeManager = {
         
         // Update root theme
         document.documentElement.setAttribute('data-bs-theme', theme);
+
+        // First, remove any theme classes from navbar
+        $('.custom-navbar, .custom-navbar *').removeClass('bg-dark text-light border-secondary');
         
-        // Update body and main container
+        // Update body and main container (excluding navbar)
         $('body').toggleClass('bg-dark text-light', isDark);
-        $('.container-fluid').toggleClass('bg-dark text-light', isDark);
+        $('.container-fluid:not(.navbar *)').toggleClass('bg-dark text-light', isDark);
         
         // Update tables
         $('.table').toggleClass('table-dark', isDark);
@@ -150,25 +160,25 @@ window.ThemeManager = {
             }
         });
         
-        // Update standard buttons that don't have specific colors
-        $('.btn:not(.btn-primary):not(.btn-secondary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info)').each(function() {
+        // Update standard buttons that don't have specific colors and are not in the navbar
+        $('.btn:not(.btn-primary):not(.btn-secondary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info):not(.navbar *)').each(function() {
             $(this).toggleClass('btn-outline-light', isDark);
             $(this).toggleClass('btn-outline-dark', !isDark);
         });
         
         // Update cards
-        $('.card').each(function() {
+        $('.card:not(.navbar *)').each(function() {
             $(this).toggleClass('bg-dark text-light border-secondary', isDark);
             // Also update card headers specifically
             $('.card-header', this).toggleClass('border-secondary', isDark);
         });
         
-        // Update dropdowns
-        $('.dropdown-menu').toggleClass('bg-dark text-light border-secondary', isDark);
-        $('.dropdown-item').toggleClass('text-light', isDark);
+        // Update dropdowns (except in navbar)
+        $('.dropdown-menu:not(.navbar *)').toggleClass('bg-dark text-light border-secondary', isDark);
+        $('.dropdown-item:not(.navbar *)').toggleClass('text-light', isDark);
         
         // Update pagination
-        $('.page-link').each(function() {
+        $('.page-link:not(.navbar *)').each(function() {
             if (!$(this).hasClass('active')) {
                 $(this).toggleClass('bg-dark text-light border-secondary', isDark);
             }
