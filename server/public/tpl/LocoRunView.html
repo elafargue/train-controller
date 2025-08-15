@@ -2,11 +2,11 @@
     <div class="row g-4">
         <div class="col-md-3" id="loco-pic">
             <div class="card shadow-sm">
+                <div class="card-body text-center">
                 <a href="#" data-bs-toggle="modal" data-bs-target="#locoLightbox">
                     <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" 
                          class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
                 </a>
-                <div class="card-body text-center">
                     <h5 class="card-title mb-2"><%= name %></h5>
                     <p class="card-text text-muted"><%= reference %></p>
                 </div>
