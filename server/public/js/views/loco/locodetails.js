@@ -38,6 +38,8 @@ window.LocoView = Backbone.View.extend({
         "drop #picture" : "dropHandler",
         "click .addentry" : "addEntry",
         "click .deleteentry": "deleteEntry",
+        "click .change-picture" : "triggerFileInput",
+        "change #picture-input" : "handleFileSelect",
     },
 
     change: function (event) {
@@ -172,6 +174,23 @@ window.LocoView = Backbone.View.extend({
         this.model.logbook.remove(this.model.logbook.at(event.currentTarget.name));
         this.fillLogbook();
         return false;
+    },
+
+    triggerFileInput: function(event) {
+        event.preventDefault();
+        $('#picture-input').click();
+    },
+
+    handleFileSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.pictureFile = file;
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                $('#picture').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     },
 
 });

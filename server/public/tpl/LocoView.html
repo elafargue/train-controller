@@ -89,7 +89,13 @@
                             <div class="card-body text-center">
                                 <img id="picture" class="img-fluid mb-3" style="max-width: 180px;" 
                                      src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>"/>
-                                <p class="text-muted small">To change the picture, drag a new picture from your computer onto the box above.</p>
+                                <div class="d-flex justify-content-center gap-2 mb-2">
+                                    <input type="file" id="picture-input" class="d-none" accept="image/*">
+                                    <button type="button" class="btn btn-outline-primary btn-sm change-picture">
+                                        <i class="bi bi-image"></i> Change image
+                                    </button>
+                                </div>
+                                <p class="text-muted small">Drag & drop an image here or use the button above to change the picture.</p>
                             </div>
                         </div>
                     </div>

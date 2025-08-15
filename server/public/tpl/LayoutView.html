@@ -65,9 +65,18 @@
 
                 <div class="col-md-4">
                     <div class="row-fluid"><div class="span12">
-                        <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
-                            <p><img id="picture" width="180" src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>"/></p>
-                            <p style="color:#999;">To change the picture, drag a new picture from your computer onto the box above.</p>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <img id="picture" class="img-fluid mb-3" style="max-width: 180px;" 
+                                     src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>"/>
+                                <div class="d-flex justify-content-center gap-2 mb-2">
+                                    <input type="file" id="picture-input" class="d-none" accept="image/*">
+                                    <button type="button" class="btn btn-outline-primary btn-sm change-picture">
+                                        <i class="bi bi-image"></i> Change image
+                                    </button>
+                                </div>
+                                <p class="text-muted small">Drag & drop an image here or use the button above to change the picture.</p>
+                            </div>
                         </div></div>
                     </div>
                     <div class="row-fluid"><div class="span12">

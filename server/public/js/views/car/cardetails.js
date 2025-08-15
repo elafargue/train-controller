@@ -16,6 +16,8 @@ window.CarView = Backbone.View.extend({
         "dragover #picture"     : "dragOver",
         "dragleave #picture"     : "dragLeave",
         "drop #picture" : "dropHandler",
+        "click .change-picture" : "triggerFileInput",
+        "change #picture-input" : "handleFileSelect",
     },
 
     change: function (event) {
@@ -125,6 +127,23 @@ window.CarView = Backbone.View.extend({
             $('#picture').attr('src', reader.result);
         };
         reader.readAsDataURL(this.pictureFile);
+    },
+
+    triggerFileInput: function(event) {
+        event.preventDefault();
+        $('#picture-input').click();
+    },
+
+    handleFileSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.pictureFile = file;
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                $('#picture').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     },
 
 });
