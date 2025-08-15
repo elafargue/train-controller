@@ -15,6 +15,15 @@ window.ControllerRunView = Backbone.View.extend({
         this.linkManager.off('status',this.updateStatus);
         this.linkManager.on('input', this.showInput, this);
         this.linkManager.on('status', this.updateStatus, this);
+
+        // Add method to update power bar
+        this.updatePowerBar = function(value) {
+            const progressBar = $('#powerbar', this.el);
+            if (progressBar.length) {
+                progressBar.css('height', value + '%');
+                progressBar.attr('aria-valuenow', value);
+            }
+        };
         
         // Save original PID values upon creation, so that we can
         // reset those if we want to:
@@ -41,8 +50,8 @@ window.ControllerRunView = Backbone.View.extend({
         var self = this;
         console.log("Rendering our controller Run View");
         $(this.el).html(this.template(this.model.toJSON()));
-        // Activate Bootstrap progressbar extended funtionality:
-        $('.progress .bar', this.el).progressbar();
+        // Initialize the power progress bar
+        this.updatePowerBar(0);
         this.fillspinners();
         
         $('.dial', this.el).knob({'change': function(v) { self.powerknob(v,self);}});
@@ -52,34 +61,17 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     fillspinners: function() {
-        var options = {
-            minimum: 0,
-            maximum: 10,
-            step: 0.1,
-            numberOfDecimals: 2,
-            value: this.model.get('pidkp')
-        };
-        
-        $('#kp', this.el).spinedit(options);
-        options.value = this.model.get('pidki');
-        $('#ki', this.el).spinedit(options);
-        options.value = this.model.get('pidkd');
-        $('#kd', this.el).spinedit(options);
-        options = { step: 10,
-                    minimum: 60,
-                    maximum: 600,
-                    numberOfDecimals: 0,
-                    value: this.model.get('pidsample'),
-                  };
-        $('#sample', this.el).spinedit(options);
-
+        $('#kp', this.el).val(this.model.get('pidkp'));
+        $('#ki', this.el).val(this.model.get('pidki'));
+        $('#kd', this.el).val(this.model.get('pidkd'));
+        $('#sample', this.el).val(this.model.get('pidsample'));
     },
     
     events: {
-        "valueChanged #kp": "updatepid",
-        "valueChanged #ki": "updatepid",
-        "valueChanged #kd": "updatepid",
-        "valueChanged #sample" : "updatepid",
+        "change #kp": "updatepid",
+        "change #ki": "updatepid",
+        "change #kd": "updatepid",
+        "change #sample": "updatepid",
         "click .pidreset" : "resetpid",
         "click .pidsave"  : "savepid",
         "click .pidquery" : "querypid",
@@ -92,12 +84,10 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     updatepid: function(event) {
-        console.log("PID Value changed: " + event.value + " for " + event.target.id);
+        console.log("PID Value changed: " + event.target.value + " for " + event.target.id);
         // Apply the change to the model
         var target = event.target;
         var change = {};
-        // Our Spinedit control returns values as strings even
-        // when they are numbers (uses jQuery's .val() in the setvalue method),
         // so we have to attempt to convert it back to a number if it makes
         // sense:
         var numval = parseFloat(target.value);

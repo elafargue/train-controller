@@ -35,24 +35,41 @@ window.HomeView = Backbone.View.extend({
     
     renderlayout: function() {
         var self = this;
+        console.log('Rendering layout:', this.model.get('currentLayout'));
         var layout = new Layout({_id: this.model.get('currentLayout')});
-        layout.fetch({success: function(){
-            var layoutview = new LayoutRunView({model: layout, lm: self.linkManager});
-            $("#layout-area", self.el).html(layoutview.el);
-            // Now see whether the layout contains at least a controller, and if so
-            // take the 1st controller (all we support right now) and create a running
-            // view for it:
-            var controllers = layout.get('controllers');
-            if (controllers.length) {
-                var controller = new Controller({_id:controllers[0]});
-                controller.fetch({success: function() {
-                    // TODO: initialize a controller object that will open the Socket.io
-                    // connection + talk to the server, and will be passed to all subviews
-                    // so that they can send/receive data.
-                    $('#controller-area', self.el).html(new ControllerRunView({model: controller, lm: self.linkManager, settings: self.model}).el);
+        layout.fetch({
+            success: function() {
+                console.log('Layout fetched:', layout.toJSON());
+                var layoutview = new LayoutRunView({model: layout, lm: self.linkManager});
+                $("#layout-area", self.el).html(layoutview.el);
+                // Now see whether the layout contains at least a controller, and if so
+                // take the 1st controller (all we support right now) and create a running
+                // view for it:
+                var controllers = layout.get('controllers');
+                console.log('Layout controllers:', controllers);
+                if (controllers && controllers.length) {
+                    var controller = new Controller({_id:controllers[0]});
+                    controller.fetch({
+                        success: function() {
+                            console.log('Controller fetched:', controller.toJSON());
+                            var controllerView = new ControllerRunView({
+                                model: controller,
+                                lm: self.linkManager,
+                                settings: self.model
+                            });
+                            console.log('Controller view created');
+                            $('#controller-area', self.el).html(controllerView.render().el);
+                        },
+                        error: function(model, response) {
+                            console.error('Error fetching controller:', response);
+                        }
+                    });
+                } else {
+                    console.log('No controllers found in layout');
                 }
-                 });
-            }
+            },
+            error: function(model, response) {
+                console.error('Error fetching layout:', response);
             }
         });
     },
