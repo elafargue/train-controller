@@ -17,7 +17,7 @@ window.LocoListView = Backbone.View.extend({
             $('#items-grid', this.el).append($('<div class="col"></div>').append(new LocoListItemView({model: locos[i], settings: this.options.settings}).render().el));
         }
 
-        $(this.el).append(new Paginator({model: this.model, page: this.options.page, items: items}).render().el);
+        $(this.el).append(new Paginator({model: this.model, page: this.options.page, items: items, baseUrl: 'locos'}).render().el);
 
         return this;
     }
