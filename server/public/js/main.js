@@ -76,6 +76,14 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var locoList = new LocoCollection();
         locoList.fetch({success: function(){
+            // Sort the collection by reference (numeric)
+            locoList.comparator = function(model) {
+                var ref = model.get('reference') || '';
+                // Convert to number for numeric sorting, fallback to 0 for non-numeric values
+                var num = parseFloat(ref);
+                return isNaN(num) ? 0 : num;
+            };
+            locoList.sort();
             self.switchView(new LocoListView({model: locoList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-loco');
@@ -102,6 +110,14 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var carList = new CarCollection();
         carList.fetch({success: function(){
+            // Sort the collection by reference (numeric)
+            carList.comparator = function(model) {
+                var ref = model.get('reference') || '';
+                // Convert to number for numeric sorting, fallback to 0 for non-numeric values
+                var num = parseFloat(ref);
+                return isNaN(num) ? 0 : num;
+            };
+            carList.sort();
             self.switchView(new CarListView({model: carList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-car');
