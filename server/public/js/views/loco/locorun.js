@@ -5,7 +5,8 @@
 
 window.LocoRunView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.options = options || {};
         this.totalPoints = 150;
         this.bemf = []; // Table of all BEMF readings
         this.rate = [];

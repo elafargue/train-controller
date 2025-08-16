@@ -43,8 +43,6 @@ var AppRouter = Backbone.Router.extend({
 
     initialize: function () {
         console.log("Initializing application");
-        this.headerView = new HeaderView();
-        $('.header').html(this.headerView.el);
         // Get our settings here, and
         // share them afterwards, rather than requesting it
         // everytime...
@@ -52,6 +50,13 @@ var AppRouter = Backbone.Router.extend({
         // We need to be sure the settings are fetched before moving
         // further, so we add the Ajax option "async" below.
         this.settings.fetch({async:false});
+        
+        // Initialize theme manager
+        ThemeManager.init(this.settings);
+        
+        // Initialize header view with settings
+        this.headerView = new HeaderView({ settings: this.settings });
+        $('.header').html(this.headerView.el);
         
         // Create our link manager: it is in charge of talking
         // to the server-side controller interface through a socket.io
@@ -71,6 +76,14 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var locoList = new LocoCollection();
         locoList.fetch({success: function(){
+            // Sort the collection by reference (numeric)
+            locoList.comparator = function(model) {
+                var ref = model.get('reference') || '';
+                // Convert to number for numeric sorting, fallback to 0 for non-numeric values
+                var num = parseFloat(ref);
+                return isNaN(num) ? 0 : num;
+            };
+            locoList.sort();
             self.switchView(new LocoListView({model: locoList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-loco');
@@ -97,6 +110,14 @@ var AppRouter = Backbone.Router.extend({
         var p = page ? parseInt(page, 10) : 1;
         var carList = new CarCollection();
         carList.fetch({success: function(){
+            // Sort the collection by reference (numeric)
+            carList.comparator = function(model) {
+                var ref = model.get('reference') || '';
+                // Convert to number for numeric sorting, fallback to 0 for non-numeric values
+                var num = parseFloat(ref);
+                return isNaN(num) ? 0 : num;
+            };
+            carList.sort();
             self.switchView(new CarListView({model: carList, settings: self.settings, page: p}));
         }});
         this.headerView.selectMenuItem('menu-car');

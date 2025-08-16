@@ -1,13 +1,35 @@
-<div class="row-fluid">
-    <div class="span2">
-                <h5><%= name %></h5> 
-        <p>
-            <a href="#" role="button" class="ctrl-connect btn btn-warning">Connect to controller</a>
-        </p>
-                    <hr>
-                    <a href="#diagnostics" class="btn btn-info disabled ctrl-diag" role="button">Diagnostics</a>
+<div class="container-fluid main-content">
+    <!-- Alert area for connection errors -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-danger d-none" role="alert">
+                <strong>Error!</strong> <span class="alert-message"></span>
+            </div>
+        </div>
     </div>
-    <div class="thumbnail span10" id="layoutarea" style="position:relative;">
-        <img src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>" id="layoutpic" width="100%">
+    
+    <div class="row g-4">
+        <div class="col-md-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><%= name %></h5>
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-warning ctrl-connect">
+                            <i class="bi bi-plug"></i> Connect to controller
+                        </button>
+                        <div class="border-top my-2"></div>
+                        <button type="button" class="btn btn-outline-info ctrl-diag" disabled>
+                            <i class="bi bi-speedometer2"></i> Diagnostics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="card shadow-sm h-100" id="layoutarea">
+                <img src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>" 
+                     id="layoutpic" class="card-img-top" alt="Layout">
+            </div>
+        </div>
     </div>
 </div>

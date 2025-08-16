@@ -1,0 +1,11 @@
+[Unit]
+Description=Train Controller Service
+After=network.target
+
+[Service]
+WorkingDirectory=/home/pi/train-controller/server/
+ExecStart=/home/pi/train-controller/server/start-server
+
+[Install]
+WantedBy=multi-user.target
+DefaultInstance=1

@@ -76,6 +76,7 @@ var dbs = require('./db.js');
  */
 var express = require('express'),
     bodyParser = require('body-parser'),
+    fileUpload = require('express-fileupload'),
     locos = require('./routes/locomotives.js'),
     cars = require('./routes/cars.js'),
     logbook = require('./routes/logbooks.js'),
@@ -91,10 +92,16 @@ var app = express(),
         log: false
     });
 
-app.use(bodyParser({
-        keepExtensions: true,
-        uploadDir: __dirname + "/public/pics/tmp"
-    }));
+// Parse application/json and application/x-www-form-urlencoded
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Enable file upload
+app.use(fileUpload({
+    createParentPath: true,
+    useTempFiles: true,
+    tempFileDir: __dirname + "/public/pics/tmp"
+}));
 
 
 
@@ -109,14 +116,14 @@ dbs.settings.get('coresettings', function (err, item) {
     }
 
     item.token = "_invalid_";
-    dbs.settings.put(item, 'coresettings', function (err, response) {
+
+    dbs.settings.put(item, function (err, response) {
         if (err) {
             console.log('***** WARNING ****** Could not reset socket.io session token at server startup');
             console.log(err);
             return;
         }
         debug(response);
-        server.listen(8090);
     });
 
 });
@@ -176,6 +183,52 @@ app.put('/controllers/:id', controllers.updateController);
 app.delete('/controllers/:id', controllers.deleteController);
 
 /**
+ * API endpoint to get available serial ports
+ */
+app.get('/api/serialports', function(req, res) {
+    serialport.list().then(
+        ports => {
+            // Add TEST controller as an option
+            const portList = ports.map(port => ({
+                path: port.path,
+                manufacturer: port.manufacturer || 'Unknown',
+                serialNumber: port.serialNumber || '',
+                pnpId: port.pnpId || '',
+                locationId: port.locationId || '',
+                productId: port.productId || '',
+                vendorId: port.vendorId || ''
+            }));
+            
+            // Add TEST controller as first option
+            portList.unshift({
+                path: 'TEST',
+                manufacturer: 'Virtual',
+                serialNumber: 'TEST001',
+                pnpId: 'TEST',
+                locationId: '',
+                productId: '',
+                vendorId: ''
+            });
+            
+            res.json(portList);
+        },
+        err => {
+            console.error('Error listing serial ports:', err);
+            // Fallback to just TEST controller if serial port enumeration fails
+            res.json([{
+                path: 'TEST',
+                manufacturer: 'Virtual',
+                serialNumber: 'TEST001',
+                pnpId: 'TEST',
+                locationId: '',
+                productId: '',
+                vendorId: ''
+            }]);
+        }
+    );
+});
+
+/**
  * Interface for managing accessories
  */
 app.get('/accessories', accessories.findAll);
@@ -211,7 +264,8 @@ app.use(express.static(__dirname + '/public'));
 // extend this to support multiple simultaneous
 // connections to several train controllers...
 //var portsList = new Array();
-var myPort;
+const TestController = require('./testcontroller.js');
+var controller;
 var portOpen = false;
 
 // listen for new socket.io connections:
@@ -226,40 +280,71 @@ io.sockets.on('connection', function (socket) {
     // connection to the controller:
     socket.on('disconnect', function () {
         console.log('User disconnected');
-        console.log('Closing port');
-        if (myPort && myPort.isOpen)
-            myPort.close();
+        console.log('Closing controller');
+        if (controller) {
+            if (controller.isOpen) {
+                controller.close();
+            } else if (controller.close) {
+                controller.close();
+            }
+        }
         connected = false;
         portOpen = false;
     });
 
     socket.on('openport', function (data) {
         console.log('Port open request for port name ' + data);
-        // data contains connection type: IP or Serial
-        // and the port name or IP address.
-        //  This opens the serial port:
-        if (myPort && myPort.isOpen)
-            myPort.close();
-        myPort = new serialport(data, {
+        
+        // Close existing controller if any
+        if (controller) {
+            if (controller.isOpen) {
+                controller.close();
+            } else if (controller.close) {
+                controller.close();
+            }
+        }
+
+        // Check if this is a request for the test controller
+        if (data === 'TEST') {
+            console.log('Creating test controller');
+            controller = new TestController();
+            controller.onData = function(data) {
+                socket.emit('serialEvent', data);
+            };
+            controller.start(); // Start the test controller
+            portOpen = true;
+            socket.emit('status', { portopen: true });
+            return;
+        }
+
+        // Regular serial port controller
+        controller = new serialport(data, {
             baudRate: 9600,
             dataBits: 8,
             parity: 'none',
             stopBits: 1,
             flowControl: false,
-            // look for return and newline at the end of each data packet:
         });
-        console.log('Result of port open attempt: ', myPort);
+        console.log('Result of port open attempt: ', controller);
 
-        myPort.on("error", function (err) {
+        controller.on("error", function (err) {
             console.log('Port error', err);
+            portOpen = false;
+            // Send error details to client
+            socket.emit('status', { 
+                portopen: false, 
+                error: true,
+                errorMessage: err.message || 'Unknown serial port error',
+                errorType: 'connection'
+            });
         });
 
-        const parser = myPort.pipe(new ReadlineParser({ delimiter: '\r\n' }))
+        const parser = controller.pipe(new ReadlineParser({ delimiter: '\r\n' }))
 
         // Callback once the port is actually open: 
-        myPort.on("open", function () {
+        controller.on("open", function () {
             console.log('Port open');
-            myPort.flush();
+            controller.flush();
             var successCtr = 0;
             // listen for new serial data:
             parser.on('data', function (data) {
@@ -288,7 +373,7 @@ io.sockets.on('connection', function (socket) {
             });
         });
 
-        myPort.on("close", function () {
+        controller.on("close", function () {
             portOpen = false;
             socket.emit('status', {
                 portopen: portOpen
@@ -299,11 +384,20 @@ io.sockets.on('connection', function (socket) {
     socket.on('closeport', function (data) {
         // TODO: support multiple ports, right now we
         // discard 'data' completely.
-        // I assume closing the port will remove
-        // the listeners ?? NOPE!
         console.log('Closing port');
-        if (myPort && myPort.isOpen)
-            myPort.close();
+        if (controller) {
+            if (controller.isOpen) {
+                controller.close();
+            } else if (controller.close) {
+                controller.close();
+            }
+            // Update status immediately for reliable UI feedback
+            // The controller's 'close' event should also trigger this, but this ensures it happens
+            portOpen = false;
+            socket.emit('status', {
+                portopen: portOpen
+            });
+        }
     });
 
     socket.on('portstatus', function () {
@@ -315,8 +409,20 @@ io.sockets.on('connection', function (socket) {
     socket.on('controllerCommand', function (data) {
         // TODO: do a bit of sanity checking here
         console.log('Controller command: ' + data);
-        if (myPort && myPort.isOpen)
-            myPort.write(data + '\n');
+        
+        if (!controller) return;
+
+        // Handle test controller commands
+        if (controller instanceof TestController) {
+            // Use the new processCommand method for proper JSON protocol handling
+            controller.processCommand(data);
+            return;
+        }
+
+        // Handle hardware controller commands
+        if (controller.isOpen) {
+            controller.write(data + '\n');
+        }
     });
 
 });

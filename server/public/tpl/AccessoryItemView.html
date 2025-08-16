@@ -1,34 +1,56 @@
-<div class="thumbnail glowthumbnail accessoryitem" draggable="true" id="acc-<%=_id%>" style="left:<%=locX%>%; top:<%=locY%>%;">
-    <h6><%= name %></h6>
+<div class="card shadow-sm accessoryitem" draggable="true" id="acc-<%=_id%>" style="position: absolute; left:<%=locX%>%; top:<%=locY%>%;">
+    <div class="card-body p-2 text-center">
+        <h6 class="card-title mb-2"><%= name %></h6>
         <% if (type == 'Uncoupler') {
             if (controllerSubAddress == 0) { %>
-                <div class="visible-desktop">
-                <button class="btn btn-mini btn-success buttonA buttonX" type="button">X</button></div>
-                <div class="hidden-desktop">
-                <button class="btn btn-success buttonA buttonX" type="button">X</button></div>
-                <% } else { %>
-                <div class="visible-desktop">
-                <button class="btn btn-mini btn-success buttonB buttonX" type="button">X</button></div>
-                <div class="hidden-desktop">
-                <button class="btn btn-success buttonB buttonX" type="button">X</button></div>
-                    <% } %>
+                <div class="d-none d-md-block">
+                    <button class="btn btn-sm btn-success ripple buttonA buttonX" type="button">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="d-md-none">
+                    <button class="btn btn-success buttonA buttonX" type="button">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            <% } else { %>
+                <div class="d-none d-md-block">
+                    <button class="btn btn-sm btn-success ripple buttonB buttonX" type="button">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="d-md-none">
+                    <button class="btn btn-success buttonB buttonX" type="button">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            <% } %>
         <% } else if (type == 'Turnout') { %>
-            <div class="visible-desktop">
-                <button class="btn btn-mini btn-danger buttonA" type="button">A</button>
-                <button class="btn btn-mini btn-success buttonB" type="button">B</button>
+            <div class="d-none d-md-block">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-danger ripple buttonA" type="button">A</button>
+                    <button class="btn btn-success ripple buttonB" type="button">B</button>
+                </div>
             </div>
-            <div class="hidden-desktop">
-                <button class="btn btn-danger buttonA" type="button">A</button>
-                <button class="btn btn-success buttonB" type="button">B</button>
+            <div class="d-md-none">
+                <div class="btn-group">
+                    <button class="btn btn-danger buttonA" type="button">A</button>
+                    <button class="btn btn-success buttonB" type="button">B</button>
+                </div>
             </div>
-                <% } else { %>
-            <div class="visible-desktop">
-                <button class="btn btn-mini btn-danger buttonA" type="button">Off</button>
-                <button class="btn btn-mini btn-success buttonB" type="button">On</button>
+        <% } else { %>
+            <div class="d-none d-md-block">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-danger ripple buttonA" type="button">Off</button>
+                    <button class="btn btn-success ripple buttonB" type="button">On</button>
+                </div>
             </div>
-            <div class="hidden-desktop">
-                <button class="btn btn-danger buttonA" type="button">Off</button>
-                <button class="btn btn-success buttonB" type="button">On</button>
-            </div>                      
-                    <% } %>
+            <div class="d-md-none">
+                <div class="btn-group">
+                    <button class="btn btn-danger buttonA" type="button">Off</button>
+                    <button class="btn btn-success buttonB" type="button">On</button>
+                </div>
+            </div>
+        <% } %>
+    </div>
 </div>

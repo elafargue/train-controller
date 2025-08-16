@@ -1,20 +1,30 @@
 window.HeaderView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.settings = options ? options.settings : null;
+        if (this.settings) {
+            this.settings.on('change:navbarColor', this.render, this);
+        }
         this.render();
     },
 
+    onClose: function() {
+        if (this.settings) {
+            this.settings.off('change:navbarColor', this.render, this);
+        }
+    },
+
     render: function () {
-        $(this.el).html(this.template());
+        $(this.el).html(this.template({ settings: this.settings }));
         return this;
     },
 
     selectMenuItem: function (menuItem) {
-        $('.nav li').removeClass('active');
-        $('.nav .add-option').hide();
+        $('.navbar-nav .nav-item').removeClass('active');
+        $('.navbar-nav .add-option').addClass('d-none');
         if (menuItem) {
             $('.' + menuItem).addClass('active');
-            $('.' + menuItem + '-add').show();
+            $('.' + menuItem + '-add').removeClass('d-none');
         }
     }
     

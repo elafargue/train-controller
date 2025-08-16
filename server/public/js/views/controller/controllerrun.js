@@ -4,8 +4,9 @@
  */
 window.ControllerRunView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
         console.log("Initialize controller run view");
+        this.options = options || {};
         this.linkManager = this.options.lm;
         this.settings = this.options.settings;
         this.powersliderstyle = this.settings.get('powersliderstyle');
@@ -15,6 +16,20 @@ window.ControllerRunView = Backbone.View.extend({
         this.linkManager.off('status',this.updateStatus);
         this.linkManager.on('input', this.showInput, this);
         this.linkManager.on('status', this.updateStatus, this);
+
+        // Add method to update power bar
+        this.updatePowerBar = function(value) {
+            const progressBar = $('#powerbar', this.el);
+            const progressContainer = $('.progress.vertical', this.el);
+            if (progressBar.length) {
+                // Update the progress bar height
+                progressBar.css('height', value + '%');
+                // Update ARIA attributes for accessibility
+                progressContainer.attr('aria-valuenow', value);
+                // Update the text content if needed (could be added later)
+                progressBar.attr('data-value', value);
+            }
+        };
         
         // Save original PID values upon creation, so that we can
         // reset those if we want to:
@@ -41,8 +56,8 @@ window.ControllerRunView = Backbone.View.extend({
         var self = this;
         console.log("Rendering our controller Run View");
         $(this.el).html(this.template(this.model.toJSON()));
-        // Activate Bootstrap progressbar extended funtionality:
-        $('.progress .bar', this.el).progressbar();
+        // Initialize the power progress bar
+        this.updatePowerBar(0);
         this.fillspinners();
         
         $('.dial', this.el).knob({'change': function(v) { self.powerknob(v,self);}});
@@ -52,34 +67,17 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     fillspinners: function() {
-        var options = {
-            minimum: 0,
-            maximum: 10,
-            step: 0.1,
-            numberOfDecimals: 2,
-            value: this.model.get('pidkp')
-        };
-        
-        $('#kp', this.el).spinedit(options);
-        options.value = this.model.get('pidki');
-        $('#ki', this.el).spinedit(options);
-        options.value = this.model.get('pidkd');
-        $('#kd', this.el).spinedit(options);
-        options = { step: 10,
-                    minimum: 60,
-                    maximum: 600,
-                    numberOfDecimals: 0,
-                    value: this.model.get('pidsample'),
-                  };
-        $('#sample', this.el).spinedit(options);
-
+        $('#kp', this.el).val(this.model.get('pidkp'));
+        $('#ki', this.el).val(this.model.get('pidki'));
+        $('#kd', this.el).val(this.model.get('pidkd'));
+        $('#sample', this.el).val(this.model.get('pidsample'));
     },
     
     events: {
-        "valueChanged #kp": "updatepid",
-        "valueChanged #ki": "updatepid",
-        "valueChanged #kd": "updatepid",
-        "valueChanged #sample" : "updatepid",
+        "change #kp": "updatepid",
+        "change #ki": "updatepid",
+        "change #kd": "updatepid",
+        "change #sample": "updatepid",
         "click .pidreset" : "resetpid",
         "click .pidsave"  : "savepid",
         "click .pidquery" : "querypid",
@@ -92,12 +90,10 @@ window.ControllerRunView = Backbone.View.extend({
     },
     
     updatepid: function(event) {
-        console.log("PID Value changed: " + event.value + " for " + event.target.id);
+        console.log("PID Value changed: " + event.target.value + " for " + event.target.id);
         // Apply the change to the model
         var target = event.target;
         var change = {};
-        // Our Spinedit control returns values as strings even
-        // when they are numbers (uses jQuery's .val() in the setvalue method),
         // so we have to attempt to convert it back to a number if it makes
         // sense:
         var numval = parseFloat(target.value);
@@ -173,6 +169,7 @@ window.ControllerRunView = Backbone.View.extend({
     power: function(event) {
         if (!this.linkManager.connected)
             return;
+        
         // Detect if we're on a tablet and behave accordingly:
         if (event.type === "touchmove") {
             event.preventDefault(); // block finger scrolling of the page
@@ -180,15 +177,27 @@ window.ControllerRunView = Backbone.View.extend({
             var touch = event.originalEvent.touches[0];
             event.pageY = touch.pageY; // Yeah, hack the jQuery event!
         }
-        var percentage = Math.floor((event.currentTarget.clientHeight - (event.pageY-event.currentTarget.offsetTop))/event.currentTarget.clientHeight*100);
+        
+        // Calculate percentage based on click position for vertical progress bar
+        var rect = event.currentTarget.getBoundingClientRect();
+        var clickY = event.clientY || event.pageY;
+        
+        // For vertical progress bar, calculate from bottom (0%) to top (100%)
+        var percentage = Math.floor(((rect.bottom - clickY) / rect.height) * 100);
+        percentage = Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
+        
+        // Throttle updates
         var stamp = new Date().getTime();
         if ((stamp - this.speedstamp) < 400)
             return;
         this.speedstamp = stamp;
+        
         console.log("Power click at " + percentage + "%");
-        $('.progress .bar', this.el).attr('data-percentage',
-                                          percentage
-                                         ).progressbar();
+        
+        // Update the UI
+        this.updatePowerBar(percentage);
+        
+        // Send command to controller
         this.linkManager.controllerCommand.speed(percentage);
     },
 
@@ -246,8 +255,20 @@ window.ControllerRunView = Backbone.View.extend({
 
         var rateVal = parseInt(data.rate);
         if (!isNaN(rateVal)) {
-            $('.progress .bar', self.el).attr('data-percentage',rateVal/800*100).progressbar();
-            $('.dial', this.el).val(rateVal/800*100).trigger('change');
+            const percentage = rateVal/800*100;
+            
+            // Update progress bar if we're using slider style
+            if (this.powersliderstyle === "Slider") {
+                this.updatePowerBar(percentage);
+            }
+            
+            // Update dial if we're using knob style
+            const dial = $('.dial', this.el);
+            if (dial.length) {
+                dial.val(percentage).trigger('change');
+            }
+            
+            // Update stop button state
             if (rateVal < 10) { // We consider the train stopped under a PWM rate of 10.
                 $('.btn-group > .dir-stop',this.el).addClass("btn-danger");
             } else {
@@ -260,15 +281,20 @@ window.ControllerRunView = Backbone.View.extend({
             var ki = parseFloat(data.ki);
             var kd = parseFloat(data.kd);
             var sample = parseInt(data.sample);
-            this.model.set('pidkp', kp);
-            this.model.set('pidki', ki);
-            this.model.set('pidkd', kd);
-            this.model.set('pidsample', sample);
-            $('#kp', this.el).spinedit('setValueSilent', kp);
-            $('#ki', this.el).spinedit('setValueSilent', ki);
-            $('#kd', this.el).spinedit('setValueSilent', kd);
-            $('#sample', this.el).spinedit('setValueSilent', sample);
-
+            
+            // Update model silently to prevent unnecessary events
+            this.model.set({
+                'pidkp': kp,
+                'pidki': ki,
+                'pidkd': kd,
+                'pidsample': sample
+            }, {silent: true});
+            
+            // Update inputs directly without triggering change events
+            $('#kp', this.el).val(kp);
+            $('#ki', this.el).val(ki);
+            $('#kd', this.el).val(kd);
+            $('#sample', this.el).val(sample);
         }
     },
 

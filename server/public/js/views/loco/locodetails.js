@@ -5,27 +5,76 @@ window.LocoView = Backbone.View.extend({
     },
 
     render: function () {
+        var self = this;
         $(this.el).html(this.template(this.model.toJSON()));
-        this.fillLogbook();
+        
+        // Initialize logbook if not already done or if it's empty
+        this.ensureLogbookLoaded(function() {
+            self.fillLogbook();
+        });
+        
+        // Add Bootstrap 5 modal event handler to refresh logbook when modal is shown
+        $('#logbookModal', this.el).on('show.bs.modal', function () {
+            self.ensureLogbookLoaded(function() {
+                self.fillLogbook();
+            });
+        });
+        
         return this;
+    },
+    
+    ensureLogbookLoaded: function(callback) {
+        var self = this;
+        if (!this.model.logbook || this.model.logbook.url !== '/locos/' + this.model.id + '/logbook') {
+            console.log('Initializing logbook for locomotive', this.model.id);
+            this.model.logbook = new Logbook();
+            this.model.logbook.url = '/locos/' + this.model.id + '/logbook';
+            this.model.logbook.fetch({
+                success: function() {
+                    console.log('Logbook loaded successfully');
+                    if (callback) callback();
+                },
+                error: function() {
+                    console.log('Error loading logbook');
+                    if (callback) callback(); // Still call callback to prevent hanging
+                }
+            });
+        } else {
+            // Logbook already loaded
+            if (callback) callback();
+        }
     },
     
     fillLogbook: function() {
         var self = this;
         var logbook = this.model.logbook;
-        $('#logbook', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th><th></th></tr>");
+        
+        // Safety check - ensure logbook exists and DOM elements are available
+        if (!logbook) {
+            console.log('Logbook not available yet, will try again when modal is shown');
+            return;
+        }
+        
+        // Ensure DOM elements exist
+        if ($('#logbook', this.el).length === 0 || $('#logbook-list', this.el).length === 0) {
+            console.log('Logbook DOM elements not ready yet');
+            return;
+        }
+        
+        $('#logbook', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th><th>Delete</th></tr>");
         $('#logbook-list', this.el).empty().append("<tr><th>Date</th><th>Runtime</th><th>Comment</th></tr>");
-            for (var i=0; i< logbook.length; i++) {
-                var entry = logbook.at(i);
-                var d = new Date(entry.get('date'));
-                $('#logbook', this.el).append('<tr><td><small>' +
-                                              d.toLocaleString() + '</small></td><td>' +
-                                              utils.hms(entry.get('runtime')) + '</td><td>' +
-                                              '<input type="text" name="lb-'+i+'" value="' +entry.get('comment') + '"></td><td><a href="#" title="Delete" role="button" class="btn btn-mini deleteentry" name="'+ i +'"><i class="icon-remove-sign"></i></a></td></tr>');
-                $('#logbook-list', this.el).append('<tr><td><small>' +
-                                              d.toLocaleString() + '</small></td><td>' +
-                                              utils.hms(entry.get('runtime')) + '</td><td>' +
-                                              entry.get('comment') + '</td></tr>');
+        
+        for (var i=0; i< logbook.length; i++) {
+            var entry = logbook.at(i);
+            var d = new Date(entry.get('date'));
+            $('#logbook', this.el).append('<tr><td><small>' +
+                                          d.toLocaleString() + '</small></td><td>' +
+                                          utils.hms(entry.get('runtime')) + '</td><td>' +
+                                          '<input type="text" name="lb-'+i+'" value="' +entry.get('comment') + '"></td><td class="text-center"><a href="#" title="Delete" role="button" class="btn btn-danger btn-mini deleteentry" name="'+ i +'"><i class="icon-remove-sign"></i></a></td></tr>');
+            $('#logbook-list', this.el).append('<tr><td><small>' +
+                                          d.toLocaleString() + '</small></td><td>' +
+                                          utils.hms(entry.get('runtime')) + '</td><td>' +
+                                          entry.get('comment') + '</td></tr>');
         }
     },
 
@@ -38,6 +87,8 @@ window.LocoView = Backbone.View.extend({
         "drop #picture" : "dropHandler",
         "click .addentry" : "addEntry",
         "click .deleteentry": "deleteEntry",
+        "click .change-picture" : "triggerFileInput",
+        "change #picture-input" : "handleFileSelect",
     },
 
     change: function (event) {
@@ -120,14 +171,29 @@ window.LocoView = Backbone.View.extend({
         var self = this;
         // The Bootbox library manages modal dialogs in bootstrap
         // and makes our life easier:
-        bootbox.confirm("Delete this locomotive, are you sure?", "Cancel",  "Delete", function(result) {
-                         if (result) {
-                              self.model.logbook.set([]);
-                              self.model.destroy({
-                                success: function () {
-                                window.history.back();
-                                }});
-                       }});
+        bootbox.confirm({
+            message: "Delete this locomotive, are you sure?",
+            buttons: {
+                confirm: {
+                    label: 'Delete',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    self.model.logbook.set([]);
+                    self.model.destroy({
+                        success: function () {
+                            window.history.back();
+                        }
+                    });
+                }
+            }
+        });
         return false;
     },
     
@@ -172,6 +238,23 @@ window.LocoView = Backbone.View.extend({
         this.model.logbook.remove(this.model.logbook.at(event.currentTarget.name));
         this.fillLogbook();
         return false;
+    },
+
+    triggerFileInput: function(event) {
+        event.preventDefault();
+        $('#picture-input').click();
+    },
+
+    handleFileSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.pictureFile = file;
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                $('#picture').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     },
 
 });

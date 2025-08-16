@@ -23,14 +23,19 @@ window.SettingsView = Backbone.View.extend({
 
     },
     
-    change: function() {
+    change: function(event) {
         // Apply the change to the model
         var target = event.target;
         var change = {};
+        
+        // For radio buttons, only update if checked
+        if (target.type === 'radio' && !target.checked) {
+            return;
+        }
+        
         change[target.name] = target.value;
         this.model.set(change);
         this.model.save();
-
     },
 
     resetSettings: function() {

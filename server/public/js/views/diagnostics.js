@@ -1,6 +1,7 @@
 window.DiagnosticsView = Backbone.View.extend({
 
-    initialize:function () {
+    initialize:function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
         // Query the controller for:
         // - POST result
@@ -39,7 +40,7 @@ window.DiagnosticsView = Backbone.View.extend({
     
     refresh: function() {
         $('#accessorydetect',this.el).empty();
-        $('#post',this.el).removeClass('badge-success').removeClass('badge-important');
+        $('#post',this.el).removeClass('bg-success').removeClass('bg-danger');
         $('#post',this.el).html("Waiting...");
         $('#post2',this.el).html('');
         // Query controller for POST result and memory:
@@ -81,12 +82,12 @@ window.DiagnosticsView = Backbone.View.extend({
         if (typeof data.post != 'undefined') {
             $('#post',this.el).html(data.post);
             if (data.post === "PASS") {
-                $('#post',this.el).addClass('badge-success').removeClass('badge-important');
+                $('#post',this.el).addClass('bg-success').removeClass('bg-danger');
                 $('#post2',this.el).html('');
                 $('#port-diags',this.el).css({opacity: 1.0});
             }
             if (data.post === "FAIL") {
-                $('#post',this.el).removeClass('badge-success').addClass('badge-important');
+                $('#post',this.el).removeClass('bg-success').addClass('bg-danger');
                 $('#post2',this.el).html(" - " + data.err);
                 if (data.err === "SPI") $('#port-diags',this.el).css({opacity: 0.3});
             }
@@ -97,9 +98,20 @@ window.DiagnosticsView = Backbone.View.extend({
         if (typeof data.ports != 'undefined') {
             // Create a report of open-closed accessories
             for (var i= 0; i < data.ports.length; i++) {
-                $('#accessorydetect',this.el).append('<div class="thumbnail glowthumbnail accessorydiagitem" ><h6>'+Math.ceil((i+1)/2)+
-                                                     ((Math.ceil((i+1)/2) != (i+1)/2) ? 'a': 'b') + '</h6><div>' +
-                '<span class="badge ' + ((data.ports[i]) ? 'badge-success' : 'badge-important') + '">&nbsp</span></div></div>');
+                var portNumber = Math.ceil((i+1)/2);
+                var portSuffix = ((Math.ceil((i+1)/2) != (i+1)/2) ? 'a': 'b');
+                var badgeClass = ((data.ports[i]) ? 'bg-success' : 'bg-danger');
+                
+                $('#accessorydetect',this.el).append(
+                    '<div class="col-3 mb-2">' +
+                        '<div class="card text-center accessorydiagitem">' +
+                            '<div class="card-body p-2">' +
+                                '<h6 class="card-title mb-1">' + portNumber + portSuffix + '</h6>' +
+                                '<span class="badge ' + badgeClass + '">&nbsp;</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>'
+                );
             }
            if (!this.queriesDone) {
                 this.linkManager.controllerCommand.getAccPulse();

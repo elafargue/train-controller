@@ -16,6 +16,8 @@ window.CarView = Backbone.View.extend({
         "dragover #picture"     : "dragOver",
         "dragleave #picture"     : "dragLeave",
         "drop #picture" : "dropHandler",
+        "click .change-picture" : "triggerFileInput",
+        "change #picture-input" : "handleFileSelect",
     },
 
     change: function (event) {
@@ -89,13 +91,28 @@ window.CarView = Backbone.View.extend({
         var self = this;
         // The Bootbox library manages modal dialogs in bootstrap
         // and makes our life easier:
-        bootbox.confirm("Delete this car, are you sure?", "Cancel",  "Delete", function(result) {
-                         if (result) {
-                           self.model.destroy({
-                                success: function () {
-                                window.history.back();
-                                }});
-                       }});
+        bootbox.confirm({
+            message: "Delete this car, are you sure?",
+            buttons: {
+                confirm: {
+                    label: 'Delete',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    self.model.destroy({
+                        success: function () {
+                            window.history.back();
+                        }
+                    });
+                }
+            }
+        });
         return false;
     },
     
@@ -125,6 +142,23 @@ window.CarView = Backbone.View.extend({
             $('#picture').attr('src', reader.result);
         };
         reader.readAsDataURL(this.pictureFile);
+    },
+
+    triggerFileInput: function(event) {
+        event.preventDefault();
+        $('#picture-input').click();
+    },
+
+    handleFileSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.pictureFile = file;
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                $('#picture').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     },
 
 });

@@ -1,7 +1,16 @@
 window.LayoutView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
+        
+        // Listen for connection status changes
+        var self = this;
+        if (this.linkManager) {
+            this.linkManager.on('status', function(data) {
+                self.updateConnectionStatus();
+            });
+        }
     },
 
     render: function () {
@@ -24,12 +33,24 @@ window.LayoutView = Backbone.View.extend({
             this.renderNextAccessory(accessories.pop(), accessories);
         }
         
-        // Update the warning/OK label depending on whether the controller is connected
-        if (this.linkManager.connected) {
-            $('#connection-label', this.el).html('OK').removeClass('label-warning').addClass('label-success');
-            $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
-        }
+        // Update connection status display
+        this.updateConnectionStatus();
         return this;
+    },
+    
+    updateConnectionStatus: function() {
+        // Update the warning/OK label depending on whether the controller is connected
+        if (this.linkManager && this.linkManager.connected) {
+            $('#connection-status', this.el).removeClass('alert-warning').addClass('alert-success');
+            $('#connection-icon', this.el).removeClass('bi-exclamation-triangle').addClass('bi-check-circle');
+            $('#connection-label', this.el).html('CONNECTED').removeClass('bg-secondary').addClass('bg-success');
+            $('#connection-note', this.el).html('Controller is connected, all accessory properties can be edited.');
+        } else {
+            $('#connection-status', this.el).removeClass('alert-success').addClass('alert-warning');
+            $('#connection-icon', this.el).removeClass('bi-check-circle').addClass('bi-exclamation-triangle');
+            $('#connection-label', this.el).html('DISCONNECTED').removeClass('bg-success').addClass('bg-secondary');
+            $('#connection-note', this.el).html('Some accessory properties can only be edited if you go back to the <a href="/#" class="alert-link">home screen</a> and connect to the controller.');
+        }
     },
     
     renderNextController: function(nextId, controllerIdList) {
@@ -39,29 +60,29 @@ window.LayoutView = Backbone.View.extend({
         newController.fetch({success: function(){
                 console.log('Controller fetched. Remaining: ' + controllerIdList.length);        
                 var newControllerDetailsView = new ControllerDetailsView({model: newController});
-                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newControllerDetailsView.render().el);
+                $('#controllers', self.el).append($wrapper);
                 if (controllerIdList.length) {
                     self.renderNextController(controllerIdList.pop(), controllerIdList);
                 } else {
                     // Ensure consistency
                     self.model.save();
-                }
-        },
-                            error: function() {
-                                // Somehow the controller Id we got in the array was not
-                                // valid: remove it from our model, and move on to the next
-                                // one
-                                console.log('Deleting ghost controller');
-                                var controllers = self.model.get('controllers');
-                                controllers.splice(controllers.indexOf(nextId),1);
-                                // No need to set again, right ? Or does Backbone expect it to
-                                // know that there the controllers were changed?
-                                if(controllerIdList.length) {
-                                    self.renderNextController(controllerIdList.pop(), controllerIdList);
-                                } else {
-                                    self.model.save();
-                                }
-                            }});
+                }},
+                        error: function() {
+                            // Somehow the controller Id we got in the array was not
+                            // valid: remove it from our model, and move on to the next
+                            // one
+                            console.log('Deleting ghost controller');
+                            var controllers = self.model.get('controllers');
+                            controllers.splice(controllers.indexOf(nextId),1);
+                            // No need to set again, right ? Or does Backbone expect it to
+                            // know that there the controllers were changed?
+                            if(controllerIdList.length) {
+                                self.renderNextController(controllerIdList.pop(), controllerIdList);
+                            } else {
+                                self.model.save();
+                            }
+                        }});
     },
     
     renderNextAccessory: function(nextId, accessoryIdList) {
@@ -71,14 +92,14 @@ window.LayoutView = Backbone.View.extend({
     newAccessory.fetch({success: function(){
             console.log('Accessory fetched. Remaining: ' + accessoryIdList.length);        
             var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
-            $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+            var $wrapper = $('<div class="col-md-3"></div>').append(newAccessoryDetailsView.render().el);
+            $('#accessories', self.el).append($wrapper);
             if (accessoryIdList.length) {
                 self.renderNextAccessory(accessoryIdList.pop(), accessoryIdList);
             } else {
                 // Ensure consistency
                 self.model.save();
-            }
-    },
+            }},
                         error: function() {
                             // Somehow the accessory Id we got in the array was not
                             // valid: remove it from our model, and move on to the next
@@ -106,7 +127,9 @@ window.LayoutView = Backbone.View.extend({
 //        "click .delctrl": "deleteController",
         "dragover #picture"     : "dragOver",
         "dragleave #picture"     : "dragLeave",
-        "drop #picture" : "dropHandler"
+        "drop #picture" : "dropHandler",
+        "click .change-picture" : "triggerFileInput",
+        "change #picture-input" : "handleFileSelect"
     },
 
     change: function (event) {
@@ -171,13 +194,28 @@ window.LayoutView = Backbone.View.extend({
         var self = this;
         // The Bootbox library manages modal dialogs in bootstrap
         // and makes our life easier:
-        bootbox.confirm("Delete this layout, are you sure?", "Cancel",  "Delete", function(result) {
-                         if (result) {
-                           self.model.destroy({
-                                success: function () {
-                                window.history.back();
-                                }});
-                       }});
+        bootbox.confirm({
+            message: "Delete this layout, are you sure?",
+            buttons: {
+                confirm: {
+                    label: 'Delete',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    self.model.destroy({
+                        success: function () {
+                            window.history.back();
+                        }
+                    });
+                }
+            }
+        });
         return false;
     },
     
@@ -200,7 +238,8 @@ window.LayoutView = Backbone.View.extend({
                 // the reference to the controller does not get lost, but then what if
                 // the layout model does not validate ?
                 var newControllerDetailsView = new ControllerDetailsView({model: newController});
-                $('#controllers', self.el).append(newControllerDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newControllerDetailsView.render().el);
+                $('#controllers', self.el).append($wrapper);
                 // Ensure consistency
                 self.model.save();
                 $('.addacc',self.el).removeAttr('disabled'); // We have a controller, we can now add accessories
@@ -234,7 +273,8 @@ window.LayoutView = Backbone.View.extend({
                 // the reference to the accessory does not get lost, but then what if
                 // the layout model does not validate ?
                 var newAccessoryDetailsView = new AccessoryDetailsView({model: newAccessory, lm:self.linkManager});
-                $('#accessories', self.el).append(newAccessoryDetailsView.render().el);
+                var $wrapper = $('<div class="col-md-3"></div>').append(newAccessoryDetailsView.render().el);
+                $('#accessories', self.el).append($wrapper);
                 // Ensure consistency
                 self.model.save();
             },
@@ -272,6 +312,23 @@ window.LayoutView = Backbone.View.extend({
             $('#picture').attr('src', reader.result);
         };
         reader.readAsDataURL(this.pictureFile);
+    },
+
+    triggerFileInput: function(event) {
+        event.preventDefault();
+        $('#picture-input').click();
+    },
+
+    handleFileSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.pictureFile = file;
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                $('#picture').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
 });

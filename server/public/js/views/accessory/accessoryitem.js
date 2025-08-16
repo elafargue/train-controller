@@ -1,13 +1,33 @@
 window.AccessoryItemView = Backbone.View.extend({
 
-    initialize: function () {
+    initialize: function (options) {
+        this.options = options || {};
         this.linkManager = this.options.lm;
     },
 
     render: function () {
         console.log("Render accessory item");
         $(this.el).html(this.template(this.model.toJSON()));
+        
+        // Auto-adjust font size based on text length
+        this.adjustTitleFontSize();
+        
         return this;
+    },
+    
+    adjustTitleFontSize: function() {
+        var $title = $('.card-title', this.el);
+        var text = $title.text();
+        var baseSize = 1; // 1rem
+        
+        // Adjust font size based on text length
+        if (text.length > 12) {
+            $title.css('font-size', '0.6rem');
+        } else if (text.length > 8) {
+            $title.css('font-size', '0.65rem');
+        } else {
+            $title.css('font-size', baseSize + 'rem');
+        }
     },
 
     events: {

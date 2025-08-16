@@ -94,6 +94,7 @@ var defaults = {
      * For now: ID of the current layout, and current loco
      */
     settings: {
+        _id: 'coresettings',
         currentLayout: null,
         currentLoco: null,
         powersliderstyle: '',

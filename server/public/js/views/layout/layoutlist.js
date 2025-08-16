@@ -1,7 +1,7 @@
 window.LayoutListView = Backbone.View.extend({
 
-    initialize: function () {
-        
+    initialize: function (options) {
+        this.options = options || {};
     },
 
     render: function () {
@@ -11,13 +11,13 @@ window.LayoutListView = Backbone.View.extend({
         var startPos = (this.options.page - 1) * items;
         var endPos = Math.min(startPos + items, len);
 
-        $(this.el).html('<ul class="thumbnails"></ul>');
+        $(this.el).html('<div class="container-fluid"><div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="items-grid"></div></div>');
 
         for (var i = startPos; i < endPos; i++) {
-            $('.thumbnails', this.el).append(new LayoutListItemView({model: layouts[i], settings: this.options.settings}).render().el);
+            $('#items-grid', this.el).append($('<div class="col"></div>').append(new LayoutListItemView({model: layouts[i], settings: this.options.settings}).render().el));
         }
 
-        $(this.el).append(new Paginator({model: this.model, page: this.options.page, items: items}).render().el);
+        $(this.el).append(new Paginator({model: this.model, page: this.options.page, items: items, baseUrl: 'layouts'}).render().el);
 
         return this;
     }
@@ -25,11 +25,12 @@ window.LayoutListView = Backbone.View.extend({
 
 window.LayoutListItemView = Backbone.View.extend({
 
-    tagName: "li",
+    tagName: "div",
 
-    initialize: function () {
-        this.model.bind("change", this.render, this);
-        this.model.bind("destroy", this.close, this);
+    initialize: function (options) {
+        this.options = options || {};
+        this.model.on("change", this.render, this);
+        this.model.on("destroy", this.close, this);
     },
 
     render: function () {

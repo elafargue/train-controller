@@ -1,76 +1,91 @@
 <!-- Details about a controller, used inside a layout detailed view -->
 <!-- There can be several of those inside layout detailed views, so we
       add the controller's Id to any element that needs to have a unique id -->
-<!-- Thumbnail -->
-<li class="span3">
-    <div class="thumbnail">
-        <h5  style="text-align: center;">
-            <%=name%>
-        </h5>
-        <a href="#myModal-<%=_id%>" role="button" class="btn btn-small" data-toggle="modal"><i class="icon-edit"></i></a>
-        <a href="#" role="button" class="btn btn-small controller-delete"><i class="icon-remove-sign"></i></a>
+<div class="card shadow-sm h-100">
+    <div class="card-body text-center">
+        <h5 class="card-title mb-3"><%=name%></h5>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModal-<%=_id%>">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm controller-delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal -->
-            <div id="myModal-<%=_id%>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel-<%=_id%>">Controller details</h3>
-  </div>
-    <form class="form-horizontal">
-        <div class="modal-body">
-            <p>
-                Controller ID: <%=_id %>
-            </p>
-            <div class="control-group">
-                <label class="control-label" for="name">Name</label>
-                    <div class="controls">
-                        <input type="text" name="name" placeholder="Controller name" value="<%=name  %>">
-                    </div>
+<div class="modal fade" id="myModal-<%=_id%>" tabindex="-1" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel-<%=_id%>">Controller details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="type">Type</label>
-                    <div class="controls">
-                        <select name="type" >
-                            <option value="AVR" <%= type == "AVR" ? 'selected="selected"'  : '' %>>AVR</option>
-                            <option value="IPAVR" <%= type == "IPAVR" ? 'selected="selected"'  : '' %>>AVR over IP</option>
+            <form>
+                <div class="modal-body">
+                    <p class="text-muted small mb-4">
+                        Controller ID: <%=_id %>
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Name</label>
+                        <input type="text" class="form-control" name="name" placeholder="Controller name" value="<%=name %>">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="type">Type</label>
+                        <select class="form-select" name="type">
+                            <option value="AVR" <%= type == "AVR" ? 'selected="selected"' : '' %>>AVR</option>
+                            <option value="IPAVR" <%= type == "IPAVR" ? 'selected="selected"' : '' %>>AVR over IP</option>
                         </select>
                     </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="port">Port</label>
-                    <div class="controls">
-                        <input type="text" name="port" value="<%= port  %>">
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="port">Port</label>
+                        <select class="form-select" name="port" id="port-select">
+                            <option value="">Loading ports...</option>
+                        </select>
+                        <div class="form-text">
+                            <small class="text-muted">Select a serial port or TEST for testing mode</small>
+                        </div>
                     </div>
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label" for"pid">PID</label>
-                 <div class="controls">
-                      <div class="horizontal">
-                        <span>P:&nbsp;</span><input id="kp" type="text" name="pidkp" />
-                        <span>&nbsp;&nbsp;I:&nbsp;</span><input id="ki" type="text" name="pidki" />
-                        <span>&nbsp;&nbsp;D:&nbsp;</span><input id="kd" type="text" name="pidkd" />
-                     </div><br>
-                    <div class="horizontal">
-                         <span>&nbsp;&nbsp;Sample time:&nbsp;</span><input id="sample" name="pidsample" type="text"/>
+                                        
+                    <div class="mb-3">
+                        <label class="form-label" for="pid">PID Parameters</label>
+                        <div class="d-flex gap-3 align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <label class="me-2" for="kp">P:</label>
+                                <input id="kp" type="number" name="pidkp" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label class="me-2" for="ki">I:</label>
+                                <input id="ki" type="number" name="pidki" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label class="me-2" for="kd">D:</label>
+                                <input id="kd" type="number" name="pidkd" min="0" max="10" step="0.1" class="form-control form-control-sm" style="width: 80px;" />
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <label class="me-2" for="sample">Sample time:</label>
+                            <input id="sample" name="pidsample" type="number" min="60" max="600" step="10" class="form-control form-control-sm" style="width: 80px;" />
+                            <span class="ms-2">ms</span>
+                        </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label" for="pulse">Accessory pulse</label>
+                        <div class="d-flex align-items-center">
+                            <input type="text" name="accessorypulse" maxlength="4" class="form-control" value="<%= accessorypulse %>" style="width: 100px;">
+                            <span class="ms-2">ms</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label" for="pulse">Accessory pulse</label>
-                    <div class="controls">
-                        <input type="text" name="accessorypulse" maxlength="4"  value="<%= accessorypulse  %>">&nbsp; ms
-                    </div>
-            </div>
-
-
-        </div><!-- modal-body -->
-  <div class="modal-footer">
-    <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary controller-save">Save changes</button>
-  </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary controller-save">Save changes</button>
+                </div>
     </form>
 </div>
 

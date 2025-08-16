@@ -1,103 +1,98 @@
 <!-- Details view of a layout -->
-<div class="row-fluid">
-
-    <form class="form-horizontal span12">
-
-        <fieldset>
-
-            <legend>Layout Details</legend>
-            <br/>
-
-            <div class="row">
-                <div class="span8">
-
-                    <div class="control-group">
-                        <label for="name" class="control-label">Name:</label>
-
-                        <div class="controls">
-                            <input type="text" name="name" value="<%= name %>"/>
-                            <span class="help-inline"></span>
+<div class="container-fluid">
+    <form class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Layout Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" value="<%= name %>" />
+                            <div class="form-text"></div>
                         </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label for="description" class="control-label">Notes:</label>
-
-                        <div class="controls">
-                            <textarea id="description" name="description" style="width: 90%;" rows="6"><%= description
-                                %></textarea>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Notes</label>
+                            <textarea class="form-control" id="description" name="description" rows="6"><%= description %></textarea>
                         </div>
-                    </div>
-                        
-                    <div class="control-group">
-                            <label class="control-label">Controllers:</label>
-                        <div class="controls">
-                            <div class="row-fluid">
-                                <ul class="thumbnails" id="controllers">
-                                    <li><div class="thumbnail">
-                                            <h5  style="text-align: center;">Add new...</h5>
-                                             <a href="#" class="btn addctrl btn-small"><i class="icon-plus-sign"></i></a>
-                                            </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="control-group">
-                        <label class="control-label">Accessories:</label>
-                        <div class="controls" >
-                              <div class="row-fluid">
-                                <div class="span12"><span class="label label-warning" id="connection-label">WARNING</span>
-                                    <span id="connection-note">Some accessory properties can only be edited if you go back to the <a href="/#">home screen</a> and connect to the controller.</span>
-                                  </div>
-                                  </div>
-                            <div class="row-fluid">
-                                <div class="span2">
-                                <ul class="thumbnails">
-                                    <li><div class="thumbnail">
-                                            <h5  style="text-align: center;">Add new...</h5>
-                                             <a href="#" class="btn addacc btn-small" disabled="true"><i class="icon-plus-sign"></i></a>
-                                            </div>
-                                    </li>
-                                </ul>
+                        <div class="mb-4">
+                            <label class="form-label">Controllers</label>
+                            <div class="row g-3" id="controllers">
+                                <div class="col-md-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Add new...</h5>
+                                            <button class="btn btn-outline-primary btn-sm addctrl">
+                                                <i class="bi bi-plus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="span10" id="accessories"></div>
+                                <!-- Controllers will be dynamically added here -->
                             </div>
                         </div>
-                        
+
+                        <div class="mb-4">
+                            <label class="form-label">Accessories</label>
+                            <div id="connection-status" class="alert alert-warning mb-3" role="alert">
+                                <i id="connection-icon" class="bi bi-exclamation-triangle me-2"></i>
+                                <span id="connection-label" class="badge me-2">DISCONNECTED</span>
+                                <span id="connection-note">Some accessory properties can only be edited if you go back to the <a href="/#" class="alert-link">home screen</a> and connect to the controller.</span>
+                            </div>
+                            <div class="row g-3" id="accessories">
+                                <div class="col-md-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Add new...</h5>
+                                            <button class="btn btn-outline-primary btn-sm addacc" disabled>
+                                                <i class="bi bi-plus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Accessories will be dynamically added here -->
+                            </div>
+                        </div>
                     </div>
 
-
-                </div>
-
-                <div class="span4">
-                    <div class="row-fluid"><div class="span12">
-                        <div class="well" style="width: 180px;text-align: center;width:50%;margin: 0px auto;">
-                            <p><img id="picture" width="180" src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>"/></p>
-                            <p style="color:#999;">To change the picture, drag a new picture from your computer onto the box above.</p>
-                        </div></div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <img id="picture" class="img-fluid mb-3" style="max-width: 180px;" 
+                                     src="<%= picture === null ? 'pics/layouts/generic.png' : 'pics/layouts/' + picture %>"/>
+                                <div class="d-flex justify-content-center gap-2 mb-2">
+                                    <input type="file" id="picture-input" class="d-none" accept="image/*">
+                                    <button type="button" class="btn btn-outline-primary btn-sm change-picture">
+                                        <i class="bi bi-image"></i> Change image
+                                    </button>
+                                </div>
+                                <p class="text-muted small">Drag & drop an image here or use the button above to change the picture.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="row-fluid"><div class="span12">
-                    </div></div>
                 </div>
             </div>
-
-        </fieldset>
-
-        <div class="form-actions">
-            <a href="#" class="btn btn-primary save">Save</a>
-            <a href="#" class="btn delete">Delete</a>
+            <div class="card-footer">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary save">Save</button>
+                    <button type="button" class="btn btn-outline-danger delete">Delete</button>
+                </div>
+            </div>
         </div>
-
     </form>
-
 </div>
 
-<div class="row-fluid status-bar">
-    <div class="span12">
-        <div class="alert alert-success" style="display: none">
-            <b>Success!</b> Layout saved successfully
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast align-items-center text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle me-2"></i>Layout saved successfully
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </div>

@@ -1,68 +1,98 @@
 <!-- Running controller -->
-<div class="row-fluid">
-    <span class="span12" style="text-align:center;">
-        <div class="btn-group">
-            <button class="btn btn-large dir-back"><i class="icon-backward dir-back"></i></button>
-            <button class="btn btn-large dir-stop"><i class="icon-stop dir-stop"></i></button>
-            <button class="btn btn-large dir-fwd"><i class="icon-forward dir-fwd"></i></button>
+<div class="container-fluid">
+    <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-12 text-center">
+            <div class="btn-group">
+                <button class="btn btn-lg btn-outline-primary dir-back">
+                    <i class="bi bi-arrow-left dir-back"></i>
+                </button>
+                <button class="btn btn-lg btn-outline-danger dir-stop">
+                    <i class="bi bi-stop-fill dir-stop"></i>
+                </button>
+                <button class="btn btn-lg btn-outline-primary dir-fwd">
+                    <i class="bi bi-arrow-right dir-fwd"></i>
+                </button>
+            </div>
         </div>
-    </span>
-</div><!--/row-->
-<% if (this.powersliderstyle == "Slider") { %>
-<div class="row-fluid">
-<!--    <span class="span5"><hr></span> -->
+    </div>
 
-    <span class="span12">
-    <p style="text-align:center;">Power</p>
-        <div style="margin-left:auto; margin-right:auto; width:40px;">
-        <div class="power progress vertical bottom" style="min-height:300px; margin-bottom: 20px;">
-            <div class="bar" data-percentage="0"></div>
-        </div>
-        </div>
-    </span>
-
-<!--    <span class="span5"><hr></span> -->
-</div>
-<% } else { %>
-<div class="row-fluid">
-    <div class="span12" >
-        <br><div style="margin-left:auto; margin-right:auto; max-width:180px; min-height:210px">
-                <div style="position:absolute; "><!-- otherwise we get artifacts on small screens -->
-                    <p><input type="text" value="0" class="dial power2" data-width="180" data-min="0" data-max="100"  data-thickness=".2" data-displayPrevious=true></p>
+    <% if (this.powersliderstyle == "Slider") { %>
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 text-center">
+            <p class="mb-3">Power</p>
+            <div class="d-flex justify-content-center">
+                <div style="width: 40px;">
+                    <div class="progress vertical power" style="min-height: 300px;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="height: 0%" id="powerbar"></div>
+                    </div>
                 </div>
             </div>
+        </div>
     </div>
-</div>
-        <% } %>
-            
-<div class="row-fluid">
-    <span class="span2">
-        <button class="btn comlink" disabled style="border-radius:20px;"><i class="icon-asterisk"></i></button>
-    </span>
-    <span class="span2">
-        <button href="#PIDmodal" role="button" class="btn" data-toggle="modal" style="border-radius:20px;">PID</button>
-    </span>
-    <span class="span8"></span>
-</div>
+    <% } else { %>
+    <div class="row justify-content-center mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-center" style="min-height: 210px">
+                <div>
+                    <input type="text" value="0" class="dial power" data-width="180" data-min="0" data-max="100" data-thickness=".2" data-displayPrevious=true>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
 
-<!-- PID Adjustment modal (hidden by default) -->
-<div id="PIDmodal" class="modal hide fase" data-backdrop="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel">PID Adjustment</h3>
-  </div>
-  <div class="modal-body">
-      <div class="horizontal">
-          <span>P:&nbsp;</span><input id="kp" name="pidkp" type="text" />
-          <span>&nbsp;&nbsp;I:&nbsp;</span><input id="ki" name="pidki" type="text"/>
-          <span>&nbsp;&nbsp;D:&nbsp;</span><input id="kd" name="pidkd" type="text"/>
-          <span>&nbsp;&nbsp;Sample time:&nbsp;</span><input id="sample" name="pidsample" type="text"/>
-      </div>
-</div>
-  <div class="modal-footer">
-<!--    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button> -->
-    <button class="btn pidquery" aria-hidden="true" data-toggle="tooltip" data-original-title="Get current settings from controller">Query</button>
-    <button class="btn pidreset" aria-hidden="true">Reset</button>
-    <button class="btn pidsave btn-primary">Save changes</button>
-  </div>
-</div>
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary rounded-circle comlink" disabled>
+                <i class="bi bi-asterisk"></i>
+            </button>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-outline-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#PIDmodal">
+                PID
+            </button>
+        </div>
+    </div>
+
+    <!-- PID Adjustment modal -->
+    <div class="modal fade" id="PIDmodal" data-bs-backdrop="false" tabindex="-1" aria-labelledby="PIDmodalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="PIDmodalLabel">PID Adjustment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="kp" class="form-label">P:</label>
+                            <input id="kp" name="pidkp" type="number" class="form-control" step="0.1" min="0" max="10" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ki" class="form-label">I:</label>
+                            <input id="ki" name="pidki" type="number" class="form-control" step="0.1" min="0" max="10" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="kd" class="form-label">D:</label>
+                            <input id="kd" name="pidkd" type="number" class="form-control" step="0.1" min="0" max="10" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="sample" class="form-label">Sample time (ms):</label>
+                            <input id="sample" name="pidsample" type="number" class="form-control" step="10" min="60" max="600" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary pidquery" type="button" data-bs-toggle="tooltip" title="Get current settings from controller">
+                        <i class="bi bi-arrow-repeat"></i> Query
+                    </button>
+                    <button class="btn btn-outline-secondary pidreset" type="button">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button class="btn btn-primary pidsave" type="button">
+                        <i class="bi bi-save"></i> Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

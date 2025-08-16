@@ -1,51 +1,53 @@
 <!-- Details about an accessory, used inside a layout detailed view -->
 <!-- There can be several of those inside layout detailed views, so we
       add the controller's Id to any element that needs to have a unique id -->
-<!-- Thumbnail -->
-<li class="span3">
-    <div class="thumbnail" style="margin: 4px;">
-        <h5  style="text-align: center;">
-            <%=name%>
-        </h5>
-        <a href="#accModal-<%=_id%>" role="button" class="btn btn-small" data-toggle="modal"><i class="icon-edit"></i></a>
-        <a href="#" role="button" class="btn btn-small accessory-delete"><i class="icon-remove-sign"></i></a>
+    <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-3"><%=name%></h5>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#accModal-<%=_id%>">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm accessory-delete">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
 <!-- Modal -->
-<div id="accModal-<%=_id%>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel-<%=_id%>">Accessory details</h3>
-  </div>
-    <form class="form-horizontal">
-        <div class="modal-body">
-            <!-- <p>
-                Accessory ID: <%=_id %>
-            </p>
-            -->
-            <div class="control-group">
-                <label class="control-label" for="name">Name</label>
-                    <div class="controls">
-                        <input type="text" name="name" placeholder="Accessory name" value="<%=name  %>">
-                    </div>
+<div class="modal fade" id="accModal-<%=_id%>" tabindex="-1" aria-labelledby="myModalLabel-<%=_id%>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel-<%=_id%>">Accessory details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="type">Type</label>
-                    <div class="controls">
-                        <select name="type" >
-                            <option value="Turnout" <%= type == "Turnout" ? 'selected="selected"'  : '' %>>Turnout</option>
-                            <option value="Uncoupler" <%= type == "Uncoupler" ? 'selected="selected"'  : '' %>>Uncoupler</option>
-                            <option value="Isolating" <%= type == "Isolating" ? 'selected="selected"'  : '' %>>Isolating</option>
+            <form>
+                <div class="modal-body">
+                    <!-- <p class="text-muted small">
+                        Accessory ID: <%=_id %>
+                    </p> -->
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Name</label>
+                        <input type="text" class="form-control" name="name" placeholder="Accessory name" value="<%=name %>">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="type">Type</label>
+                        <select class="form-select" name="type">
+                            <option value="Turnout" <%= type == "Turnout" ? 'selected="selected"' : '' %>>Turnout</option>
+                            <option value="Uncoupler" <%= type == "Uncoupler" ? 'selected="selected"' : '' %>>Uncoupler</option>
+                            <option value="Isolating" <%= type == "Isolating" ? 'selected="selected"' : '' %>>Isolating</option>
                         </select>
                     </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="controllerAddress">Address</label>
-                    <div class="controls">
-                        <select id="tn_ids" name="controllerAddress" disabled="true">
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="controllerAddress">Address</label>
+                        <select class="form-select" id="tn_ids" name="controllerAddress" disabled>
                             <option>Controller not connected</option>
                         </select>
                     </div>
-            </div>
             <!--
             <div class="control-group">
                 <label class="control-label">Symbol</label>
@@ -54,36 +56,33 @@
                 </div>
             </div>
             -->
-            <div class="control-group">
-                <label class="control-label">Uncoupler port:</label>
-                 <div class="controls">
-                     <div class="btn-group" data-toggle="buttons-radio">
-                                <button type="button" id="portA" disabled="true" class="btn btn-small portButton">Port A</button>
-                                <button type="button" id="portB" disabled="true" class="btn btn-small portButton">Port B</button>
-                         </div>
-                </div>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Uncoupler port</label>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="portA" disabled="true" class="btn btn-sm btn-outline-secondary portButton">Port A</button>
+                            <button type="button" id="portB" disabled="true" class="btn btn-sm btn-outline-secondary portButton">Port B</button>
+                        </div>
+                    </div>
 
-            <div class="control-group">
-                <label class="control-label">Reverse ports:</label>
-                 <div class="controls">
-                     <input type="checkbox" name="reverse" <%=reverse ? "checked":'' %>>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="reverse-<%=_id%>" name="reverse" <%=reverse ? "checked":'' %>>
+                            <label class="form-check-label" for="reverse-<%=_id%>">Reverse ports</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Test ports</label>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-danger btn-sm buttonA" disabled="true" type="button">A</button>
+                            <button class="btn btn-success btn-sm buttonB" disabled="true" type="button">B</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label">Test:</label>
-                <div>&nbsp;
-                    <button class="btn btn-danger buttonA" disabled="true"  type="button">A</button>
-                    <button class="btn btn-success buttonB" disabled="true" type="button">B</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> 
+                    <button class="btn btn-primary accessory-save">Save</button>
                 </div>
-            </div>
-            
-        </div><!-- modal-body -->
-  <div class="modal-footer">
-    <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button> 
-    <button class="btn btn-primary accessory-save">Save</button>
-  </div>
     </form>
 </div>
 

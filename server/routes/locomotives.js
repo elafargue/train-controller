@@ -5,9 +5,7 @@
  * - Name
  * - Reference
  * - Picture
- * - Notes
- * - Running time
- * - List of Response curves at various times (PWM vs BEMF)
+ * - Not * - List of Response curves at various times (PWM vs BEMF)
  *
  * (c) 2013 Edouard Lafargue, edouard@lafargue.name
  *
@@ -34,7 +32,6 @@ var dbs = require('../db'),
 exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving loco: ' + id);
-    var id = req.params.id;
     dbs.locomotives.get(id, function (err, item) {
         res.send(item);
     });
@@ -114,23 +111,21 @@ exports.deleteLoco = function (req, res) {
 
 exports.uploadPic = function (req, res) {
     var id = req.params.id;
-    if (req.files) {
-        console.log('Will save picture ' + JSON.stringify(req.files) + ' for Loco ID: ' + id);
-        // We use an 'upload' dir on our server to ensure we're on the same FS
-        var filenameExt = req.files.file.path.split(".").pop();
-        console.log('Debug: ' + './public/pics/locos/' + id + '.' + filenameExt);
-        // Note: we reference the target filename relative to the path where the server
-        // was started:
-        fs.rename(req.files.file.path, './public/pics/locos/' + id + '.' + filenameExt,
-            function (err) {
-                if (err) {
-                    fs.unlinkSync(req.files.file.path);
-                    console.log('Error saving file, deleted temporary upload');
-                } else
-                    res.send(true);
-            }
-        );
-    } else {
-        res.send(false);
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
     }
+
+    const uploadedFile = req.files.file;
+    console.log('Will save picture ' + uploadedFile.name + ' for Loco ID: ' + id);
+    
+    const filenameExt = uploadedFile.name.split('.').pop();
+    const targetPath = './public/pics/locos/' + id + '.' + filenameExt;
+
+    uploadedFile.mv(targetPath, function(err) {
+        if (err) {
+            console.log('Error saving file:', err);
+            return res.status(500).send(err);
+        }
+        res.send(true);
+    });
 }

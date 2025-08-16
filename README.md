@@ -33,3 +33,14 @@ Thanks to Christophe Coenraets for his great tutorials which were used as a base
 License:
 
 All original code is placed under GPLv3 unless stated otherwise, see relevant license files where appropriate.
+
+# Run as a service
+
+Use `resources/train-controller.service` and copy it to `/etc/systemd/system`, then:
+
+```
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable train-controller
+Created symlink /etc/systemd/system/multi-user.target.wants/train-controller.service → /etc/systemd/system/train-controller.service.
+$ sudo service train-controller start
+```

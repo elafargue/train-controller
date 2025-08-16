@@ -109,22 +109,21 @@ exports.deleteLayout = function (req, res) {
 
 exports.uploadPic = function (req, res) {
     var id = req.params.id;
-    if (req.files) {
-        console.log('Will save picture ' + JSON.stringify(req.files) + ' for Layout ID: ' + id);
-        // We use an 'upload' dir on our server to ensure we're on the same FS
-        var filenameExt = req.files.file.path.split(".").pop();
-        // Note: we reference the target filename relative to the path where the server
-        // was started:
-        fs.rename(req.files.file.path, './public/pics/layouts/' + id + '.' + filenameExt,
-            function (err) {
-                if (err) {
-                    fs.unlinkSync(req.files.file.path);
-                    console.log('Error saving file, deleted temporary upload');
-                } else
-                    res.send(true);
-            }
-        );
-    } else {
-        res.send(false);
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
     }
+
+    const uploadedFile = req.files.file;
+    console.log('Will save picture ' + uploadedFile.name + ' for Layout ID: ' + id);
+    
+    const filenameExt = uploadedFile.name.split('.').pop();
+    const targetPath = './public/pics/layouts/' + id + '.' + filenameExt;
+
+    uploadedFile.mv(targetPath, function(err) {
+        if (err) {
+            console.log('Error saving file:', err);
+            return res.status(500).send(err);
+        }
+        res.send(true);
+    });
 }

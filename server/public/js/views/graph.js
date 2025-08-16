@@ -1,6 +1,7 @@
 window.GraphView = Backbone.View.extend({
 
-    initialize:function () {
+    initialize:function (options) {
+        this.options = options || {};
         this.totalPoints = 300;
         this.bemf = []; // Table of all BEMF readings
         this.rate = [];
@@ -98,7 +99,7 @@ window.GraphView = Backbone.View.extend({
 
 		}
 
-		$('.locochart', this.el).bind("plothover",  function (event, pos, item) {
+		$('.locochart', this.el).on("plothover",  function (event, pos, item) {
 			latestPosition = pos;
 			if (!updateLegendTimeout) {
 				updateLegendTimeout = setTimeout(updateLegend, 50);
