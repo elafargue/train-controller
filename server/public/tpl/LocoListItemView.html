@@ -2,8 +2,8 @@
     <div class="card-body text-center">
         <img src="<%= picture === null ? 'pics/locos/generic.jpg' : 'pics/locos/' + picture %>" 
              class="img-fluid mb-3" alt="<%= name %>" style="max-height: 200px; object-fit: contain;">
-        <h5 class="card-title mb-2"><%= name %></h5>
-        <p class="card-text text-muted mb-3"><%= reference %></p>
+        <h5 class="card-title mb-2" title="<%= name %>"><%= name %></h5>
+        <p class="card-text text-muted mb-3" title="<%= reference %>"><%= reference %></p>
         <a class="btn btn-outline-primary btn-sm edit" href="#locos/<%= _id %>" onclick="event.stopPropagation();">
             <i class="bi bi-pencil"></i> Edit
         </a>

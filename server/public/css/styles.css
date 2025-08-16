@@ -49,6 +49,24 @@ h5 {
     margin-bottom: 4px;
 }
 
+/* Truncate long titles in card list views */
+.card.select .card-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+/* Also truncate reference text in list view cards */
+.card.select .card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
 
 .thumbnail-larger {
     min-width: 260px;

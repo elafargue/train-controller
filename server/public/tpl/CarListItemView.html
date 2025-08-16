@@ -3,8 +3,8 @@
         <a href="#cars/<%= _id %>" class="text-decoration-none text-reset">
             <img src="<%= picture === null ? 'pics/cars/generic.png' : 'pics/cars/' + picture %>" 
              class="card-img-top" alt="<%= name %>" style="max-width: 250px; margin: auto;">
-            <h5 class="card-title mb-2"><%= name %></h5>
-            <p class="card-text text-muted"><%= reference %></p>
+            <h5 class="card-title mb-2" title="<%= name %>"><%= name %></h5>
+            <p class="card-text text-muted" title="<%= reference %>"><%= reference %></p>
         </a>
     </div>
 </div>
