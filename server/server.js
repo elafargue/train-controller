@@ -140,6 +140,7 @@ app.get('/locos', locos.findAll);
 app.get('/locos/:id', locos.findById);
 app.post('/locos', locos.addLoco);
 app.post('/locos/:id/picture', locos.uploadPic);
+app.post('/locos/:id/manual', locos.uploadManual);
 app.put('/locos/:id', locos.updateLoco);
 app.delete('/locos/:id', locos.deleteLoco);
 

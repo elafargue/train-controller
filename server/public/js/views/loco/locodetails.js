@@ -85,10 +85,15 @@ window.LocoView = Backbone.View.extend({
         "dragover #picture"     : "dragOver",
         "dragleave #picture"     : "dragLeave",
         "drop #picture" : "dropHandler",
+        "dragover #manual-section"     : "dragOverManual",
+        "dragleave #manual-section"     : "dragLeaveManual",
+        "drop #manual-section" : "dropHandlerManual",
         "click .addentry" : "addEntry",
         "click .deleteentry": "deleteEntry",
         "click .change-picture" : "triggerFileInput",
         "change #picture-input" : "handleFileSelect",
+        "click .change-manual" : "triggerManualInput",
+        "change #manual-input" : "handleManualSelect",
     },
 
     change: function (event) {
@@ -135,17 +140,51 @@ window.LocoView = Backbone.View.extend({
             // this is not really a big deal, this is a short operation.
             this.model.save(null, {async:false});
         }
-       // Upload picture file if a new file was dropped in the drop area
+        
+        var uploads = [];
+        
+        // Upload picture file if a new file was dropped in the drop area
         if (this.pictureFile) {
-            utils.uploadFile('locos/' + this.model.id + '/picture', this.pictureFile,
-                function () {
-                    // The server will rename the file to the ID of the loco,
-                    // so let's set the picture accordingly and keep the
-                    // filename extension:
-                    self.model.set("picture", self.model.id + '.' + self.pictureFile.name.split(".").pop());
-                    self.saveLoco();
-                }
-            );
+            uploads.push(new Promise((resolve, reject) => {
+                utils.uploadFile('locos/' + self.model.id + '/picture', self.pictureFile,
+                    function () {
+                        // The server will rename the file to the ID of the loco,
+                        // so let's set the picture accordingly and keep the
+                        // filename extension:
+                        self.model.set("picture", self.model.id + '.' + self.pictureFile.name.split(".").pop());
+                        resolve();
+                    },
+                    function(error) {
+                        reject(error);
+                    }
+                );
+            }));
+        }
+        
+        // Upload manual file if a new file was selected
+        if (this.manualFile) {
+            uploads.push(new Promise((resolve, reject) => {
+                utils.uploadFile('locos/' + self.model.id + '/manual', self.manualFile,
+                    function () {
+                        // The server will rename the file to the ID of the loco
+                        self.model.set("documentation", self.model.id + '.pdf');
+                        resolve();
+                    },
+                    function(error) {
+                        reject(error);
+                    }
+                );
+            }));
+        }
+        
+        // Wait for all uploads to complete, then save the model
+        if (uploads.length > 0) {
+            Promise.all(uploads).then(() => {
+                self.saveLoco();
+            }).catch((error) => {
+                console.error('Upload error:', error);
+                utils.showAlert('Error', 'An error occurred while uploading files', 'alert-error');
+            });
         } else {
             this.saveLoco();
         }
@@ -255,6 +294,67 @@ window.LocoView = Backbone.View.extend({
             };
             reader.readAsDataURL(file);
         }
+    },
+
+    dragOverManual: function(event) {
+        console.log('Manual getting dragged in here');
+        $("#manual-section").addClass("hover");
+        return false;
+    },
+    
+    dragLeaveManual: function(event) {
+        $("#manual-section").removeClass("hover");
+        return false;
+    },
+
+    dropHandlerManual: function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        $("#manual-section").removeClass("hover");
+        console.log('Manual file dropped');
+        var e = event.originalEvent;
+        e.dataTransfer.dropEffect = 'copy';
+        var file = e.dataTransfer.files[0];
+        
+        // Check if it's a PDF file
+        if (file && file.type === 'application/pdf') {
+            this.manualFile = file;
+            this.updateManualDisplay();
+        } else {
+            utils.showAlert('Error', 'Please select a PDF file for the manual.', 'alert-error');
+        }
+    },
+
+    triggerManualInput: function(event) {
+        event.preventDefault();
+        $('#manual-input').click();
+    },
+
+    handleManualSelect: function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (file.type === 'application/pdf') {
+                this.manualFile = file;
+                this.updateManualDisplay();
+            } else {
+                utils.showAlert('Error', 'Please select a PDF file for the manual.', 'alert-error');
+            }
+        }
+    },
+
+    updateManualDisplay: function() {
+        // Update the UI to show that a manual is ready to be uploaded
+        var manualSection = $('#manual-section');
+        manualSection.html(`
+            <div class="mb-3">
+                <i class="bi bi-file-earmark-pdf" style="font-size: 3rem; color: #dc3545;"></i>
+                <p class="mt-2 mb-2 text-success">
+                    <strong>Ready to upload:</strong><br>
+                    <small>${this.manualFile.name}</small>
+                </p>
+            </div>
+        `);
+        $('.change-manual').html('<i class="bi bi-upload"></i> Change Manual');
     },
 
 });

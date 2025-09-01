@@ -129,3 +129,29 @@ exports.uploadPic = function (req, res) {
         res.send(true);
     });
 }
+
+exports.uploadManual = function (req, res) {
+    var id = req.params.id;
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    const uploadedFile = req.files.file;
+    console.log('Will save manual ' + uploadedFile.name + ' for Loco ID: ' + id);
+    
+    // Only allow PDF files
+    const filenameExt = uploadedFile.name.split('.').pop().toLowerCase();
+    if (filenameExt !== 'pdf') {
+        return res.status(400).send('Only PDF files are allowed for manuals.');
+    }
+    
+    const targetPath = './public/manuals/locos/' + id + '.pdf';
+
+    uploadedFile.mv(targetPath, function(err) {
+        if (err) {
+            console.log('Error saving manual:', err);
+            return res.status(500).send(err);
+        }
+        res.send(true);
+    });
+}
