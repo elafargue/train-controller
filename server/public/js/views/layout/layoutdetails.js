@@ -159,6 +159,12 @@ window.LayoutView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
+        
+        // Show loading message
+        var hasUploads = this.pictureFile;
+        var uploadMessage = hasUploads ? 'Uploading picture and saving layout...' : 'Please wait...';
+        utils.showLoadingAlert(uploadMessage);
+        
         // Upload picture file if a new file was dropped in the drop area
         if (this.pictureFile) {
             utils.uploadFile("layouts/" + this.model.id + '/picture', this.pictureFile,

@@ -47,6 +47,12 @@ window.CarView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
+        
+        // Show loading message
+        var hasUploads = this.pictureFile;
+        var uploadMessage = hasUploads ? 'Uploading picture and saving car...' : 'Please wait...';
+        utils.showLoadingAlert(uploadMessage);
+        
         // In case we have a new car, we must save it first
         // so that the car ID is populated, since the ID is used by the
         // picture save below:
@@ -77,6 +83,8 @@ window.CarView = Backbone.View.extend({
         console.log('Saving car...');
         this.model.save(null, {
             success: function (model) {
+                // Clear any file references since they're now uploaded
+                self.pictureFile = null;
                 self.render();
                 app.navigate('cars/' + model.id, false);
                 utils.showAlert('Success!', 'Car saved successfully', 'alert-success');
@@ -142,6 +150,7 @@ window.CarView = Backbone.View.extend({
             $('#picture').attr('src', reader.result);
         };
         reader.readAsDataURL(this.pictureFile);
+        this.updatePictureDisplay();
     },
 
     triggerFileInput: function(event) {
@@ -158,7 +167,23 @@ window.CarView = Backbone.View.extend({
                 $('#picture').attr('src', reader.result);
             };
             reader.readAsDataURL(file);
+            this.updatePictureDisplay();
         }
+    },
+
+    updatePictureDisplay: function() {
+        // Update the UI to show that a picture is ready to be uploaded
+        // Find the help text and replace it with upload status
+        var helpText = $('#picture').closest('.card-body').find('p.text-muted');
+        if (helpText.length > 0) {
+            helpText.removeClass('text-muted').addClass('text-success').html(`
+                <strong>Ready to upload:</strong> ${this.pictureFile.name}<br>
+                <small class="text-muted">Click Save to upload the new picture.</small>
+            `);
+        }
+        
+        // Update button text
+        $('.change-picture').html('<i class="bi bi-image"></i> Change Image');
     },
 
 });

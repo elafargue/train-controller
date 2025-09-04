@@ -132,6 +132,12 @@ window.LocoView = Backbone.View.extend({
             utils.displayValidationErrors(check.messages);
             return false;
         }
+        
+        // Show loading message
+        var hasUploads = this.pictureFile || this.manualFile;
+        var uploadMessage = hasUploads ? 'Uploading files and saving locomotive...' : 'Please wait...';
+        utils.showLoadingAlert(uploadMessage);
+        
         // In case we have a new loco, we must save it first
         // so that the loco ID is populated, since the ID is used by the
         // picture save below:
@@ -196,6 +202,9 @@ window.LocoView = Backbone.View.extend({
         console.log('Saving loco...');
         this.model.save(null, {
             success: function (model) {
+                // Clear any file references since they're now uploaded
+                self.pictureFile = null;
+                self.manualFile = null;
                 self.render();
                 app.navigate('locos/' + model.id, false);
                 utils.showAlert('Success!', 'Locomotive saved successfully', 'alert-success');
@@ -262,6 +271,7 @@ window.LocoView = Backbone.View.extend({
             $('#picture').attr('src', reader.result);
         };
         reader.readAsDataURL(this.pictureFile);
+        this.updatePictureDisplay();
     },
     
     addEntry: function(event) {
@@ -293,6 +303,7 @@ window.LocoView = Backbone.View.extend({
                 $('#picture').attr('src', reader.result);
             };
             reader.readAsDataURL(file);
+            this.updatePictureDisplay();
         }
     },
 
@@ -355,6 +366,21 @@ window.LocoView = Backbone.View.extend({
             </div>
         `);
         $('.change-manual').html('<i class="bi bi-upload"></i> Change Manual');
+    },
+
+    updatePictureDisplay: function() {
+        // Update the UI to show that a picture is ready to be uploaded
+        // Find the help text and replace it with upload status
+        var helpText = $('#picture').closest('.card-body').find('p.text-muted');
+        if (helpText.length > 0) {
+            helpText.removeClass('text-muted').addClass('text-success').html(`
+                <strong>Ready to upload:</strong> ${this.pictureFile.name}<br>
+                <small class="text-muted">Click Save to upload the new picture.</small>
+            `);
+        }
+        
+        // Update button text
+        $('.change-picture').html('<i class="bi bi-image"></i> Change Image');
     },
 
 });

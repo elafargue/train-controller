@@ -56,6 +56,18 @@ window.utils = {
         $('.alert').removeClass('d-none').show();
     },
 
+    showLoadingAlert: function(message) {
+        $('.alert').removeClass("alert-danger alert-warning alert-success alert-info d-none");
+        $('.alert').addClass('alert-info');
+        $('.alert').html(`
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                <strong>Saving...</strong> ${message}
+            </div>
+        `);
+        $('.alert').removeClass('d-none').show();
+    },
+
     hideAlert: function() {
         $('.alert').addClass('d-none').hide();
     },
